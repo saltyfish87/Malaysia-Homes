@@ -1,0 +1,6 @@
+{
+  "name": "MalaysianHomes",
+  "description": "Premium nationwide Malaysian property portal and project directory. Clean minimalism, fast search, multi-currency, and live comparison dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
