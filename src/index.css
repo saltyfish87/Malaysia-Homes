@@ -1,12 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --color-brand-gold: #C5A059;
-  --color-brand-gold-hover: #b38f4d;
+  --color-brand-gold: #B38E46;
+  --color-brand-gold-hover: #9E7A35;
+  --color-brand-teal: #0f766e;
+  --color-brand-teal-glow: #14b8a6;
 }
 
 /* Base style resets and customizations */
@@ -18,11 +20,37 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+  @apply bg-[#FDFBF7] text-stone-900 transition-colors duration-500 overflow-x-hidden;
 }
 
-.dark body {
-  @apply bg-slate-950 text-slate-100;
+/* Glassmorphism custom classes suited for beige luxury */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 115, 85, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(139, 115, 85, 0.08), 0 1px 3px rgba(139, 115, 85, 0.03);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px -5px rgba(139, 115, 85, 0.05);
+}
+
+.glass-input {
+  background: #ffffff;
+  border: 1px solid rgba(139, 115, 85, 0.2);
+  color: #1c1917;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 15px rgba(15, 118, 110, 0.15);
+  outline: none;
 }
 
 /* Custom scrollbars for the premium horizontal comparisons */
@@ -36,11 +64,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full dark:bg-slate-800;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400 dark:bg-slate-700;
+  @apply bg-stone-300 rounded-full hover:bg-stone-400;
 }
 
 /* Hide arrow on number inputs where calculators live */
@@ -72,10 +96,84 @@ input[type=number] {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+
+/* Beautiful custom animations for Awwwards experience */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
 }
-.animate-fade-in {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(10px) rotate(-1deg); }
 }
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 10s ease-in-out infinite;
+}
+
+/* Gradients and glowing designs modified for premium cream background */
+.bg-teal-gradient {
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.08) 0%, rgba(20, 184, 166, 0.08) 50%, rgba(253, 251, 247, 0) 100%);
+}
+
+.bg-hero-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.12) 0%, rgba(15, 118, 110, 0.05) 40%, rgba(253, 251, 247, 0) 75%);
+}
+
+.bg-button-teal {
+  background: linear-gradient(90deg, #0f766e 0%, #0d9488 100%);
+}
+
+.bg-button-teal:hover {
+  background: linear-gradient(90deg, #115e59 0%, #0f766e 100%);
+  box-shadow: 0 10px 25px -5px rgba(15, 118, 110, 0.3);
+}
+
+/* Custom horizontal grid or glowing borders */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.25) 0%, rgba(139, 115, 85, 0.15) 50%, rgba(20, 184, 166, 0.25) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Sunset flash premium cinematic animation */
+@keyframes sunset-flash {
+  0%, 100% {
+    background: radial-gradient(circle at 50% 20%, rgba(251, 191, 36, 0.24) 0%, rgba(239, 68, 68, 0.12) 40%, transparent 80%);
+    filter: saturate(1.1) contrast(1.02);
+  }
+  50% {
+    background: radial-gradient(circle at 50% 20%, rgba(139, 92, 246, 0.32) 0%, rgba(219, 39, 119, 0.18) 50%, transparent 85%);
+    filter: saturate(1.35) contrast(1.08);
+  }
+}
+
+.animate-sunset-flash {
+  animation: sunset-flash 16s ease-in-out infinite;
+}
+
+

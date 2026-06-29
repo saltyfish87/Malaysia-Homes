@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Project, CurrencyCode } from '../types';
-import { MapPin, Search, Navigation2, ExternalLink, X, RefreshCw, ZoomIn, ZoomOut, ChevronLeft, Maximize2, Minimize2 } from 'lucide-react';
+import { MapPin, Search, ExternalLink, X, RefreshCw, ZoomIn, ZoomOut, Maximize2, Minimize2 } from 'lucide-react';
 import { TRANSLATIONS } from '../utils/translations';
 import { CURRENCIES } from '../constants/mockData';
 import ProjectCard from './ProjectCard';
@@ -20,6 +20,8 @@ interface InteractiveMapProps {
   comparedProjects: Project[];
   onToggleFavorite: (pId: string) => void;
   onToggleCompare: (proj: Project) => void;
+  syncStatus?: 'syncing' | 'synced' | 'fallback' | 'error';
+  onRefreshData?: () => void | Promise<void>;
 }
 
 // Beautiful open-access map layers that render perfectly on Leaflet with ZERO tokens required
@@ -59,11 +61,11 @@ export default function InteractiveMap({
   currency,
   lang,
   onViewProject,
-  setTab,
   favorites,
   comparedProjects,
   onToggleFavorite,
-  onToggleCompare
+  onToggleCompare,
+  onRefreshData
 }: InteractiveMapProps) {
   const t = TRANSLATIONS[lang];
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +79,31 @@ export default function InteractiveMap({
   const [selectedArea, setSelectedArea] = useState<string>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(true);
+
+  // Live Sheet Sync state mechanisms
+  const [isAutoSyncing] = useState<boolean>(true);
+  const [, setLastSyncTime] = useState<string>(() => new Date().toLocaleTimeString());
+
+  // Refs for tracking active filters to prevent background sheet refresh from shifting map center
+  const lastFiltersRef = useRef({ searchText: '', selectedArea: 'All' });
+  const isInitialFitRef = useRef(true);
+
+  // Auto-Sync polling interval hook for real-time drop-pin updates
+  useEffect(() => {
+    if (!isAutoSyncing || !onRefreshData) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        console.log('Polled Google spreadsheet for live coordinate tracking...');
+        await onRefreshData();
+        setLastSyncTime(new Date().toLocaleTimeString());
+      } catch (err) {
+        console.warn('Live map polling failed:', err);
+      }
+    }, 10000); // 10 seconds polling interval matches custom requirement scale nicely
+
+    return () => clearInterval(intervalId);
+  }, [isAutoSyncing, onRefreshData]);
 
   // Lock body scroll when in full screen map mode
   useEffect(() => {
@@ -174,13 +201,13 @@ export default function InteractiveMap({
     }
 
     try {
-      // 1. Setup the Map container
+      // Setup the Map container
       const mapInstance = win.L.map(mapContainerRef.current, {
         zoomControl: false, // We use custom styled controls to blend with our UI
         attributionControl: false
       }).setView(defaultCenter, defaultZoom);
 
-      // 2. Load Active Premium tile layer source
+      // Load Active Premium tile layer source
       const activeTheme = MAP_THEMES.find(t => t.id === mapTheme) || MAP_THEMES[0];
       win.L.tileLayer(activeTheme.url, {
         maxZoom: 19,
@@ -191,6 +218,7 @@ export default function InteractiveMap({
       mapRef.current = mapInstance;
 
       // Render pins and fix container sizes
+      isInitialFitRef.current = true;
       renderPropertiesOnMap();
 
       // Trigger map layout updates after mount to prevent clipping
@@ -279,9 +307,8 @@ export default function InteractiveMap({
           <div class="flex items-center justify-center w-9 h-9 rounded-full shadow-lg border-2 transition-all ${
             isSelected 
               ? 'bg-[#C5A059] border-white text-white' 
-              : 'bg-white border-[#C5A059] text-[#C5A059] hover:bg-slate-50 hover:scale-110 dark:bg-slate-900'
+              : 'bg-white border-[#C5A059] text-[#C5A059] hover:bg-stone-50 hover:scale-110'
           }">
-            <!-- Luxury Building / Pin landmark icon -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
               <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 3.547 6.047.25 10.75.25c4.703 0 8.5 3.297 8.5 8 0 3.924-2.438 7.11-4.766 9.27-2.073 1.928-3.79 2.87-4.244 3.17a1.52 1.52 0 01-1.6.02h.005zm0-12.66a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z" />
             </svg>
@@ -291,13 +318,13 @@ export default function InteractiveMap({
           <div class="w-2.5 h-2.5 rotate-45 -mt-1.5 border-r-2 border-b-2 shadow-xs transition-colors ${
             isSelected 
               ? 'bg-[#C5A059] border-white' 
-              : 'bg-white border-[#C5A059] dark:bg-slate-900'
+              : 'bg-white border-[#C5A059]'
           }"></div>
           
           <!-- Tooltip on hover specifying exact building name and formatted starting price -->
-          <div class="absolute bottom-11 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-950/95 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl pointer-events-none whitespace-nowrap shadow-2xl z-50 transition-all border border-slate-800">
+          <div class="absolute bottom-11 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-stone-900 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl pointer-events-none whitespace-nowrap shadow-2xl z-50 transition-all border border-[#ebdcb9]">
             <p class="font-black text-center text-[#C5A059]">${proj.name}</p>
-            <p class="text-[9.5px] text-slate-300 text-center mt-0.5 font-mono">From ${formatProjectPrice(proj.priceMin)} • ${proj.area}</p>
+            <p class="text-[9.5px] text-stone-300 text-center mt-0.5 font-mono">From ${formatProjectPrice(proj.priceMin)} • ${proj.area}</p>
           </div>
         </div>
       `;
@@ -320,13 +347,16 @@ export default function InteractiveMap({
       markersRef.current.push(marker);
     });
 
-    // Auto fit visual boundaries if multi assets exist
-    if (filteredMapProjects.length > 1 && mapRef.current) {
+    // Auto fit visual boundaries if multi assets exist AND the filters changed or it's the initial fit
+    const filtersChanged = lastFiltersRef.current.searchText !== searchText || lastFiltersRef.current.selectedArea !== selectedArea;
+    if (filteredMapProjects.length > 1 && mapRef.current && (isInitialFitRef.current || filtersChanged)) {
       const latLngs = filteredMapProjects.map(p => [p.lat!, p.lng!]);
       mapRef.current.fitBounds(latLngs, {
         padding: [40, 40],
         maxZoom: 15
       });
+      isInitialFitRef.current = false;
+      lastFiltersRef.current = { searchText, selectedArea };
     }
   };
 
@@ -360,41 +390,41 @@ export default function InteractiveMap({
 
   return (
     <div 
-      className={`flex flex-col lg:flex-row overflow-hidden bg-white dark:bg-slate-900 animate-fade-in ${
+      className={`flex flex-col lg:flex-row overflow-hidden bg-[#FDFBF7] animate-fade-in ${
         isFullscreen 
           ? 'fixed inset-0 z-[9999] w-screen h-screen rounded-none border-none shadow-none' 
-          : 'h-[calc(100vh-6rem)] rounded-3xl border border-slate-200/80 shadow-xl'
+          : 'h-[calc(100vh-6rem)] rounded-3xl border border-stone-200 shadow-xl'
       }`} 
       id="map-page-wrapper"
     >
       
       {/* LEFT DRAWER PANEL: SEARCH, LISTING MATRIX & DETAIL BANNER */}
-      <div className="w-full lg:w-[410px] flex flex-col border-r border-slate-100 dark:border-slate-850 shrink-0 h-1/2 lg:h-full bg-slate-50/50 dark:bg-slate-950/20 transition-all duration-300" id="map-sidebar-control">
+      <div className="w-full lg:w-[410px] flex flex-col border-r border-stone-200 shrink-0 h-1/2 lg:h-full bg-[#FAF8F5] transition-all duration-300" id="map-sidebar-control">
         
         {/* Search header & selection */}
-        <div className="p-4 border-b border-slate-100 dark:border-slate-850 bg-white dark:bg-slate-900/40">
-          <div className="flex items-center justify-between mb-3">
+        <div className="p-4 border-b border-stone-200 bg-white">
+          <div className="flex items-center justify-between mb-3 text-left">
             <div>
-              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <MapPin className="h-4.5 w-4.5 text-brand-gold" />
+              <h2 className="text-sm font-black text-stone-900 uppercase tracking-wider flex items-center gap-2">
+                <MapPin className="h-4.5 w-4.5 text-teal-705" />
                 {lang === 'en' ? 'Interactive Smart Map' : '互动房源全景定位'}
               </h2>
-              <p className="text-[10px] text-slate-400 font-bold tracking-tight uppercase">
+              <p className="text-[10px] text-stone-500 font-bold tracking-tight uppercase mt-0.5">
                 {lang === 'en' ? `Showing ${filteredMapProjects.length} properties with coordinates` : `已完成定位 ${filteredMapProjects.length} 处特选豪宅地标`}
               </p>
             </div>
           </div>
 
           {/* Theme selections */}
-          <div className="flex items-center gap-1.5 mb-3 bg-slate-150/60 dark:bg-slate-950 p-1 rounded-xl">
+          <div className="flex items-center gap-1.5 mb-3 bg-stone-100 p-1 rounded-xl">
             {MAP_THEMES.map((theme) => (
               <button
                 key={theme.id}
                 onClick={() => setMapTheme(theme.id)}
-                className={`flex-1 rounded-lg py-1 px-1.5 text-[10px] font-extrabold text-center tracking-tight transition-all uppercase ${
+                className={`flex-1 rounded-lg py-1 px-1.5 text-[10px] font-black text-center tracking-tight transition-all uppercase cursor-pointer ${
                   mapTheme === theme.id
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
+                    : 'text-stone-400 hover:text-stone-600'
                 }`}
               >
                 {lang === 'en' ? theme.name : theme.nameZh}
@@ -404,13 +434,13 @@ export default function InteractiveMap({
 
           {/* Quick Search bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-3 top-3 h-3.5 w-3.5 text-stone-400" />
             <input
               type="text"
               placeholder={lang === 'en' ? 'Quick filter on map...' : '在地图房源中快速检索...'}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-201 dark:bg-slate-950 dark:border-slate-800 rounded-xl py-2 pl-9 pr-4 text-xs font-semibold focus:outline-hidden text-slate-700 dark:text-slate-350"
+              className="w-full bg-stone-50 border border-stone-200 rounded-xl py-2 pl-9 pr-4 text-xs font-bold text-stone-900 focus:outline-hidden focus:border-teal-705"
             />
           </div>
 
@@ -418,10 +448,10 @@ export default function InteractiveMap({
           <div className="flex gap-1 overflow-x-auto no-scrollbar pt-2.5">
             <button
               onClick={() => setSelectedArea('All')}
-              className={`rounded-full px-3 py-1 text-[10px] font-extrabold tracking-wider uppercase whitespace-nowrap transition-all border ${
+              className={`rounded-full px-3 py-1 text-[10px] font-black tracking-wider uppercase whitespace-nowrap transition-all border cursor-pointer ${
                 selectedArea === 'All'
-                  ? 'bg-slate-900 border-slate-900 text-white dark:bg-white dark:border-white dark:text-slate-900'
-                  : 'bg-white dark:bg-slate-900 border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400'
+                  ? 'bg-stone-900 border-stone-900 text-white'
+                  : 'bg-white border-stone-200 text-stone-550 hover:bg-stone-50'
               }`}
             >
               {lang === 'en' ? 'All Areas' : '全部地段'}
@@ -430,10 +460,10 @@ export default function InteractiveMap({
               <button
                 key={area}
                 onClick={() => setSelectedArea(area)}
-                className={`rounded-full px-3 py-1 text-[10px] font-extrabold tracking-wider uppercase whitespace-nowrap transition-all border ${
+                className={`rounded-full px-3 py-1 text-[10px] font-black tracking-wider uppercase whitespace-nowrap transition-all border cursor-pointer ${
                   selectedArea === area
-                    ? 'bg-slate-900 border-slate-900 text-white dark:bg-white dark:border-white dark:text-slate-900'
-                    : 'bg-white dark:bg-slate-900 border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400'
+                    ? 'bg-stone-900 border-stone-900 text-white'
+                    : 'bg-white border-stone-200 text-stone-550 hover:bg-stone-50'
                 }`}
               >
                 {area}
@@ -441,16 +471,16 @@ export default function InteractiveMap({
             ))}
           </div>
         </div>
-
+ 
         {/* Scrollable list of properties on current viewport list */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-          <div className="space-y-3.5">
-            <span className="block text-[10.5px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase mb-2">
+          <div className="space-y-3.5 text-left">
+            <span className="block text-[10.5px] font-black tracking-widest text-stone-400 uppercase mb-2">
               {lang === 'en' ? 'Select property to map-focus' : '点击房源快速地图对焦'}
             </span>
             {filteredMapProjects.length === 0 ? (
-              <div className="p-8 text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl">
-                <p className="text-xs font-extrabold text-slate-400 uppercase">
+              <div className="p-8 text-center bg-white border border-[#ebdcb9] rounded-2xl">
+                <p className="text-xs font-black text-stone-400 uppercase">
                   {lang === 'en' ? 'No matching layout found' : '未检索到符合条件的对焦项目'}
                 </p>
               </div>
@@ -462,16 +492,15 @@ export default function InteractiveMap({
                   <div
                     key={proj.id}
                     id={`sidebar-project-card-${proj.id}`}
-                    className="relative bg-white dark:bg-slate-900 border-2 border-[#C5A059] rounded-2xl overflow-hidden shadow-xl transition-all duration-300"
+                    className="relative bg-white border-2 border-teal-700 rounded-2xl overflow-hidden shadow-xl transition-all duration-300"
                   >
-                    {/* Close / contract button located perfectly beside the heart circle in top-right */}
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedProject(null);
                       }}
-                      className="absolute top-3.5 right-[54px] z-50 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-md backdrop-blur-xs hover:scale-110 active:scale-95 dark:bg-slate-900/95 dark:text-slate-350 dark:hover:text-white border border-slate-150 dark:border-slate-800"
+                      className="absolute top-3.5 right-[54px] z-50 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-white text-stone-800 shadow-md hover:scale-110 active:scale-95 border border-stone-200 cursor-pointer font-bold"
                       title="Minimize Card"
                     >
                       <X className="h-4.5 w-4.5" />
@@ -493,24 +522,23 @@ export default function InteractiveMap({
                     key={proj.id}
                     id={`sidebar-project-card-${proj.id}`}
                     onClick={() => focusOnProject(proj)}
-                    className="transition-all duration-300 rounded-2xl border cursor-pointer border-slate-100 hover:border-[#C5A059]/30 hover:bg-slate-50/50 dark:border-slate-850 dark:hover:bg-slate-850/45 bg-white dark:bg-slate-900 shadow-2xs hover:-translate-y-0.5"
+                    className="transition-all duration-300 rounded-2xl border cursor-pointer border-stone-150 hover:border-[#ebdcb9] hover:bg-[#FAF8F5] bg-white shadow-2xs hover:-translate-y-0.5"
                   >
-                    {/* SLEEK UNIFORM COMPACT CARD FOR INTUITIVE SIDEBAR NAVIGATION */}
                     <div className="flex items-center gap-3 p-3">
                       <img 
-                        src={proj.image} 
+                        src={proj.image || undefined} 
                         alt={proj.name} 
                         className="w-14 h-14 rounded-xl object-cover shrink-0" 
                         referrerPolicy="no-referrer" 
                       />
                       <div className="flex-1 min-w-0">
                         <span className="text-[8.5px] font-black tracking-widest text-[#C5A059] uppercase block truncate">{proj.developer}</span>
-                        <h4 className="text-xs.1 font-bold text-slate-800 dark:text-white truncate leading-snug">{proj.name}</h4>
-                        <p className="text-[10px] text-slate-400 font-semibold truncate mt-0.5">{proj.area}, {proj.state}</p>
+                        <h4 className="text-xs font-black text-stone-900 truncate leading-snug">{proj.name}</h4>
+                        <p className="text-[10px] text-stone-500 font-bold truncate mt-0.5">{proj.area}, {proj.state}</p>
                       </div>
                       <div className="text-right shrink-0 flex flex-col items-end">
-                        <span className="text-xs font-black font-mono text-slate-850 dark:text-slate-200">{formatProjectPrice(proj.priceMin)}</span>
-                        <span className="text-[9px] text-[#C5A059] font-black mt-1">★ {proj.investmentScore}/10</span>
+                        <span className="text-xs font-black font-mono text-stone-900">{formatProjectPrice(proj.priceMin)}</span>
+                        <span className="text-[9px] text-teal-750 font-black mt-1">★ {proj.investmentScore}/10</span>
                       </div>
                     </div>
                   </div>
@@ -522,13 +550,13 @@ export default function InteractiveMap({
       </div>
 
       {/* RIGHT SIDEBAR: HIGH PERFORMANCE MAP CANVAS */}
-      <div className="flex-1 relative h-1/2 lg:h-full bg-slate-100 dark:bg-slate-950" id="map-canvas-container">
+      <div className="flex-1 relative h-1/2 lg:h-full bg-stone-50" id="map-canvas-container">
         {/* FULLSCREEN VIEW TOGGLE BUTTON */}
         {isLoaded && !loadError && (
           <button
             type="button"
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="absolute top-6 left-6 z-[1000] flex h-10 w-10 items-center justify-center rounded-2xl bg-white/95 backdrop-blur-md border border-slate-205 hover:bg-white text-slate-800 dark:bg-slate-900/95 dark:border-slate-800 dark:text-white dark:hover:bg-slate-800 shadow-lg transition-transform active:scale-95 cursor-pointer"
+            className="absolute top-6 left-6 z-[1000] flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-stone-800 border border-stone-200 shadow-lg hover:bg-stone-50 transition-transform active:scale-95 cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
             id="map-fullscreen-toggle-btn"
           >
@@ -537,44 +565,98 @@ export default function InteractiveMap({
         )}
 
         {!isLoaded ? (
-          /* EMBEDDED MAP LOADER SKELETON DISPLAY */
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-slate-500 gap-3">
-            <RefreshCw className="h-10 w-10 text-[#C5A059] animate-spin" />
-            <p className="text-xs font-black tracking-widest uppercase text-slate-400">Loading Map Layers...</p>
-            <p className="text-[10px] text-slate-400/80 max-w-xs">{lang === 'en' ? 'Fetching coordinates and injecting style layers.' : '正在校验位置点标记信息，精细化加载互动底图。'}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-stone-500 gap-3">
+            <RefreshCw className="h-10 w-10 text-teal-705 animate-spin" />
+            <p className="text-xs font-black tracking-widest uppercase text-stone-400">Loading Map Layers...</p>
+            <p className="text-[10px] text-stone-500 font-bold max-w-xs">{lang === 'en' ? 'Fetching coordinates and injecting style layers.' : '正在校验位置点标记信息，精细化加载互动底图。'}</p>
           </div>
         ) : loadError ? (
-          /* EXCEPTION HANDLING */
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-slate-500 gap-3">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-stone-500 gap-3">
             <MapPin className="h-10 w-10 text-red-500 animate-pulse" />
             <p className="text-xs font-black tracking-widest uppercase text-red-500">Map Rendering Failed</p>
-            <p className="text-[10px] text-slate-400 max-w-sm">{loadError}</p>
+            <p className="text-[10px] text-stone-500 max-w-sm">{loadError}</p>
           </div>
         ) : (
-          /* RENDER CANVAS container style */
           <div ref={mapContainerRef} className="w-full h-full z-0" id="leaflet-render-canvas" />
         )}
 
-        {/* CUSTOM SPEED OVERLAY MAP ZOOM BUTTONS */}
+        {/* MOBILE FLOATING COMPACT CARD OVERLAY */}
+        {selectedProject && (
+          <div className="absolute bottom-22 left-4 right-4 sm:left-6 sm:right-6 lg:hidden z-[1001] animate-in slide-in-from-bottom-5 duration-300">
+            <div className="relative bg-white rounded-3xl shadow-2xl border border-stone-150 p-3 flex gap-3.5 items-center">
+              
+              <button
+                type="button"
+                onClick={() => setSelectedProject(null)}
+                className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-stone-900 text-white shadow-lg hover:scale-110 active:scale-95 border border-white/20 z-10 cursor-pointer"
+                title={lang === 'en' ? 'Close Overlay' : '关闭浮窗'}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+
+              <div 
+                onClick={() => onViewProject(selectedProject)}
+                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"
+              >
+                <img 
+                  src={selectedProject.image || undefined} 
+                  alt={selectedProject.name} 
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+
+              <div className="flex-1 min-w-0 pr-1 cursor-pointer text-left" onClick={() => onViewProject(selectedProject)}>
+                <span className="text-[8.5px] font-black tracking-widest text-[#C5A059] uppercase block truncate mb-0.5">
+                  {selectedProject.developer}
+                </span>
+                <h4 className="text-xs sm:text-xs.1 font-black text-stone-900 truncate leading-snug">
+                  {selectedProject.name}
+                </h4>
+                <p className="text-[10px] text-stone-500 font-bold truncate leading-tight">
+                  {selectedProject.area}, {selectedProject.state}
+                </p>
+                <div className="flex items-baseline justify-between mt-1 gap-2">
+                  <span className="text-xs font-black font-mono text-stone-900">
+                    From {formatProjectPrice(selectedProject.priceMin)}
+                  </span>
+                  <span className="text-[9.5px] text-teal-755 font-black flex items-center gap-0.5">
+                    ★ {selectedProject.investmentScore}/10
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onViewProject(selectedProject)}
+                className="flex items-center justify-center h-9 w-9 rounded-2xl bg-stone-900 text-white hover:scale-105 active:scale-95 shrink-0 shadow-xs cursor-pointer"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </button>
+
+            </div>
+          </div>
+        )}
+
+        {/* CUSTOM ZOOM BUTTONS */}
         {isLoaded && !loadError && (
           <div className="absolute bottom-6 right-6 flex flex-col gap-1.5 z-[1000]">
             <button
               onClick={() => handleZoom('in')}
-              className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-205 hover:bg-white text-slate-800 dark:bg-slate-900/95 dark:border-slate-800 dark:text-white flex items-center justify-center shadow-lg transition-transform active:scale-95"
+              className="w-10 h-10 rounded-2xl bg-white border border-stone-200 hover:bg-stone-50 text-stone-800 flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
               title="Zoom In"
             >
               <ZoomIn className="h-5 w-5" />
             </button>
             <button
               onClick={() => handleZoom('out')}
-              className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-205 hover:bg-white text-slate-800 dark:bg-slate-900/95 dark:border-slate-800 dark:text-white flex items-center justify-center shadow-lg transition-transform active:scale-95"
+              className="w-10 h-10 rounded-2xl bg-white border border-stone-200 hover:bg-stone-50 text-stone-800 flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
               title="Zoom Out"
             >
               <ZoomOut className="h-5 w-5" />
             </button>
           </div>
         )}
-
 
       </div>
     </div>

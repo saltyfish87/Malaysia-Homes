@@ -35,12 +35,29 @@ export interface Project {
   nearbyAmenities: string[];
   image: string;
   gallery: string[];
+  locationImage?: string;
+  layoutPlans?: { name: string; imageUrl: string; description: string; sizeSqft?: number }[];
   featured: boolean;
   vrTourLink: string;
   droneViewLink: string;
   description: string;
   lat?: number;
   lng?: number;
+  allDriveFiles?: { name: string; url: string }[];
+  // Additional enriched attributes from Full Details tab
+  location?: string;
+  landTitle?: string;
+  noOfBlocks?: number;
+  pricePsf?: string;
+  carparkMin?: number;
+  carparkMax?: number;
+  estCompletionDate?: string;
+  launchDate?: string;
+  readyToMove?: boolean;
+  underConstruction?: boolean;
+  newLaunch?: boolean;
+  dataUpdated?: string;
+  notes?: string;
 }
 
 export interface Lead {
@@ -58,12 +75,17 @@ export interface Lead {
 export interface Article {
   id: string;
   title: string;
+  titleZh?: string;
   category: 'Investment' | 'Own Stay' | 'Loan Tips' | 'Foreign Buyer' | 'Market Trends';
   image: string;
   readTime: string;
+  readTimeZh?: string;
   date: string;
+  dateZh?: string;
   summary: string;
+  summaryZh?: string;
   content: string;
+  contentZh?: string;
 }
 
 export interface FAQItem {

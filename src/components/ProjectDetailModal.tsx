@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import { 
-  X, MapPin, Calculator, TrendingUp, Building, Clock, Map, Phone, Briefcase, 
+  X, MapPin, Calculator, Building, Clock, Map, Phone, Briefcase, 
   Layers, Hammer, ChevronLeft, ChevronRight, HelpCircle, ArrowRight, Share2, Download, Check, Sparkles, Building2, Eye, Compass
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -31,7 +32,7 @@ interface LayoutPlan {
 }
 
 export default function ProjectDetailModal({
-  project,
+  project: originalProject,
   currency,
   lang,
   onClose,
@@ -39,14 +40,253 @@ export default function ProjectDetailModal({
 }: ProjectDetailModalProps) {
   const t = TRANSLATIONS[lang];
   
+  const [zeniaType, setZeniaType] = useState<'condovilla' | 'parkhome'>('condovilla');
+
+  const project = useMemo(() => {
+    if (originalProject.id !== 'zenia-damansara') {
+      return originalProject;
+    }
+
+    if (zeniaType === 'condovilla') {
+      let zeniaImage = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80';
+      let zeniaGallery = [
+        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=80'
+      ];
+      let zeniaLayouts: { name: string; imageUrl: string; description: string; sizeSqft?: number }[] = [
+        {
+          name: "Type C Condovilla",
+          imageUrl: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
+          description: lang === 'en' 
+            ? "Modern low-rise 2,053 sqft design with 4 bedrooms, dual frontage views, and premium biophilic natural materials throughout."
+            : "极致通透 1,691 平方英尺三卧格局别墅，优雅空间流线、大型露台以及专属静修和阅读角。",
+          sizeSqft: 2053
+        },
+        {
+          name: "Type D Condovilla",
+          imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80",
+          description: lang === 'en'
+            ? "Cozy 1,691 sqft 3 bedroom villa layout presenting generous layout flow, wide balconies, and designated study alcove."
+            : "温馨 1,691 平方英尺三卧格局别墅，优雅空间流线、大型露台以及专属静修和阅读角。",
+          sizeSqft: 1691
+        }
+      ];
+
+      if (originalProject.allDriveFiles && originalProject.allDriveFiles.length > 0) {
+        // Filter layout plans specifically for Condovilla (must contain condo/villa and not contain park/home/terrace/landed)
+        const condoLayoutFiles = originalProject.allDriveFiles.filter(f => {
+          const ln = f.name.toLowerCase();
+          const isLayout = ln.includes('layout') || ln.includes('plan') || ln.includes('type') || ln.includes('floor');
+          if (!isLayout) return false;
+          
+          const isPark = ln.includes('park') || ln.includes('home') || ln.includes('terrace') || ln.includes('landed') || ln.includes('type-a') || ln.includes('type-b') || ln.includes('type a') || ln.includes('type b');
+          if (isPark) return false;
+
+          const isCondo = ln.includes('condo') || ln.includes('villa') || ln.includes('type-c') || ln.includes('type-d') || ln.includes('type c') || ln.includes('type d') || /\b(c|d)\b/.test(ln);
+          return isCondo;
+        });
+
+        // Define default or custom image
+        const condoPhotos = originalProject.allDriveFiles.filter(f => {
+          const ln = f.name.toLowerCase();
+          const isPhoto = !ln.includes('layout') && !ln.includes('plan') && !ln.includes('type') && !ln.includes('floor') && !ln.includes('map') && !ln.includes('location');
+          return isPhoto && (ln.includes('condo') || ln.includes('villa'));
+        });
+
+        const dynamicGallery = condoPhotos.map(f => f.url);
+        if (dynamicGallery.length > 0) {
+          zeniaGallery = dynamicGallery;
+          zeniaImage = dynamicGallery[0];
+        } else {
+          const allPhotos = originalProject.allDriveFiles.filter(f => {
+            const ln = f.name.toLowerCase();
+            return !ln.includes('layout') && !ln.includes('plan') && !ln.includes('type') && !ln.includes('floor') && !ln.includes('map') && !ln.includes('location') && !ln.includes('parkhome') && !ln.includes('park-home') && !ln.includes('landed');
+          }).map(f => f.url);
+          if (allPhotos.length > 0) {
+            zeniaGallery = allPhotos;
+            zeniaImage = allPhotos[0];
+          }
+        }
+
+        if (condoLayoutFiles.length > 0) {
+          zeniaLayouts = condoLayoutFiles.map(lf => {
+            const cleanName = lf.name.replace(/\.[^/.]+$/, '').trim();
+            return {
+              name: cleanName,
+              imageUrl: lf.url,
+              description: lang === 'en'
+                ? `Precision luxury workspace layout plans for ${cleanName}. Designed to capture beautiful cross-ventilation and natural biophilic elements.`
+                : `${cleanName} 豪华空间规划，完美对流采光，融合自然生态建材。`
+            };
+          });
+        }
+      }
+
+      return {
+        ...originalProject,
+        name: lang === 'en' ? "Zenia Damansara (Condovilla)" : "Zenia Damansara (公寓别墅)",
+        propertyType: lang === 'en' ? "Condovilla" : "公寓别墅",
+        priceMin: 1300000,
+        priceMax: 1950000,
+        builtUpMin: 1691,
+        builtUpMax: 2053,
+        bedrooms: 4,
+        bathrooms: 4,
+        carPark: 2,
+        totalUnits: 643,
+        totalFloors: 15,
+        investmentScore: 8.6,
+        ownStayScore: 8.9,
+        rentalYield: 4.8,
+        airbnbFriendly: false,
+        keyHighlights: lang === 'en' ? [
+          "Premium Condovilla with low-density development layout",
+          "Resort-style recreational facilities and private sky garden",
+          "Direct connection to central lake park pedestrian walkways",
+          "Generous double car park bays included side-by-side",
+          "Modern open-concept wet and dry kitchen layouts"
+        ] : [
+          "高端低密度公寓住宅，品质生活之选",
+          "度假村式休闲设施及私家空中花园",
+          "直通中央湖滨公园行人步道",
+          "赠送双车位（并排设计）",
+          "精致现代双厨房（开敞式干湿分离）"
+        ],
+        description: lang === 'en'
+          ? "Zenia Damansara (Condovilla) offers standard-setting low-density villa-style residences nestled within the master township of Kwasa Damansara. Designed for modern dwellers who appreciate quiet sophistication, these low-density residential villas offer expansive cross-ventilated spaces, direct views of landscaped waterways, secure private elevators, and world-class leisure facilities."
+          : "Zenia Damansara (公寓别墅) 位于 Kwasa Damansara 核心地带，由传奇城镇开发商 Park City 精雕细琢。低密度、宽敞的双向通风布局，辅以私人电梯、世界级会所、以及一览无遗的精致水景，为您带来安逸、奢华的度假体验。",
+        image: zeniaImage,
+        gallery: zeniaGallery,
+        layoutPlans: zeniaLayouts
+      };
+    } else {
+      let zeniaImage = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+      let zeniaGallery = [
+        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80'
+      ];
+      let zeniaLayouts: { name: string; imageUrl: string; description: string; sizeSqft?: number }[] = [
+        {
+          name: "Type A Parkhome",
+          imageUrl: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+          description: lang === 'en'
+            ? "Spacious multi-level 4,247 sqft floor plan with 5 bedrooms, signature open courtyard, and wide backyard carpark porch."
+            : "气派多层 4,247 平方英尺格局，配有五间卧室、招牌露天内院及阔落车位门廊。",
+          sizeSqft: 4247
+        },
+        {
+          name: "Type B Parkhome",
+          imageUrl: "https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=800&q=80",
+          description: lang === 'en'
+            ? "Elegant 3,095 sqft park-facing intermediate layout offering premium cross-ventilation, floor-to-ceiling glass, and dual master suites."
+            : "雅致 3,095 平方英尺面林中位宅邸，绝佳对流采光，全景落地玻璃，尊贵双主卧套房。",
+          sizeSqft: 3095
+        }
+      ];
+
+      if (originalProject.allDriveFiles && originalProject.allDriveFiles.length > 0) {
+        // Filter layout plans specifically for Parkhome (must contain park/home/terrace/landed and not contain condo/villa)
+        const parkLayoutFiles = originalProject.allDriveFiles.filter(f => {
+          const ln = f.name.toLowerCase();
+          const isLayout = ln.includes('layout') || ln.includes('plan') || ln.includes('type') || ln.includes('floor');
+          if (!isLayout) return false;
+          
+          const isCondo = ln.includes('condo') || ln.includes('villa') || ln.includes('type-c') || ln.includes('type-d') || ln.includes('type c') || ln.includes('type d') || /\b(c|d)\b/.test(ln);
+          if (isCondo) return false;
+
+          const isPark = ln.includes('park') || ln.includes('home') || ln.includes('terrace') || ln.includes('landed') || ln.includes('type-a') || ln.includes('type-b') || ln.includes('type a') || ln.includes('type b') || /\b(a|b)\b/.test(ln);
+          return isPark;
+        });
+
+        const parkPhotos = originalProject.allDriveFiles.filter(f => {
+          const ln = f.name.toLowerCase();
+          const isPhoto = !ln.includes('layout') && !ln.includes('plan') && !ln.includes('type') && !ln.includes('floor') && !ln.includes('map') && !ln.includes('location');
+          return isPhoto && (ln.includes('park') || ln.includes('home') || ln.includes('terrace') || ln.includes('landed'));
+        });
+
+        const dynamicGallery = parkPhotos.map(f => f.url);
+        if (dynamicGallery.length > 0) {
+          zeniaGallery = dynamicGallery;
+          zeniaImage = dynamicGallery[0];
+        } else {
+          const allPhotos = originalProject.allDriveFiles.filter(f => {
+            const ln = f.name.toLowerCase();
+            return !ln.includes('layout') && !ln.includes('plan') && !ln.includes('type') && !ln.includes('floor') && !ln.includes('map') && !ln.includes('location') && !ln.includes('condo') && !ln.includes('villa');
+          }).map(f => f.url);
+          if (allPhotos.length > 0) {
+            zeniaGallery = allPhotos;
+            zeniaImage = allPhotos[0];
+          }
+        }
+
+        if (parkLayoutFiles.length > 0) {
+          zeniaLayouts = parkLayoutFiles.map(lf => {
+            const cleanName = lf.name.replace(/\.[^/.]+$/, '').trim();
+            return {
+              name: cleanName,
+              imageUrl: lf.url,
+              description: lang === 'en'
+                ? `Precision luxury workspace layout plans for ${cleanName}. Designed to capture beautiful cross-ventilation and natural biophilic elements.`
+                : `${cleanName} 豪华空间规划，完美对流采光，融合自然生态建材。`
+            };
+          });
+        }
+      }
+
+      return {
+        ...originalProject,
+        name: lang === 'en' ? "Zenia Damansara (Parkhome)" : "Zenia Damansara (庭院美墅)",
+        propertyType: lang === 'en' ? "Parkhome" : "庭院美墅",
+        priceMin: 2500000,
+        priceMax: 3800000,
+        builtUpMin: 3095,
+        builtUpMax: 4247,
+        bedrooms: 5,
+        bathrooms: 5,
+        carPark: 3,
+        totalUnits: 442,
+        totalFloors: 3,
+        investmentScore: 8.8,
+        ownStayScore: 9.2,
+        rentalYield: 4.5,
+        airbnbFriendly: false,
+        keyHighlights: lang === 'en' ? [
+          "Signature luxury Parkhome layout with direct private linear park walkways",
+          "Generous double-volume ceilings in main family halls",
+          "Elite 24/7 auxiliary-guarded secure township enclave",
+          "Developed by legendary township specialist developer Park City",
+          "Expansive 5 bedroom layout perfectly aligned for multigenerational stay"
+        ] : [
+          "招牌奢华庭院住宅，直通私家线性公园步道",
+          "家庭起居主堂挑空双倍挑高大堂",
+          "顶尖 24/7 辅警全天候巡逻安全围合社区",
+          "知名城镇造景大师 Park City 代表之作",
+          "阔绰五卧规划，多代同堂理想置业首选"
+        ],
+        description: lang === 'en'
+          ? "Zenia Damansara (Parkhome) represents the pinnacle of multi-generational residential design. Designed by legendary township builder Park City, these premium terrace-style parkhomes feature dual frontage garden alignments, high-ceiling visual spaces, an integrated linear pedestrian boardwalk, and exclusive custom clubhouse priority access."
+          : "Zenia Damansara (庭院美墅) 专为多代同堂大家庭定制，尽显尊贵世家风范。经典双面花园、超高吊顶、无缝贯通的线性景观步道以及专属的高级会所优先使用权，为您重新定义庭院品质生活。",
+        image: zeniaImage,
+        gallery: zeniaGallery,
+        layoutPlans: zeniaLayouts
+      };
+    }
+  }, [originalProject, zeniaType, lang]);
+
   // Active Section Navigation Tab State (within the landing page)
   const [activeSection, setActiveSection] = useState<'overview' | 'location' | 'layouts' | 'gallery' | 'calculator'>('overview');
+
 
   // Interactive Gallery Slider Index State
   const [activeImgIdx, setActiveImgIdx] = useState<number>(0);
 
   // Layout switcher state
   const [selectedLayoutIdx, setSelectedLayoutIdx] = useState<number>(0);
+
+  // Lightbox view state for image popups
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
   // Mortgage Calculator States
   const [downpaymentPct, setDownpaymentPct] = useState<number>(10); // in percent
@@ -65,6 +305,16 @@ export default function ProjectDetailModal({
 
   // Mapped Interactive Layout Plans for this developer showcase
   const LAYOUT_PLANS: LayoutPlan[] = useMemo(() => {
+    if (project.layoutPlans && project.layoutPlans.length > 0) {
+      return project.layoutPlans.map(lp => ({
+        name: lp.name,
+        sizeSqft: lp.sizeSqft || project.builtUpMin,
+        bedrooms: project.bedrooms || 3,
+        bathrooms: project.bathrooms || 2,
+        imageUrl: lp.imageUrl,
+        description: lp.description
+      }));
+    }
     return [
       {
         name: lang === 'en' ? 'Type Alpha - Boutique Standard' : '户型甲-极简雅致标房',
@@ -215,7 +465,14 @@ export default function ProjectDetailModal({
   const currentActiveImg = project.gallery?.[activeImgIdx] || project.image;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white dark:bg-slate-950 overflow-y-auto flex flex-col w-full h-full text-slate-800 dark:text-slate-100" id={`project-developer-landing-${project.id}`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -30 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 z-50 bg-white dark:bg-slate-950 overflow-y-auto flex flex-col w-full h-full text-slate-800 dark:text-slate-100" 
+      id={`project-developer-landing-${project.id}`}
+    >
       
       {/* 1. STICKY TOP NAVIGATION BAR FOR LANDING PAGE */}
       <nav className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 px-4 py-3 sm:px-6 shadow-xs backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/95 flex justify-between items-center transition-colors">
@@ -241,7 +498,7 @@ export default function ProjectDetailModal({
             { id: 'location', label: lang === 'en' ? 'Location Map' : '区位配套' },
             { id: 'layouts', label: lang === 'en' ? 'Layout Plans' : '户型选择' },
             { id: 'gallery', label: lang === 'en' ? 'High-Def Gallery' : '臻美实景' },
-            { id: 'calculator', label: lang === 'en' ? 'Loan / Yield Calc' : '房贷及收益' }
+            { id: 'calculator', label: lang === 'en' ? 'Loan Calculator' : '房贷计算器' }
           ].map((sec) => (
             <button
               key={sec.id}
@@ -273,13 +530,13 @@ export default function ProjectDetailModal({
       </nav>
 
       {/* 2. HERO SPLASH HEADER BLOCK */}
-      <header className="relative w-full h-[55vh] bg-slate-900 text-white flex items-end">
-        <div className="absolute inset-0 overflow-hidden">
+      <header className="relative w-full h-[65vh] sm:h-[75vh] lg:h-[82vh] bg-slate-900 text-white flex items-end select-none">
+        <div className="absolute inset-0 overflow-hidden cursor-zoom-in" onClick={() => setLightboxImg(project.image || null)}>
           <img 
-            src={project.image} 
+            src={project.image || undefined} 
             alt={project.name} 
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover brightness-[0.55] transform scale-105 transition-transform duration-1000"
+            className="w-full h-full object-cover object-center brightness-[0.55] transform scale-105 transition-all duration-1000 hover:scale-110"
           />
         </div>
         <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -323,6 +580,56 @@ export default function ProjectDetailModal({
                 </h2>
               </div>
               
+              {originalProject.id === 'zenia-damansara' && (
+                <div className="rounded-2xl border border-[#C5A059]/45 bg-amber-55/10 p-4 sm:p-5 dark:border-[#C5A059]/30 dark:bg-[#C5A059]/5 mb-4 shadow-xs">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div className="text-left flex-1">
+                      <h3 className="text-xs font-extrabold uppercase tracking-widest text-[#C5A059] flex items-center gap-1.5">
+                        <Sparkles className="h-4.5 w-4.5 text-brand-gold shrink-0 animate-pulse" />
+                        <span>{lang === 'en' ? 'Explore Zenia Residences' : '请选择 Zenia Damansara 住宅类别'}</span>
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 font-semibold leading-relaxed">
+                        {lang === 'en' 
+                          ? 'This project presents both premium low-rise Condovillas and grand Parkhomes. Toggle below to dynamically update walkthrough details, floorplans, specs and pricing.' 
+                          : '本项目包含度假风低密公寓别墅与招牌庭院美墅。点击下方分类可动态载入相应详细介绍、户型面积和销售价格。'}
+                      </p>
+                    </div>
+                    
+                    {/* Toggle Selector Buttons */}
+                    <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner dark:bg-slate-900 dark:border-slate-800 shrink-0 select-none">
+                      <button
+                        onClick={() => {
+                          setZeniaType('condovilla');
+                          setActiveImgIdx(0);
+                        }}
+                        className={`flex items-center space-x-2 rounded-lg px-4 py-2.5 text-xs font-black tracking-wider transition-all uppercase cursor-pointer ${
+                          zeniaType === 'condovilla'
+                            ? 'bg-white text-slate-900 shadow-sm border-b border-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700'
+                            : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+                        }`}
+                      >
+                        <Building className="h-4 w-4 shrink-0" />
+                        <span>{lang === 'en' ? 'Condovilla' : '公寓别墅 (Condovilla)'}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setZeniaType('parkhome');
+                          setActiveImgIdx(0);
+                        }}
+                        className={`flex items-center space-x-2 rounded-lg px-4 py-2.5 text-xs font-black tracking-wider transition-all uppercase cursor-pointer ${
+                          zeniaType === 'parkhome'
+                            ? 'bg-white text-slate-900 shadow-sm border-b border-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700'
+                            : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+                        }`}
+                      >
+                        <Building2 className="h-4 w-4 shrink-0" />
+                        <span>{lang === 'en' ? 'Parkhome' : '庭院美墅 (Parkhome)'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                 {project.description}
               </p>
@@ -356,7 +663,11 @@ export default function ProjectDetailModal({
                 {project.carPark !== undefined && (
                   <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40">
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Car Park Allocation</span>
-                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5 font-mono">{project.carPark} Parking Bays</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5 font-mono">
+                      {project.carparkMin !== undefined && project.carparkMax !== undefined && project.carparkMin !== project.carparkMax
+                        ? `${project.carparkMin} - ${project.carparkMax} Bays`
+                        : `${project.carPark} Parking Bays`}
+                    </p>
                   </div>
                 )}
                 {project.totalUnits !== undefined && (
@@ -371,7 +682,51 @@ export default function ProjectDetailModal({
                     <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5 font-mono">{project.totalFloors} Stories</p>
                   </div>
                 )}
+                {project.landTitle && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Land Title</span>
+                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5">{project.landTitle}</p>
+                  </div>
+                )}
+                {project.noOfBlocks && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Building Blocks</span>
+                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5 font-mono">{project.noOfBlocks} Block{project.noOfBlocks > 1 ? 's' : ''}</p>
+                  </div>
+                )}
+                {project.pricePsf && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Price Per Sqft</span>
+                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5 font-mono">{project.pricePsf}</p>
+                  </div>
+                )}
+                {project.estCompletionDate && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Est. Handover</span>
+                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5">{project.estCompletionDate}</p>
+                  </div>
+                )}
+                {project.launchDate && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Launch Date</span>
+                    <p className="text-sm font-black text-slate-900 dark:text-gray-200 mt-1.5">{project.launchDate}</p>
+                  </div>
+                )}
+                {project.dataUpdated && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-850 dark:bg-slate-900/40 col-span-2 sm:col-span-3">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Sheet Sync Status</span>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1.5">Record verified and synchronized from official Master spreadsheet database on {project.dataUpdated}.</p>
+                  </div>
+                )}
               </div>
+
+              {/* Construction/General Notes Section */}
+              {project.notes && project.notes.toLowerCase() !== 'n/a' && (
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 mt-4 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900/30 dark:text-slate-300">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-1">Architecture & Development Notes</span>
+                  <p className="leading-relaxed whitespace-pre-line">{project.notes}</p>
+                </div>
+              )}
 
               {/* Premium Highlights Checklist */}
               <div className="pt-4 space-y-3">
@@ -418,17 +773,23 @@ export default function ProjectDetailModal({
                 </div>
 
                 {/* Highly Vetted Location Mockup Image */}
-                <div className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-850 h-64 shadow-md group">
+                <div 
+                  onClick={() => {
+                    const imgUrl = project.locationImage || "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80";
+                    setLightboxImg(imgUrl);
+                  }}
+                  className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-850 h-64 shadow-md group cursor-zoom-in select-none"
+                >
                   <div className="absolute inset-0 bg-slate-900/10 z-10 transition-colors group-hover:bg-slate-900/0" />
                   <img 
-                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80" 
+                    src={project.locationImage || "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80"} 
                     alt="District Area Map Grid" 
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
                   />
                   <div className="absolute bottom-3 left-3 z-20 rounded-md bg-slate-950/80 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-brand-gold backdrop-blur-md flex items-center space-x-1">
                     <Compass className="h-3 w-3 animate-spin-slow" />
-                    <span>{project.area} District Infrastructure</span>
+                    <span>{project.area} Area map (Click to Zoom)</span>
                   </div>
                 </div>
               </div>
@@ -450,18 +811,20 @@ export default function ProjectDetailModal({
               </p>
 
               {/* Layout plan switcher tabs */}
-              <div className="bg-slate-100 dark:bg-slate-900 p-0.5 rounded-xl flex">
+              <div className="bg-slate-100 dark:bg-slate-900 p-0.5 rounded-xl flex overflow-x-auto gap-0.5 scrollbar-none select-none">
                 {LAYOUT_PLANS.map((plan, i) => (
                   <button
                     key={i}
-                    onClick={() => setSelectedLayoutIdx(i)}
-                    className={`flex-1 text-center py-2.5 rounded-lg text-xs font-black uppercase transition-all truncate px-1 ${
+                    onClick={() => {
+                      setSelectedLayoutIdx(i);
+                    }}
+                    className={`min-w-[90px] flex-1 text-center py-2.5 rounded-lg text-xs font-black uppercase transition-all truncate px-2 ${
                       selectedLayoutIdx === i
                         ? 'bg-white text-slate-950 dark:bg-slate-800 dark:text-white shadow-xs'
-                        : 'text-slate-500'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
-                    {plan.name.split('-')[0]}
+                    {plan.name.split('-')[0].trim()}
                   </button>
                 ))}
               </div>
@@ -503,13 +866,16 @@ export default function ProjectDetailModal({
                   </div>
                 </div>
 
-                {/* Vetted Floor Layout Mockup Image */}
-                <div className="w-full md:w-64 h-64 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-white relative group">
+                 {/* Vetted Floor Layout Mockup Image */}
+                <div 
+                  onClick={() => setLightboxImg(LAYOUT_PLANS[selectedLayoutIdx]?.imageUrl || null)}
+                  className="w-full md:w-64 h-64 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-white relative group cursor-zoom-in select-none"
+                >
                   <div className="absolute top-2 right-2 z-10 rounded-full bg-slate-950/70 p-1.5 text-white backdrop-blur-md">
                     <Eye className="h-3.5 w-3.5" />
                   </div>
                   <img 
-                    src={LAYOUT_PLANS[selectedLayoutIdx].imageUrl} 
+                    src={LAYOUT_PLANS[selectedLayoutIdx]?.imageUrl || undefined} 
                     alt="Floor Layout Vector Masterplan" 
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
@@ -535,12 +901,13 @@ export default function ProjectDetailModal({
               </p>
 
               {/* Expanded interactive main photo gallery with slick grid */}
-              <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 h-80 sm:h-[45vh]">
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 h-96 sm:h-[55vh] select-none">
                 <img 
-                  src={currentActiveImg} 
+                  src={currentActiveImg || undefined} 
                   alt={project.name} 
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
+                  onClick={() => setLightboxImg(currentActiveImg || null)}
+                  className="w-full h-full object-cover cursor-zoom-in transition-all hover:brightness-105"
                 />
                 
                 {/* Carousel directional button icons */}
@@ -578,7 +945,7 @@ export default function ProjectDetailModal({
                         activeImgIdx === index ? 'border-brand-gold ring-2 ring-brand-gold/25' : 'border-slate-200 dark:border-slate-800'
                       }`}
                     >
-                      <img src={img} alt="Thumb" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      <img src={img || undefined} alt="Thumb" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
@@ -715,40 +1082,6 @@ export default function ProjectDetailModal({
                 </div>
               </div>
 
-              {/* RENTAL ROI METRICS */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/30 p-5 sm:p-6 dark:border-slate-850 dark:bg-slate-900/10">
-                <div className="flex items-center space-x-2 border-b border-slate-200 pb-3.5 mb-5 dark:border-slate-800">
-                  <TrendingUp className="h-5 w-5 text-brand-gold" />
-                  <h3 className="font-display text-sm font-black text-slate-900 dark:text-white uppercase">
-                    {t.roiEstimator}
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                  <div className="bg-white rounded-xl p-3 border border-slate-150 shadow-2xs dark:bg-slate-900 dark:border-slate-805">
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">{t.investmentAdvantage}</span>
-                    <p className="text-lg font-mono font-black text-emerald-500 mt-1">★ {project.investmentScore}/10</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-slate-150 shadow-2xs dark:bg-slate-900 dark:border-slate-805">
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">{t.ownStayComfort}</span>
-                    <p className="text-lg font-mono font-black text-indigo-500 mt-1">★ {project.ownStayScore}/10</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-slate-150 shadow-2xs dark:bg-slate-900 dark:border-slate-805">
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Gross Yield</span>
-                    <p className="text-lg font-mono font-black text-[#C5A059] mt-1">{project.rentalYield.toFixed(1)}%</p>
-                  </div>
-                  <div className="bg-white rounded-xl p-3 border border-slate-150 shadow-2xs dark:bg-slate-900 dark:border-slate-805">
-                    <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Net Yield (Adjusted)</span>
-                    <p className="text-lg font-mono font-black text-teal-500 mt-1">{rentalYieldMetrics.netYield.toFixed(1)}%</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-slate-150 dark:border-slate-800 text-xs font-semibold text-slate-400 flex flex-col sm:flex-row justify-between gap-2.5">
-                  <span>Gross Monthly Estimate: <strong className="text-slate-800 dark:text-white font-mono">{formatPrice(rentalYieldMetrics.grossMonthly, currency)}/mo</strong></span>
-                  <span>Maintenance Levy Subtraction: <strong className="text-slate-800 dark:text-white font-mono">{formatPrice(monthlyMaintenanceFee, currency)}/mo</strong></span>
-                  <span>Net Annual Adjusted Income: <strong className="text-slate-800 dark:text-white font-mono">{formatPrice(rentalYieldMetrics.netMonthly * 12, currency)}/yr</strong></span>
-                </div>
-              </div>
             </section>
 
           </div>
@@ -901,6 +1234,35 @@ export default function ProjectDetailModal({
         </div>
       </div>
 
-    </div>
+      {/* 4. LIGHTBOX / FIT-TO-VIEW IMAGE POPUP */}
+      {lightboxImg && (
+        <div 
+          onClick={() => setLightboxImg(null)}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950/90 p-4 backdrop-blur-xs select-none"
+        >
+          {/* Close button icon */}
+          <button 
+            onClick={() => setLightboxImg(null)}
+            className="absolute top-4 right-4 z-50 rounded-full bg-black/60 p-2.5 text-white/85 hover:text-white hover:bg-black/85 transition-all border border-white/10"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          
+          {/* Fit image content card */}
+          <div className="relative max-w-full max-h-full flex items-center justify-center p-2" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={lightboxImg || undefined} 
+              alt="Expanded high-definition developer brochure preview" 
+              referrerPolicy="no-referrer"
+              className="max-w-[95vw] max-h-[85vh] rounded-xl object-contain shadow-2xl border border-white/10"
+            />
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap bg-slate-950/40 px-3 py-1 rounded-full border border-white/5 backdrop-blur-md">
+              {lang === 'en' ? 'Click anywhere outside to exit modal' : '点击图片外任意区域即可返回'}
+            </div>
+          </div>
+        </div>
+      )}
+
+    </motion.div>
   );
 }

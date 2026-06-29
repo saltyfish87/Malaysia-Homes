@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Sparkles, CheckCircle, Flame, Building, ArrowRight, DollarSign, MapPin, User, Phone, Mail } from 'lucide-react';
+import { X, Sparkles, CheckCircle, Flame, ArrowRight, User, Phone, Mail, MapPin } from 'lucide-react';
 import { Project, Lead } from '../types';
 import { TRANSLATIONS } from '../utils/translations';
 
@@ -92,8 +92,8 @@ export default function QuickQuestionnaire({
     });
 
     // Fallback if no projects perfectly match so user isn't shown empty list
-    const fallbackMathes = filtered.length > 0 ? filtered : projects.slice(0, 3);
-    setMatchedProjects(fallbackMathes);
+    const fallbackMatches = filtered.length > 0 ? filtered : projects.slice(0, 3);
+    setMatchedProjects(fallbackMatches);
 
     // Save lead
     const newLead: Lead = {
@@ -115,13 +115,13 @@ export default function QuickQuestionnaire({
   const progressPercentage = (step / 4) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900 transition-colors animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 p-4 backdrop-blur-xs">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-[#ebdcb9] animate-in zoom-in duration-200">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+          className="absolute top-4 right-4 rounded-full p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-850 cursor-pointer"
           id="questionnaire-close-btn"
         >
           <X className="h-5 w-5" />
@@ -131,14 +131,14 @@ export default function QuickQuestionnaire({
           <div>
             {/* Title Block */}
             <div className="mb-6 flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-700 text-white">
                 <Sparkles className="h-4.5 w-4.5" />
               </div>
-              <div>
-                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+              <div className="text-left">
+                <h3 className="font-display text-lg font-black text-stone-900">
                   {t.smartQuestionnaire}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-stone-500 font-bold">
                   {t.questionnaireSub}
                 </p>
               </div>
@@ -146,13 +146,13 @@ export default function QuickQuestionnaire({
 
             {/* Progress Bar */}
             <div className="mb-6">
-              <div className="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+              <div className="flex justify-between text-[11px] font-bold text-stone-400 mb-1">
                 <span>Step {step} of 4</span>
                 <span>{Math.round(progressPercentage)}% Complete</span>
               </div>
-              <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+              <div className="h-1.5 w-full rounded-full bg-stone-100">
                 <div 
-                  className="h-full rounded-full bg-brand-gold transition-all duration-300"
+                  className="h-full rounded-full bg-teal-705 transition-all duration-300"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -163,8 +163,8 @@ export default function QuickQuestionnaire({
               
               {/* STEP 1: Budget limit selection */}
               {step === 1 && (
-                <div className="space-y-4">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div className="space-y-4 text-left">
+                  <label className="block text-sm font-black text-stone-900">
                     {t.budgetRangePref}
                   </label>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -178,15 +178,15 @@ export default function QuickQuestionnaire({
                         key={opt.value}
                         type="button"
                         onClick={() => setBudget(opt.value)}
-                        className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                        className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all cursor-pointer ${
                           budget === opt.value
-                            ? 'border-brand-gold bg-brand-gold/10 text-slate-950 ring-2 ring-brand-gold/20 dark:bg-brand-gold/15 dark:text-white'
-                            : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900'
+                            ? 'border-teal-700 bg-teal-500/10 text-stone-950 ring-2 ring-teal-700/20'
+                            : 'border-stone-200 bg-white hover:bg-stone-50'
                         }`}
                       >
-                        <span className="text-sm font-medium">{opt.label}</span>
+                        <span className="text-sm font-bold">{opt.label}</span>
                         <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center ${
-                          budget === opt.value ? 'border-brand-gold bg-brand-gold' : 'border-slate-300'
+                          budget === opt.value ? 'border-teal-700 bg-teal-750' : 'border-stone-300'
                         }`}>
                           {budget === opt.value && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                         </div>
@@ -198,8 +198,8 @@ export default function QuickQuestionnaire({
 
               {/* STEP 2: Main purpose */}
               {step === 2 && (
-                <div className="space-y-4">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div className="space-y-4 text-left">
+                  <label className="block text-sm font-black text-stone-900">
                     {t.purposeLabel}
                   </label>
                   <div className="grid grid-cols-1 gap-4">
@@ -224,20 +224,20 @@ export default function QuickQuestionnaire({
                         key={opt.value}
                         type="button"
                         onClick={() => setPurpose(opt.value)}
-                        className={`flex items-start space-x-4 rounded-xl border p-4 text-left transition-all ${
+                        className={`flex items-start space-x-4 rounded-xl border p-4 text-left transition-all cursor-pointer ${
                           purpose === opt.value
-                            ? 'border-brand-gold bg-brand-gold/10 text-slate-955 ring-2 ring-brand-gold/20 dark:bg-brand-gold/15 dark:text-white'
-                            : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900'
+                            ? 'border-teal-700 bg-teal-500/10 text-stone-950 ring-2 ring-teal-700/20'
+                            : 'border-stone-200 bg-white hover:bg-stone-50'
                         }`}
                       >
                         <div className={`mt-0.5 h-5 w-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                          purpose === opt.value ? 'border-brand-gold bg-brand-gold' : 'border-slate-300'
+                          purpose === opt.value ? 'border-teal-700 bg-teal-750' : 'border-stone-300'
                         }`}>
                           {purpose === opt.value && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                         </div>
                         <div>
-                          <p className="text-sm font-bold">{opt.title}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{opt.desc}</p>
+                          <p className="text-sm font-black text-stone-900">{opt.title}</p>
+                          <p className="text-xs text-stone-500 mt-1 font-bold">{opt.desc}</p>
                         </div>
                       </button>
                     ))}
@@ -247,11 +247,11 @@ export default function QuickQuestionnaire({
 
               {/* STEP 3: Multi select states */}
               {step === 3 && (
-                <div className="space-y-4">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div className="space-y-4 text-left">
+                  <label className="block text-sm font-black text-stone-900">
                     {t.prefStates}
                   </label>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                  <p className="text-xs text-stone-500 font-bold">
                     {lang === 'en' ? 'Select all states that matter to your checklist (Min 1 selected).' : '择优多选，为您网罗匹配的行政圈。'}
                   </p>
                   <div className="grid grid-cols-2 gap-3">
@@ -262,18 +262,18 @@ export default function QuickQuestionnaire({
                           key={st}
                           type="button"
                           onClick={() => toggleState(st)}
-                          className={`flex items-center space-x-3.5 rounded-xl border p-4 text-left transition-all ${
+                          className={`flex items-center space-x-3.5 rounded-xl border p-4 text-left transition-all cursor-pointer ${
                             isSelected
-                              ? 'border-brand-gold bg-brand-gold/10 text-slate-955 ring-2 ring-brand-gold/20 dark:bg-brand-gold/15 dark:text-white'
-                              : 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900'
+                              ? 'border-teal-700 bg-teal-500/10 text-stone-950 ring-2 ring-teal-700/20'
+                              : 'border-stone-200 bg-white hover:bg-stone-50'
                           }`}
                         >
                           <div className={`flex h-5 w-5 items-center justify-center rounded border ${
-                            isSelected ? 'border-brand-gold bg-brand-gold text-white' : 'border-slate-300'
+                            isSelected ? 'border-teal-700 bg-teal-750 text-white' : 'border-stone-300'
                           }`}>
                             {isSelected && <CheckCircle className="h-4.5 w-4.5" />}
                           </div>
-                          <span className="text-sm font-semibold">{st}</span>
+                          <span className="text-sm font-bold">{st}</span>
                         </button>
                       );
                     })}
@@ -283,8 +283,8 @@ export default function QuickQuestionnaire({
 
               {/* STEP 4: Client information details */}
               {step === 4 && (
-                <form id="questionnaire-lead-form" onSubmit={handleSubmit} className="space-y-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                <form id="questionnaire-lead-form" onSubmit={handleSubmit} className="space-y-4 text-left">
+                  <p className="text-xs text-stone-500 font-bold">
                     {lang === 'en' 
                       ? 'Secure your Smart Match Report by entering your contact channels. No spam guaranteed.' 
                       : '请输入联系通道，以便开发商专员为您发出完整的配套底价表和免佣置业看房报告。'}
@@ -292,7 +292,7 @@ export default function QuickQuestionnaire({
 
                   <div className="space-y-3">
                     <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                         <User className="h-4 w-4" />
                       </div>
                       <input
@@ -301,12 +301,12 @@ export default function QuickQuestionnaire({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder={t.formName}
-                        className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium shadow-xs focus:border-brand-gold focus:outline-hidden focus:ring-1 focus:ring-brand-gold dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                        className="block w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-bold text-stone-900 shadow-xs focus:border-teal-700 focus:outline-hidden focus:ring-1 focus:ring-teal-700"
                       />
                     </div>
 
                     <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                         <Phone className="h-4 w-4" />
                       </div>
                       <input
@@ -315,12 +315,12 @@ export default function QuickQuestionnaire({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder={t.formPhone + ' (e.g. +6019...)'}
-                        className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium shadow-xs focus:border-brand-gold focus:outline-hidden focus:ring-1 focus:ring-brand-gold dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                        className="block w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-bold text-stone-900 shadow-xs focus:border-teal-700 focus:outline-hidden focus:ring-1 focus:ring-teal-700"
                       />
                     </div>
 
                     <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                         <Mail className="h-4 w-4" />
                       </div>
                       <input
@@ -328,16 +328,16 @@ export default function QuickQuestionnaire({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder={t.formEmail + ' (Optional)'}
-                        className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium shadow-xs focus:border-brand-gold focus:outline-hidden focus:ring-1 focus:ring-brand-gold dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                        className="block w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-bold text-stone-900 shadow-xs focus:border-teal-700 focus:outline-hidden focus:ring-1 focus:ring-teal-700"
                       />
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-slate-900 py-3.5 font-display text-sm font-bold text-white shadow-lg hover:bg-slate-800 dark:bg-brand-gold dark:text-slate-950 dark:hover:bg-brand-gold-hover transition-all cursor-pointer"
+                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-stone-900 py-3.5 font-display text-sm font-black text-white shadow-lg hover:bg-stone-850 transition-all cursor-pointer"
                   >
-                    <Flame className="h-4 w-4 text-brand-gold dark:text-slate-950" />
+                    <Flame className="h-4 w-4 text-amber-500" />
                     <span>{t.submit}</span>
                   </button>
                 </form>
@@ -346,15 +346,15 @@ export default function QuickQuestionnaire({
 
             {/* Stepper Buttons Control bar */}
             {step < 4 && (
-              <div className="flex justify-between border-t border-slate-100 pt-5 dark:border-slate-800">
+              <div className="flex justify-between border-t border-stone-100 pt-5">
                 <button
                   type="button"
                   onClick={handleBack}
                   disabled={step === 1}
-                  className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${
+                  className={`rounded-lg px-4 py-2 text-sm font-black transition-all ${
                     step === 1
-                      ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed'
-                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:text-slate-300'
+                      ? 'text-stone-300 cursor-not-allowed'
+                      : 'text-stone-500 hover:bg-stone-50 hover:text-stone-850 cursor-pointer'
                   }`}
                 >
                   {lang === 'en' ? 'Back' : '上一步'}
@@ -363,7 +363,7 @@ export default function QuickQuestionnaire({
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex items-center space-x-1 rounded-xl bg-brand-gold px-5.5 py-2.5 font-display text-xs font-extrabold text-white shadow-sm hover:bg-brand-gold-hover transition-all"
+                  className="flex items-center space-x-1 rounded-xl bg-stone-900 text-white hover:bg-stone-850 px-5.5 py-2.5 font-display text-xs font-black shadow-xs cursor-pointer"
                 >
                   <span>{t.next}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -374,13 +374,13 @@ export default function QuickQuestionnaire({
         ) : (
           /* SUBMITTED SUCCESS REPORT PANEL */
           <div className="text-center py-6">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-500 dark:bg-green-950/30">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
               <CheckCircle className="h-8 w-8" />
             </div>
-            <h3 className="font-display text-xl font-extrabold text-slate-900 dark:text-white">
+            <h3 className="font-display text-xl font-black text-stone-900">
               {lang === 'en' ? 'Report Generated!' : '房产匹配报告生成成功！'}
             </h3>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 px-4">
+            <p className="mt-2 text-sm text-stone-500 font-bold px-4 leading-relaxed">
               {t.congratsMatches}
             </p>
 
@@ -393,42 +393,42 @@ export default function QuickQuestionnaire({
                     onViewProject(proj);
                     onClose();
                   }}
-                  className="group flex cursor-pointer items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3.5 text-left transition-all hover:bg-slate-100/80 hover:shadow-xs dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900/60"
+                  className="group flex cursor-pointer items-center justify-between rounded-xl border border-stone-100 bg-stone-50 p-3.5 text-left transition-all hover:bg-white hover:border-[#ebdcb9] hover:shadow-xs"
                   id={`match-card-${proj.id}`}
                 >
                   <div className="flex items-center space-x-3">
                     <img 
-                      src={proj.image} 
+                      src={proj.image || undefined} 
                       alt={proj.name}
                       referrerPolicy="no-referrer"
                       className="h-12 w-12 rounded-lg object-cover shadow-xs"
                     />
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-brand-gold dark:text-white transition-colors">
+                      <h4 className="text-sm font-black text-stone-900 group-hover:text-teal-750 transition-colors">
                         {proj.name}
                       </h4>
-                      <p className="flex items-center text-[11px] font-semibold text-slate-400 mt-0.5">
-                        <MapPin className="mr-0.5 h-3 w-3 text-brand-gold" />
+                      <p className="flex items-center text-[11px] font-bold text-stone-500 mt-0.5">
+                        <MapPin className="mr-0.5 h-3 w-3 text-teal-750" />
                         <span>{proj.area}, {proj.state}</span>
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-mono text-xs font-extrabold text-brand-gold">
+                    <p className="font-mono text-xs font-black text-teal-750">
                       RM {(proj.priceMin / 1000000).toFixed(2)}M +
                     </p>
-                    <p className="text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full mt-1 inline-block dark:bg-emerald-500/5">
-                      ★ {proj.investmentScore} Investment Score
+                    <p className="text-[10px] text-teal-800 font-black bg-teal-500/10 px-1.5 py-0.5 rounded-full mt-1 inline-block">
+                      ★ {proj.investmentScore} Score
                     </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 flex justify-center space-x-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+            <div className="mt-8 flex justify-center space-x-3 border-t border-stone-100 pt-5">
               <button
                 onClick={onClose}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="rounded-xl border border-stone-200 px-5 py-2.5 text-xs font-bold text-stone-600 hover:bg-stone-50 cursor-pointer"
               >
                 {lang === 'en' ? 'Close Window' : '关闭窗口'}
               </button>
@@ -438,7 +438,7 @@ export default function QuickQuestionnaire({
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center space-x-1.5 rounded-xl bg-green-500 px-5 py-2.5 text-xs font-extrabold text-white shadow-md hover:bg-green-600"
+                className="flex items-center space-x-1.5 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-white shadow-md hover:bg-emerald-650"
               >
                 <span>{t.whatsAppNow}</span>
               </a>

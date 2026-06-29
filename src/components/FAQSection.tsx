@@ -45,20 +45,20 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
       
       {/* Title */}
       <div className="text-center mb-8">
-        <h2 className="font-display text-2.5xl font-black text-slate-900 tracking-tight dark:text-white">
+        <h2 className="font-display text-2.5xl font-black text-stone-900 tracking-tight">
           {t.faqTitle}
         </h2>
-        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 dark:text-slate-400">
+        <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 font-bold">
           {t.faqSub}
         </p>
       </div>
 
       {/* Accordion toolbar */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-3 rounded-2xl border border-[#ebdcb9]">
         
         {/* Search */}
         <div className="relative w-full sm:max-w-xs">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
             <Search className="h-4 w-4" />
           </div>
           <input
@@ -66,7 +66,7 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder={lang === 'en' ? 'Search 置业 FAQ...' : '搜索常见置业百科...'}
-            className="block w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-3 text-xs font-semibold focus:border-amber-500 focus:outline-hidden dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+            className="block w-full rounded-lg border border-stone-200 bg-stone-50 py-1.5 pl-9 pr-3 text-xs font-bold text-stone-900 focus:border-teal-700 focus:outline-hidden"
           />
         </div>
 
@@ -78,8 +78,8 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
               onClick={() => setActiveCategory(cat)}
               className={`rounded-lg px-3 py-1.5 text-xs font-extrabold transition-all cursor-pointer ${
                 activeCategory === cat
-                  ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 shadow-xs'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
+                  ? 'bg-stone-900 text-white shadow-xs'
+                  : 'text-stone-500 hover:bg-stone-100 hover:text-stone-850'
               }`}
             >
               {cat}
@@ -90,7 +90,7 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
 
       {/* Accordion item rendering */}
       {filteredFaqs.length === 0 ? (
-        <p className="text-center text-xs font-bold text-slate-400 py-10">
+        <p className="text-center text-xs font-bold text-stone-500 py-10">
           {lang === 'en' ? 'No answering Accordion matched.' : '未搜索到匹配的解答条目。'}
         </p>
       ) : (
@@ -100,7 +100,7 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
             return (
               <div
                 key={faq.id}
-                className="rounded-xl border border-slate-200 bg-white/50 shadow-xs transition-colors dark:border-slate-850 dark:bg-slate-900/60"
+                className="rounded-xl border border-[#ebdcb9] bg-white/90 shadow-xs transition-colors"
                 id={`faq-item-collapsible-${faq.id}`}
               >
                 <button
@@ -108,22 +108,22 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
                   onClick={() => toggleFaq(faq.id)}
                   className="flex w-full items-center justify-between p-4 text-left cursor-pointer"
                 >
-                  <span className="font-display font-bold text-sm text-slate-800 dark:text-slate-200 hover:text-amber-500 transition-colors">
+                  <span className="font-display font-bold text-sm text-stone-900 hover:text-teal-750 transition-colors">
                     {faq.question}
                   </span>
                   {isOpen ? (
-                    <ChevronUp className="h-4 w-4 text-amber-500" />
+                    <ChevronUp className="h-4 w-4 text-teal-750" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                    <ChevronDown className="h-4 w-4 text-stone-400" />
                   )}
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-slate-100 p-4 dark:border-slate-800 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
-                    <p className="text-xs text-slate-600 dark:text-slate-350 leading-relaxed font-semibold">
+                  <div className="border-t border-stone-100 p-4 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
+                    <p className="text-xs text-stone-600 leading-relaxed font-bold">
                       {faq.answer}
                     </p>
-                    <span className="mt-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-350 dark:text-slate-500 bg-slate-100 dark:bg-slate-950 px-2.5 py-0.5 rounded-full inline-block">
+                    <span className="mt-2 text-[9px] font-extrabold uppercase tracking-widest text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full inline-block">
                       ★ {faq.category}
                     </span>
                   </div>
