@@ -26,6 +26,7 @@ import FAQSection from './components/FAQSection';
 import BuyingGuide from './components/BuyingGuide';
 import InteractiveMap from './components/InteractiveMap';
 import AdminPanel from './components/AdminPanel';
+import SEOMeta from './components/SEOMeta';
 
 // @ts-expect-error - image import from assets without specific d.ts declaration
 import klccHeroBg from './assets/images/klcc_hero_bg_1782501813196.jpg';
@@ -172,6 +173,45 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('malaysianhomes-favorites', JSON.stringify(favorites));
   }, [favorites]);
+
+  // Sync tab and selectedProject state from and to URL parameters for SEO and deep-linking
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlTab = params.get('tab');
+    const urlProjectId = params.get('project');
+
+    if (urlTab && ['home', 'compare', 'guide', 'admin', 'favorites'].includes(urlTab)) {
+      setTab(urlTab);
+    }
+
+    if (urlProjectId) {
+      const matched = projects.find(p => p.id === urlProjectId);
+      if (matched) {
+        setSelectedProject(matched);
+      }
+    }
+  }, [projects]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (tab && tab !== 'home') {
+      params.set('tab', tab);
+    } else {
+      params.delete('tab');
+    }
+
+    if (selectedProject) {
+      params.set('project', selectedProject.id);
+    } else {
+      params.delete('project');
+    }
+
+    const newQuery = params.toString();
+    const newPath = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
+    
+    window.history.replaceState(null, '', newPath);
+  }, [tab, selectedProject]);
 
   // Contextual Area choices mapping helper
   const areaOptions = useMemo(() => {
@@ -391,6 +431,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-stone-900 transition-colors duration-500 font-sans" id="malaysianhomes-landing-root">
+      
+      {/* Dynamic SEO, Meta Tags, OpenGraph, Site Verification, and Schema.org structured data */}
+      <SEOMeta project={selectedProject} tab={tab} lang={lang} projects={projects} />
       
       {/* 1. COMPREHENSIVE HEADER STICKY BAR */}
       <Header 
