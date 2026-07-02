@@ -7,7 +7,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
   Search, Sparkles, Filter, ArrowUpRight, HelpCircle, Briefcase, Grid, 
-  MapPin, Clock, ArrowRight, Heart, CheckCircle, ChevronDown, ChevronUp, SlidersHorizontal, Flame, Phone, Globe
+  MapPin, Clock, ArrowRight, Heart, CheckCircle, ChevronDown, ChevronUp, SlidersHorizontal, Flame, Phone, Globe,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 import { Project, Lead, MalaysianState, PropertyType, CurrencyCode } from './types';
@@ -94,6 +95,25 @@ export default function App() {
   });
 
   const [syncStatus, setSyncStatus] = useState<'syncing' | 'synced' | 'fallback' | 'error'>('syncing');
+
+  // State for bottom Verified Malaysia Property Directory slideshow scrolling from right to left every 3 seconds
+  const [directorySlideIndex, setDirectorySlideIndex] = useState(0);
+  const [isDirectoryHovered, setIsDirectoryHovered] = useState(false);
+
+  // Directory automatic scroll every 3 seconds from right to left
+  useEffect(() => {
+    if (isDirectoryHovered) return;
+    const interval = setInterval(() => {
+      setDirectorySlideIndex((prev) => {
+        const maxIndex = projects.length > 0 ? projects.length - 1 : 0;
+        if (prev >= maxIndex) {
+          return 0; // Wrap around
+        }
+        return prev + 1;
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [projects.length, isDirectoryHovered]);
 
   // Dynamically pull of direct sync without OAuth API keys
   const triggerWorkspaceSync = async () => {
@@ -1454,26 +1474,85 @@ export default function App() {
       </div>
       
       {/* 6.5. SEO PROPERTY DIRECTORY FOR AISEO/GEO SEARCH ENGINE INDEXING */}
-      <section className="bg-[#FAF8F5] border-t border-stone-200 py-10 px-4" aria-label="Malaysia Property Directory">
-        <div className="max-w-7xl mx-auto">
-          <h3 className="text-[11px] font-black uppercase tracking-widest text-stone-500 mb-5 text-center">
-            {lang === 'en' ? 'Verified Malaysia Property Projects Directory' : '马来西亚已认证优质房产项目目录'}
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 text-[11px] text-stone-600 font-medium">
-            {projects.map((p) => (
-              <div 
-                key={`seo-dir-${p.id}`}
+      <section 
+        className="bg-[#FAF8F5] border-t border-stone-200 py-10 px-4 select-none" 
+        aria-label="Malaysia Property Directory"
+        onMouseEnter={() => setIsDirectoryHovered(true)}
+        onMouseLeave={() => setIsDirectoryHovered(false)}
+      >
+        <div className="max-w-7xl mx-auto relative">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div className="text-center sm:text-left">
+              <h3 className="text-xs font-black uppercase tracking-widest text-stone-700">
+                {lang === 'en' ? 'Verified Malaysia Property Projects Directory' : '马来西亚已认证优质房产项目目录'}
+              </h3>
+              <p className="text-[10px] text-stone-500 mt-1">
+                {lang === 'en' 
+                  ? 'Explore our comprehensive directory of hand-picked premium residential landmarks.' 
+                  : '探索我们为您臻选的全面且优质的住宅地标项目目录。'}
+              </p>
+            </div>
+            
+            {/* Controls */}
+            <div className="flex items-center justify-center space-x-2 shrink-0">
+              <button 
                 onClick={() => {
-                  setSelectedProject(p);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setDirectorySlideIndex((prev) => (prev > 0 ? prev - 1 : Math.max(0, projects.length - 1)));
                 }}
-                className="p-3 rounded-xl bg-white border border-[#ebdcb9]/60 hover:border-teal-700 hover:text-teal-800 transition-all cursor-pointer text-center hover:scale-[1.02] shadow-2xs hover:shadow-md"
+                className="p-1.5 rounded-lg bg-white border border-stone-200 text-stone-600 hover:text-teal-800 hover:border-teal-700 hover:bg-teal-50/20 transition-all cursor-pointer shadow-3xs"
+                title="Previous Slide"
               >
-                <div className="font-bold text-stone-900 truncate">{p.name}</div>
-                <div className="text-[10px] text-stone-500 truncate mt-0.5">{p.developer}</div>
-                <div className="text-[9px] text-teal-800 font-bold uppercase mt-1.5">{p.area}, {p.state}</div>
-              </div>
-            ))}
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => {
+                  setDirectorySlideIndex((prev) => (prev < projects.length - 1 ? prev + 1 : 0));
+                }}
+                className="p-1.5 rounded-lg bg-white border border-stone-200 text-stone-600 hover:text-teal-800 hover:border-teal-700 hover:bg-teal-50/20 transition-all cursor-pointer shadow-3xs"
+                title="Next Slide"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Scrolling Viewport */}
+          <div className="overflow-hidden w-full py-3 px-1 rounded-2xl relative">
+            {/* Left and Right ambient shading gradients to emphasize slideshow depth */}
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FAF8F5] to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF8F5] to-transparent z-10 pointer-events-none" />
+
+            <div 
+              className="flex gap-4.5 transition-transform duration-700 ease-out"
+              style={{ 
+                transform: `translateX(-${directorySlideIndex * 240}px)`,
+                width: `${projects.length * 240}px`
+              }}
+            >
+              {projects.map((p) => (
+                <div 
+                  key={`seo-dir-${p.id}`}
+                  onClick={() => {
+                    setSelectedProject(p);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="w-[224px] shrink-0 p-4 rounded-xl bg-white border border-[#ebdcb9]/60 hover:border-teal-700 hover:text-teal-800 transition-all cursor-pointer text-center hover:scale-[1.03] shadow-xs hover:shadow-md"
+                >
+                  <div className="font-bold text-stone-900 truncate text-xs">{p.name}</div>
+                  <div className="text-[10px] text-stone-500 truncate mt-1">{p.developer}</div>
+                  <div className="text-[9px] text-teal-800 font-bold uppercase mt-2.5 bg-teal-50/50 py-1 px-2 rounded-md inline-block">
+                    {p.area}, {p.state}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Pause / Auto Indicator */}
+          <div className="text-[9px] text-center text-stone-400 mt-3 font-mono">
+            {isDirectoryHovered 
+              ? (lang === 'en' ? '● Slideshow paused (hovering over list)' : '● 幻灯片已暂停 (鼠标悬停中)') 
+              : (lang === 'en' ? '○ Auto-scrolling from right to left every 3 seconds' : '○ 每3秒自动向左滚动')}
           </div>
         </div>
       </section>

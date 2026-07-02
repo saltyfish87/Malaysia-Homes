@@ -124,15 +124,6 @@ export default function Header({
 
         {/* Global Toolbar */}
         <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0 z-50 flex-nowrap" id="header-tools-toolbar">
-          
-          {/* Smart Match AI Button */}
-          <button
-            onClick={openQuestionnaire}
-            className="hidden md:flex items-center space-x-1.5 rounded-full bg-brand-gold px-4 py-1.5 font-display text-xs font-bold text-white shadow-xs hover:bg-brand-gold-hover transition-all hover:scale-[1.03] cursor-pointer shrink-0"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>{t.smartQuestionnaire}</span>
-          </button>
 
           {/* Unified Settings Dropdown Menu */}
           <div className="relative shrink-0 z-50" ref={dropdownRef}>
