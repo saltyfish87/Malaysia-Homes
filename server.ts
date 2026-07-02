@@ -220,6 +220,95 @@ async function startServer() {
     }
   });
 
+  // Dynamic sitemap.xml for SEO, AISEO, and GEO indexing of all projects
+  app.get('/sitemap.xml', async (req, res) => {
+    res.header('Content-Type', 'application/xml');
+    
+    // Set up default/fallback project IDs (from mock data)
+    const projectSlugs = new Set([
+      'amika', 'anya', 'aricia', 'aster-hill', 'atera-phase2', 'aurum-business', 
+      'avantro', 'ayanna-res', 'bangsar-hill-bc', 'bangsar-hill-verdura', 'clouthaus-res', 
+      'core-trx', 'genstarz-res', 'luminar-subang', 'm-aspira', 'maple-oug', 'oaka-res', 
+      'one-seputeh', 'orion-bid', 'park-green', 'quaver-kl', 'radium-arena', 'riverville2', 
+      'tria-seputeh', 'tujuh-kwasa', 'vox-sentul', 'wyn-puchong', 'zenia-damansara', 
+      'ren-bukit-jalil', 'aras-wcity', 'vividz-res', 'khaya-bangsar', 'phoeniz-suites', 
+      'branniganz-exsim', 'alora-subang', 'loop-city', 'aldenz', 'parkside', 'foresthill', 
+      'amaya', 'grand-damansara', 'stellar-damansara', 'seresta', 'livista', 'the-lines', 
+      'pinnacle-ara', 'hampton', 'd-tessera', 'amara-res', 'linari-kwasa', 'mahogany', 
+      'panorama-kelana', 'sunway-dhill', 'd-evia-kwasa'
+    ]);
+
+    try {
+      // Try fetching live spreadsheet to append any new projects dynamically
+      const SPREADSHEET_ID = '1__k-dTt9oxBZSKKp9wI2O42l8QiBpqy0O9dwZK1jyqQ';
+      const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=2052526095&cb=${Date.now()}`;
+      const response = await fetch(spreadsheetUrl);
+      if (response.ok) {
+        const csvText = await response.text();
+        // Super simple lightweight CSV row parse
+        const lines = csvText.split(/\r?\n/);
+        if (lines.length > 1) {
+          // Find "project name" column index
+          const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
+          const nameIdx = headers.indexOf('project name') !== -1 ? headers.indexOf('project name') : headers.findIndex(h => h.includes('name'));
+          const idIdx = headers.indexOf('id') !== -1 ? headers.indexOf('id') : headers.indexOf('slug');
+          
+          if (nameIdx >= 0) {
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i];
+              if (!line.trim()) continue;
+              // Split considering double quotes (lightweight split)
+              const matches = line.split(',');
+              if (matches && matches.length > nameIdx) {
+                const rawName = matches[nameIdx].replace(/^"|"$/g, '').trim();
+                if (rawName && rawName !== 'Project Name') {
+                  const fallbackId = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                  let finalId = fallbackId;
+                  if (idIdx >= 0 && matches.length > idIdx) {
+                    const customId = matches[idIdx].replace(/^"|"$/g, '').trim().toLowerCase();
+                    if (customId) finalId = customId;
+                  }
+                  if (finalId) {
+                    projectSlugs.add(finalId);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Sitemap generator could not load live spreadsheet rows, falling back to static project IDs:', e);
+    }
+
+    const domain = 'https://propertyportal.my';
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    // Build XML string
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+    // Static page URLs
+    xml += `  <url>\n    <loc>${domain}/</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/?tab=compare</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/?tab=guide</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/?tab=favorites</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.5</priority>\n  </url>\n`;
+
+    // Dynamic project URLs
+    projectSlugs.forEach(slug => {
+      xml += `  <url>\n    <loc>${domain}/?project=${slug}</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+    });
+
+    xml += `</urlset>`;
+    res.send(xml);
+  });
+
+  // Serve robots.txt pointing to the dynamic sitemap
+  app.get('/robots.txt', (req, res) => {
+    res.header('Content-Type', 'text/plain');
+    res.send(`User-agent: *\nAllow: /\n\nSitemap: https://propertyportal.my/sitemap.xml\n`);
+  });
+
   // Vite integration / Static files serving
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
