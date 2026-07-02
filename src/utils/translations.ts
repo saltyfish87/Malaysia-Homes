@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Project } from '../types';
+
 export const TRANSLATIONS = {
   en: {
     appName: 'MalaysianHomes',
@@ -97,7 +99,26 @@ export const TRANSLATIONS = {
     statsTotalLeads: 'Total Leads Generated',
     statsFeaturedCount: 'Featured Listings',
     statsAvgYield: 'Average Rental Yield',
-    editMode: 'Developer Edit Mode'
+    editMode: 'Developer Edit Mode',
+    whyChooseTitle1: 'Verified Projects',
+    whyChooseDesc1: 'Every spec, layout, and maintenance cost is directly cross-referenced and validated with developers.',
+    whyChooseTitle2: 'Buyer Commissions',
+    whyChooseDesc2: 'Our advisory channels are absolutely free. Connect directly to developers secure rates.',
+    whyChooseTitle3: 'Fast Response',
+    whyChooseDesc3: 'Experienced bi-lingual concierges will immediately coordinate scheduling arrangements.',
+    whyChooseTitle4: 'Avg Rental Yield',
+    whyChooseDesc4: 'Maximize returns by viewing elite properties optimized for tourist Airbnb letouts.',
+    workspaceSyncTitle: 'Google Workspace Sync Settings',
+    workspaceSyncDesc: 'Your portal is directly synced with Google Workspace. It dynamically fetches live listings from Google Sheets and actual images from your Google Drive folder automatically without requiring any login or API limits.',
+    spreadsheetDB: 'Spreadsheet DB:',
+    mediaDriveFolder: 'Media Drive Folder:',
+    activeSyncStatus: 'Status:',
+    activeSyncText: 'ACTIVE SYNC',
+    categoryType: 'Category Type',
+    orderBy: 'Order by',
+    filterResults: 'Filter Results',
+    selectedShowcase: 'Selected Showcase',
+    showingVerifiedProperties: 'Showing {count} Verified Properties'
   },
   zh: {
     appName: '吉隆坡大马优居 (MalaysianHomes)',
@@ -192,6 +213,268 @@ export const TRANSLATIONS = {
     statsTotalLeads: '累积收到咨询',
     statsFeaturedCount: '核心推荐项目',
     statsAvgYield: '平均租金收益率',
-    editMode: '开发商编辑模式'
+    editMode: '开发商编辑模式',
+    whyChooseTitle1: '100% 真实一手项目',
+    whyChooseDesc1: '每个技术规格、户型图和物业费均与开发商直接核对，确保绝对真实有效。',
+    whyChooseTitle2: '0 买家佣金费用',
+    whyChooseDesc2: '我们的专属咨询通道完全免费。为您提供开发商底价与内部折扣保障。',
+    whyChooseTitle3: '10分钟 极速响应',
+    whyChooseDesc3: '资深双语投资顾问将即刻为您对接，安排专属预约看房与详细白皮书资料。',
+    whyChooseTitle4: '高净值租金收益率',
+    whyChooseDesc4: '帮您筛选极适合高端旅居及短租民宿（Airbnb）的项目，实现收益最大化。',
+    workspaceSyncTitle: 'Google Workspace 实时数据同步设置',
+    workspaceSyncDesc: '您的优居门户已直通谷歌 Workspace 云端。系统会自动、无感地从谷歌 Sheets 提取最新房源，并从您的谷歌云盘自动调取真实航拍样板间图。',
+    spreadsheetDB: '在线数据库:',
+    mediaDriveFolder: '多媒体云盘目录:',
+    activeSyncStatus: '状态:',
+    activeSyncText: '已连接实时同步',
+    categoryType: '物业类别',
+    orderBy: '排序规则',
+    filterResults: '筛选结果',
+    selectedShowcase: '本期臻选推荐',
+    showingVerifiedProperties: '为您呈现 {count} 个经过认证的优质房源'
   }
 } as const;
+
+const PHRASE_MAP: [RegExp, string][] = [
+  [/developed by legendary township specialist developer Park City/gi, '由传奇城镇规划专家开发商 Park City 精工打造'],
+  [/elite 24\/7 auxiliary-guarded secure private township enclave/gi, '配备24小时全天候特设辅助警卫巡逻的顶奢封闭式安全社区'],
+  [/direct connection to Kwasa central lake park linear pathways/gi, '直达 Kwasa 中央湖泊公园与环湖绿廊漫步慢跑道'],
+  [/generous floorplans starting from 1,691 up to 4,247 sqft layouts/gi, '提供从1,691至4,247平方英尺的超大面积开阔户型设计'],
+  [/Kwasa Sentral MRT Station/gi, 'Kwasa Sentral 捷运站'],
+  [/Kwasa Damansara Central Park/gi, 'Kwasa Damansara 中央公园'],
+  [/Help International School/gi, 'Help 国际学校'],
+  [/Kota Damansara Forest Reserve/gi, 'Kota Damansara 森林保护区'],
+  [/Emporis Shopping Gallery/gi, 'Emporis 购物中心'],
+  [/Zenia Damansara represents the pinnacle of luxury masterplanned community living/gi, 'Zenia Damansara 代表着大师级规划社区生活的奢华巅峰'],
+  [/Nestled in the heart of Kwasa Damansara and built by legendary master-developer Park City/gi, '坐落于 Kwasa Damansara 核心地带，由传奇开发商 Park City 精雕细琢'],
+  [/it blends premium low-density Condovillas with magnificent multi-level Parkhomes/gi, '将低密度顶奢公寓别墅（Condovillas）与宏伟的多层公园联排别墅（Parkhomes）完美融合'],
+  [/Homeowners can experience resort-style clubhouses, deep biophilic linear walking parks, and premium-crafted spaces/gi, '住户可尽享度假村风情会所、人与自然共生的线性漫步公园以及至高工艺铸就的匠心空间'],
+  [/Premium low-density Condovillas and luxury 3-storey Parkhomes/gi, '顶奢低密度公寓别墅与奢华3层联排公园别墅'],
+  [/Developed by legendary township specialist/gi, '由传奇城镇规划专家精心打造'],
+  [/Developed by/gi, '由知名开发商打造：'],
+  [/direct connection to/gi, '直接连接至'],
+  [/direct linked bridge to/gi, '有直连天桥通往'],
+  [/directly connected to/gi, '直通'],
+  [/connected to/gi, '连接至'],
+  [/walking distance to/gi, '步行即可到达'],
+  [/walking distance/gi, '步行距离'],
+  [/walk to/gi, '步行即可至'],
+  [/minutes walk to/gi, '分钟步行即可至'],
+  [/min walk to/gi, '分钟步行即可至'],
+  [/shopping mall/gi, '精品购物中心'],
+  [/mrt station/gi, '捷运站 (MRT)'],
+  [/lrt station/gi, '轻轨站 (LRT)'],
+  [/rts link station/gi, '新柔地铁站 (RTS)'],
+  [/rts station/gi, '新柔捷运站 (RTS)'],
+  [/interchange/gi, '换乘站'],
+  [/highway/gi, '高速公路'],
+  [/expressway/gi, '快速路'],
+  [/access to/gi, '便捷连接'],
+  [/easy access/gi, '出行极便，便捷通达'],
+  [/located in the heart of/gi, '坐落于核心腹地'],
+  [/heart of/gi, '核心地带'],
+  [/view of KLCC/gi, '吉隆坡双子塔 (KLCC) 壮丽景观'],
+  [/KLCC view/gi, '双子塔景观'],
+  [/views of/gi, '绝美景观：'],
+  [/panoramic/gi, '全景'],
+  [/rooftop infinity pool/gi, '屋顶无边际星空泳池'],
+  [/infinity pool/gi, '无边际泳池'],
+  [/gymnasium/gi, '全功能健身房'],
+  [/clubhouse/gi, '至尊私人会所'],
+  [/24-hour security/gi, '24小时星级安保系统'],
+  [/gated and guarded/gi, '全封闭式警卫围篱社区'],
+  [/high ROI/gi, '高投资回报潜力'],
+  [/high rental yield/gi, '高租金收益率'],
+  [/airbnb-friendly/gi, '支持短租与 Airbnb 运营'],
+  [/airbnb friendly/gi, '支持短租与 Airbnb 运营'],
+  [/smart home/gi, '智能家居'],
+  [/green building/gi, '绿色建筑认证 (GBI)'],
+  [/EV charging/gi, '电动汽车 (EV) 专属充电桩'],
+  [/family living/gi, '温馨舒适的家庭生活'],
+  [/spacious layout/gi, '超宽敞实用的大户型'],
+  [/low density/gi, '超低密度，极高私密性'],
+  [/fully furnished/gi, '全屋精美装修（拎包入住）'],
+  [/partly furnished/gi, '部分精美装修/半精装'],
+  [/international school/gi, '知名国际学校'],
+  [/medical center/gi, '专业医疗中心'],
+  [/hospital/gi, '大型综合医院'],
+  [/university/gi, '知名大学/高校'],
+  [/surrounded by/gi, '周边环境优美，配套环绕'],
+  [/equipped with/gi, '豪华配备'],
+  [/state-of-the-art/gi, '世界一流/最先进的'],
+  [/modern design/gi, '现代前沿美学设计'],
+  [/designed by/gi, '由名家倾心设计'],
+  [/comes with/gi, '尊享配置：'],
+  [/starting from/gi, '最低起价仅'],
+  [/perfect for/gi, '完美契合'],
+  [/great for/gi, '非常适合'],
+  [/ideal for/gi, '理想之选：'],
+  [/own stay/gi, '自住家庭'],
+  [/investors/gi, '投资者'],
+  [/foreign buyers/gi, '外籍置业买家'],
+  [/landscaped garden/gi, '艺术园林绿化'],
+  [/jogging track/gi, '慢跑道'],
+  [/children playground/gi, '儿童游乐天地'],
+  [/multi-tier security/gi, '多重智能安保防护系统'],
+  [/brand new/gi, '全新一手开盘'],
+  [/new launch/gi, '全新重磅推出'],
+  [/ready to move in/gi, '现房即刻交付入住'],
+  [/under construction/gi, '在建精品期房'],
+  [/estimated completion/gi, '预计完工时间'],
+  [/represents an exclusive high-end premium development in/gi, '是极具代表性的高尚地标住宅，坐落于'],
+  [/configured with state-of-the-art architecture and elite community amenities/gi, '配备顶尖的一流建筑工艺与尊贵阶层会所配套'],
+  [/represents an exclusive/gi, '是独一无二的顶奢'],
+  [/high-end premium development in/gi, '高端房产项目，坐落于'],
+  [/configured with/gi, '配备有'],
+  [/and elite community amenities/gi, '以及高端社区公建设施'],
+  [/Precision physical workspace layout for/gi, '精心规划的实体户型空间，适用于 '],
+  [/Showcases standard flow efficiency, high ceilings, and floor-to-ceiling visual glass/gi, '完美展示动线布局、挑高天花板以及环绕落地钢化玻璃幕墙'],
+  [/Modern low-rise/gi, '现代优雅低公摊住宅'],
+  [/design with/gi, '设计配备'],
+  [/bedrooms/gi, '间卧室'],
+  [/bathrooms/gi, '间浴室'],
+  [/dual frontage views/gi, '双朝向开阔视野'],
+  [/and premium biophilic natural materials throughout/gi, '且全屋甄选高档亲生物天然环保石材'],
+  [/Cozy/gi, '舒适高雅的'],
+  [/bedroom villa layout presenting generous layout flow, wide balconies, and designated study alcove/gi, '居别墅布局，提供超大进深动线、超宽景观阳台和专属书房雅座'],
+  [/Spacious multi-level/gi, '奢华宽敞的多层复式'],
+  [/floor plan with/gi, '户型，配备'],
+  [/signature open courtyard, and wide backyard carpark porch/gi, '标志性露天中庭及宽敞的私人庭院车位车棚'],
+  [/Elegant/gi, '典雅'],
+  [/park-facing intermediate layout offering premium cross-ventilation, floor-to-ceiling glass, and dual master suites/gi, '面向公园的黄金居中户型，带来极佳的南北对流、全景落地窗以及双套房双主卧设计'],
+  [/dual-key/gi, '双钥匙独立套房'],
+  [/dual key/gi, '双钥匙'],
+  [/studio/gi, '单身公寓/套房'],
+  [/(\d+)\s*min\s*walk/gi, '$1分钟步行距离'],
+  [/(\d+)\s*minutes\s*walk/gi, '$1分钟步行路程'],
+  [/(\d+)\s*km\s*to/gi, '距离 $1 公里至'],
+  [/(\d+)\s*km/gi, '$1公里']
+];
+
+export function translateText(text: string): string {
+  if (!text) return text;
+  let result = text;
+  for (const [regex, replacement] of PHRASE_MAP) {
+    result = result.replace(regex, replacement);
+  }
+  return result;
+}
+
+export function translateState(state: string): string {
+  const map: Record<string, string> = {
+    'Kuala Lumpur': '吉隆坡',
+    'Selangor': '雪兰莪',
+    'Johor': '柔佛',
+    'Penang': '槟城'
+  };
+  return map[state] || state;
+}
+
+export function translatePropertyType(type: string): string {
+  const map: Record<string, string> = {
+    'Serviced Apartment': '服务式公寓',
+    'Condo': '高层住宅',
+    'Landed': '有地别墅/排屋',
+    'Penthouse': '顶层阁楼'
+  };
+  return map[type] || type;
+}
+
+export function translateTenure(tenure: string): string {
+  const map: Record<string, string> = {
+    'Freehold': '永久产权',
+    'Leasehold': '租赁产权'
+  };
+  return map[tenure] || tenure;
+}
+
+export function translateFurnishing(furnishing: string): string {
+  const map: Record<string, string> = {
+    'Fully Furnished': '全精装',
+    'Partly Furnished': '部分装修',
+    'Unfurnished': '毛坯/未装修'
+  };
+  return map[furnishing] || furnishing;
+}
+
+export function translateArea(area: string): string {
+  const map: Record<string, string> = {
+    'Puchong': '蒲种',
+    'Damansara': '白沙罗',
+    'Petaling Jaya': '八打灵再也',
+    'Subang Jaya': '梳邦再也',
+    'Cyberjaya': '赛城',
+    'Putrajaya': '布城',
+    'Cheras': '蕉赖',
+    'Bukit Jalil': '武吉加里尔',
+    'Bangsar': '孟沙',
+    'Bukit Bintang': '武吉免登',
+    'KLCC': '吉隆坡市中心 (KLCC)',
+    'Mont Kiara': '满家乐',
+    'Kepong': '甲洞',
+    'Sentul': '冼都',
+    'Setapak': '文良港',
+    'Kuchai Lama': '旧古仔',
+    'Sri Petaling': '大城堡',
+    'Old Klang Road': '旧巴生路',
+    'Johor Bahru': '新山',
+    'Iskandar Puteri': '依斯干达公主城',
+    'Georgetown': '乔治市',
+    'Bayan Lepas': '峇六拜',
+    'Batu Ferringhi': '巴都丁宜',
+    'Shah Alam': '莎阿南',
+    'Klang': '巴生',
+    'Rawang': '万挠',
+    'Semenyih': '士毛月',
+    'Ara Damansara': '阿拉白沙罗',
+    'Kota Damansara': '哥打白沙罗',
+    'Bandar Utama': '万达镇',
+    'Mutiara Damansara': '珍珠白沙罗',
+    'Sunway': '双威',
+    'Tropicana': '丽阳特区',
+    'Ampang': '安邦',
+    'Wangsa Maju': '旺沙玛珠',
+    'KL Sentral': '中央车站',
+    'TRX': '敦拉萨国际贸易中心 (TRX)',
+    'Desa ParkCity': '帝沙公园城市',
+    'Medini': '美迪尼',
+    'Danga Bay': '金海湾',
+    'Mount Austin': '奥斯汀山',
+    'Tanjung Tokong': '丹绒道光',
+    'Gurney Drive': '葛尼道',
+    'Gelugor': '牛汝莪',
+    'Butterworth': '北海',
+    'Bukit Mertajam': '大山脚',
+    'Taman Desa': '郊外岭 (Taman Desa)',
+    'OUG': '华联花园 (OUG)',
+    'Seputeh': '士布爹',
+    'Chan Sow Lin': '陈秀连 (Chan Sow Lin)',
+    'Kwasa Damansara': '桂沙白沙罗 (Kwasa Damansara)'
+  };
+  return map[area] || area;
+}
+
+export function getTranslatedProject(project: Project, lang: 'en' | 'zh'): Project {
+  if (lang === 'en' || !project) {
+    return project;
+  }
+
+  return {
+    ...project,
+    developer: translateText(project.developer),
+    state: translateState(project.state) as any,
+    area: translateArea(project.area),
+    propertyType: translatePropertyType(project.propertyType) as any,
+    tenure: translateTenure(project.tenure) as any,
+    furnishing: translateFurnishing(project.furnishing) as any,
+    keyHighlights: (project.keyHighlights || []).map(h => translateText(h)),
+    nearbyAmenities: (project.nearbyAmenities || []).map(a => translateText(a)),
+    description: translateText(project.description),
+    layoutPlans: project.layoutPlans ? project.layoutPlans.map(lp => ({
+      ...lp,
+      name: translateText(lp.name),
+      description: translateText(lp.description)
+    })) : undefined
+  };
+}

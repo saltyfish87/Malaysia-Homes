@@ -6,7 +6,7 @@
 import React from 'react';
 import { GitCompare, Trash2, Sparkles, MapPin } from 'lucide-react';
 import { Project, CurrencyCode } from '../types';
-import { TRANSLATIONS } from '../utils/translations';
+import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 import { formatPrice } from './ProjectCard';
 
 interface CompareSectionProps {
@@ -21,7 +21,7 @@ interface CompareSectionProps {
 }
 
 export default function CompareSection({
-  comparedProjects,
+  comparedProjects: rawComparedProjects,
   allProjects = [],
   onAddProject,
   currency,
@@ -31,6 +31,10 @@ export default function CompareSection({
   onSelectProject
 }: CompareSectionProps) {
   const t = TRANSLATIONS[lang];
+
+  const comparedProjects = React.useMemo(() => {
+    return rawComparedProjects.map((p) => getTranslatedProject(p, lang));
+  }, [rawComparedProjects, lang]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 text-left animate-in fade-in duration-300" id="comparison-deck-main">

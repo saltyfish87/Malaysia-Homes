@@ -576,7 +576,7 @@ export default function App() {
                     {/* 4. CATEGORY SELECT */}
                     <div>
                       <label className="block text-[10px] font-extrabold uppercase tracking-widest text-teal-800 mb-1.5">
-                        Category Type
+                        {t.categoryType}
                       </label>
                       <select
                         value={filterPropType}
@@ -772,7 +772,7 @@ export default function App() {
                         className="flex items-center space-x-1.5 rounded-xl bg-button-teal py-3 px-6 font-display text-xs font-black text-white hover:opacity-90 transition-all hover:scale-[1.02] shadow-md cursor-pointer"
                       >
                         <Filter className="h-3.5 w-3.5" />
-                        <span>Filter Results ({filteredProjects.length})</span>
+                        <span>{t.filterResults} ({filteredProjects.length})</span>
                       </button>
                     </div>
                   </div>
@@ -817,7 +817,7 @@ export default function App() {
                 <div>
                   <div className="flex items-center space-x-2 text-teal-700 mb-1.5">
                     <span className="h-1 w-6 bg-teal-600 rounded-full" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Selected Showcase</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">{t.selectedShowcase}</span>
                   </div>
                   <h2 className="font-display text-2xl sm:text-3.5xl font-black text-stone-900 uppercase tracking-tight">
                     {t.featuredTitle}
@@ -885,23 +885,23 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="rounded-2xl border border-[#ebdcb9] bg-white p-6 shadow-xs hover:shadow-md transition-shadow">
                     <span className="font-display font-black text-2xl text-brand-gold">100%</span>
-                    <h4 className="text-sm font-bold mt-2 text-stone-900">Verified Projects</h4>
-                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">Every spec, layout, and maintenance cost is directly cross-referenced and validated with developers.</p>
+                    <h4 className="text-sm font-bold mt-2 text-stone-900">{t.whyChooseTitle1}</h4>
+                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">{t.whyChooseDesc1}</p>
                   </div>
                   <div className="rounded-2xl border border-[#ebdcb9] bg-white p-6 shadow-xs hover:shadow-md transition-shadow">
                     <span className="font-display font-black text-2xl text-brand-gold">0%</span>
-                    <h4 className="text-sm font-bold mt-2 text-stone-900">Buyer Commissions</h4>
-                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">Our advisory channels are absolutely free. Connect directly to developers secure rates.</p>
+                    <h4 className="text-sm font-bold mt-2 text-stone-900">{t.whyChooseTitle2}</h4>
+                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">{t.whyChooseDesc2}</p>
                   </div>
                   <div className="rounded-2xl border border-[#ebdcb9] bg-white p-6 shadow-xs hover:shadow-md transition-shadow">
                     <span className="font-display font-black text-2xl text-brand-gold">10Min</span>
-                    <h4 className="text-sm font-bold mt-2 text-stone-900">Fast Response</h4>
-                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">Experienced bi-lingual concierges will immediately coordinate scheduling arrangements.</p>
+                    <h4 className="text-sm font-bold mt-2 text-stone-900">{t.whyChooseTitle3}</h4>
+                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">{t.whyChooseDesc3}</p>
                   </div>
                   <div className="rounded-2xl border border-[#ebdcb9] bg-white p-6 shadow-xs hover:shadow-md transition-shadow">
                     <span className="font-display font-black text-2xl text-brand-gold">6.5%</span>
-                    <h4 className="text-sm font-bold mt-2 text-stone-900">Avg Rental Yield</h4>
-                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">Maximize returns by viewing elite properties optimized for tourist Airbnb letouts.</p>
+                    <h4 className="text-sm font-bold mt-2 text-stone-900">{t.whyChooseTitle4}</h4>
+                    <p className="text-[11px] font-bold text-stone-600 leading-normal mt-1.5">{t.whyChooseDesc4}</p>
                   </div>
                 </div>
               </div>
@@ -1001,7 +1001,7 @@ export default function App() {
                 {/* 4. CATEGORY SELECT */}
                 <div>
                   <label className="block text-[10px] font-extrabold uppercase tracking-widest text-stone-500 mb-1.5">
-                    Category Type
+                    {t.categoryType}
                   </label>
                   <select
                     value={filterPropType}
@@ -1168,12 +1168,12 @@ export default function App() {
                 </div>
 
                 <div className="flex w-full md:w-auto justify-between md:justify-end items-center gap-3">
-                  <span className="text-[10px] font-extrabold uppercase text-stone-500">Order by</span>
+                  <span className="text-[10px] font-extrabold uppercase text-stone-500">{t.orderBy}</span>
                   <div className="flex gap-1 bg-stone-100 border border-stone-200 p-1 rounded-xl">
                     {[
-                      { id: 'featured', label: 'Featured' },
-                      { id: 'price-asc', label: 'Price ↑' },
-                      { id: 'price-desc', label: 'Price ↓' }
+                      { id: 'featured', label: lang === 'en' ? 'Featured' : '推荐' },
+                      { id: 'price-asc', label: lang === 'en' ? 'Price ↑' : '价格 ↑' },
+                      { id: 'price-desc', label: lang === 'en' ? 'Price ↓' : '价格 ↓' }
                     ].map((opt) => (
                       <button
                         key={opt.id}
@@ -1206,12 +1206,14 @@ export default function App() {
                   }}
                   className="mt-4 text-xs font-bold text-teal-700 underline cursor-pointer hover:text-teal-800"
                 >
-                  Reset Filter Parameters
+                  {lang === 'en' ? 'Reset Filter Parameters' : '重置所有筛选条件'}
                 </button>
               </div>
             ) : (
               <div>
-                <p className="text-xs font-extrabold text-stone-500 mb-4 tracking-wider uppercase">Showing {filteredProjects.length} Verified Properties</p>
+                <p className="text-xs font-extrabold text-stone-500 mb-4 tracking-wider uppercase">
+                  {t.showingVerifiedProperties.replace('{count}', filteredProjects.length.toString())}
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredProjects.map((p) => (
                     <ProjectCard 
@@ -1364,11 +1366,11 @@ export default function App() {
                   <div className="flex items-center space-x-2">
                     <span className="flex h-3 w-3 rounded-full bg-emerald-600 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
                     <h3 className="font-display text-lg font-black text-stone-900">
-                      Google Workspace Sync Settings
+                      {t.workspaceSyncTitle}
                     </h3>
                   </div>
                   <p className="text-xs text-stone-600 font-bold leading-relaxed">
-                    Your portal is directly synced with Google Workspace. It dynamically fetches live listings from Google Sheets and actual images from your Google Drive folder automatically without requiring any login or API limits.
+                    {t.workspaceSyncDesc}
                   </p>
                 </div>
               </div>
@@ -1376,17 +1378,17 @@ export default function App() {
               {/* Status details metadata links footer */}
               <div className="mt-5 border-t border-stone-200 pt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs font-bold">
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-stone-400">Spreadsheet DB:</span>
+                  <span className="text-stone-400">{t.spreadsheetDB}</span>
                   <a href="https://docs.google.com/spreadsheets/d/1__k-dTt9oxBZSKKp9wI2O42l8QiBpqy0O9dwZK1jyqQ/edit" target="_blank" rel="noreferrer" className="text-teal-800 font-mono hover:underline">1__k-dTt9oxBZSK...</a>
                 </div>
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-stone-400">Media Drive Folder:</span>
+                  <span className="text-stone-400">{t.mediaDriveFolder}</span>
                   <a href="https://drive.google.com/drive/folders/1QCR6qJqsadN2y_PesOBr2uFZfZRZrvDd" target="_blank" rel="noreferrer" className="text-teal-800 font-mono hover:underline">1QCR6qJqsadN2y_...</a>
                 </div>
                 <div className="flex items-center space-x-1.5 sm:ml-auto">
-                  <span className="text-stone-400">Status:</span>
+                  <span className="text-stone-400">{t.activeSyncStatus}</span>
                   <span className={`px-2 py-0.5 rounded font-extrabold uppercase text-[10px] bg-emerald-100 text-emerald-800`}>
-                    ACTIVE SYNC
+                    {t.activeSyncText}
                   </span>
                 </div>
               </div>
@@ -1450,6 +1452,31 @@ export default function App() {
           <span>WhatsApp Hotline</span>
         </a>
       </div>
+      
+      {/* 6.5. SEO PROPERTY DIRECTORY FOR AISEO/GEO SEARCH ENGINE INDEXING */}
+      <section className="bg-[#FAF8F5] border-t border-stone-200 py-10 px-4" aria-label="Malaysia Property Directory">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-[11px] font-black uppercase tracking-widest text-stone-500 mb-5 text-center">
+            {lang === 'en' ? 'Verified Malaysia Property Projects Directory' : '马来西亚已认证优质房产项目目录'}
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 text-[11px] text-stone-600 font-medium">
+            {projects.map((p) => (
+              <div 
+                key={`seo-dir-${p.id}`}
+                onClick={() => {
+                  setSelectedProject(p);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="p-3 rounded-xl bg-white border border-[#ebdcb9]/60 hover:border-teal-700 hover:text-teal-800 transition-all cursor-pointer text-center hover:scale-[1.02] shadow-2xs hover:shadow-md"
+              >
+                <div className="font-bold text-stone-900 truncate">{p.name}</div>
+                <div className="text-[10px] text-stone-500 truncate mt-0.5">{p.developer}</div>
+                <div className="text-[9px] text-teal-800 font-bold uppercase mt-1.5">{p.area}, {p.state}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* 7. PREMIUM STEREOSCOPIC FOOTER INFO */}
       <footer className="border-t border-[#ebdcb9] bg-[#1c1917] py-12 text-center text-xs font-bold text-stone-300">

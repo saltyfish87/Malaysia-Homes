@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Project, CurrencyCode, Lead } from '../types';
-import { TRANSLATIONS } from '../utils/translations';
+import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 import { formatPrice } from './ProjectCard';
 
 interface ProjectDetailModalProps {
@@ -43,11 +43,12 @@ export default function ProjectDetailModal({
   const [zeniaType, setZeniaType] = useState<'condovilla' | 'parkhome'>('condovilla');
 
   const project = useMemo(() => {
-    if (originalProject.id !== 'zenia-damansara') {
-      return originalProject;
-    }
+    const getBase = () => {
+      if (originalProject.id !== 'zenia-damansara') {
+        return originalProject;
+      }
 
-    if (zeniaType === 'condovilla') {
+      if (zeniaType === 'condovilla') {
       let zeniaImage = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80';
       let zeniaGallery = [
         'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
@@ -126,7 +127,7 @@ export default function ProjectDetailModal({
       return {
         ...originalProject,
         name: lang === 'en' ? "Zenia Damansara (Condovilla)" : "Zenia Damansara (公寓别墅)",
-        propertyType: lang === 'en' ? "Condovilla" : "公寓别墅",
+        propertyType: (lang === 'en' ? "Condovilla" : "公寓别墅") as any,
         priceMin: 1300000,
         priceMax: 1950000,
         builtUpMin: 1691,
@@ -238,7 +239,7 @@ export default function ProjectDetailModal({
       return {
         ...originalProject,
         name: lang === 'en' ? "Zenia Damansara (Parkhome)" : "Zenia Damansara (庭院美墅)",
-        propertyType: lang === 'en' ? "Parkhome" : "庭院美墅",
+        propertyType: (lang === 'en' ? "Parkhome" : "庭院美墅") as any,
         priceMin: 2500000,
         priceMax: 3800000,
         builtUpMin: 3095,
@@ -273,6 +274,8 @@ export default function ProjectDetailModal({
         layoutPlans: zeniaLayouts
       };
     }
+    };
+    return getTranslatedProject(getBase(), lang);
   }, [originalProject, zeniaType, lang]);
 
   // Active Section Navigation Tab State (within the landing page)

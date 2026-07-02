@@ -6,7 +6,7 @@
 import React from 'react';
 import { X, GitCompare, CheckSquare } from 'lucide-react';
 import { Project } from '../types';
-import { TRANSLATIONS } from '../utils/translations';
+import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 
 interface CompareDrawerProps {
   comparedProjects: Project[];
@@ -16,12 +16,16 @@ interface CompareDrawerProps {
 }
 
 export default function CompareDrawer({
-  comparedProjects,
+  comparedProjects: rawComparedProjects,
   onRemove,
   onCompareNow,
   lang
 }: CompareDrawerProps) {
   const t = TRANSLATIONS[lang];
+
+  const comparedProjects = React.useMemo(() => {
+    return rawComparedProjects.map((p) => getTranslatedProject(p, lang));
+  }, [rawComparedProjects, lang]);
 
   if (comparedProjects.length === 0) return null;
 

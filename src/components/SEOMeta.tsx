@@ -32,9 +32,18 @@ interface SEOMetaProps {
 export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaProps) {
   useEffect(() => {
     // 1. DYNAMIC TITLE GENERATION
-    let title = 'Malaysia Homes | New Condo & Landed Property Portal | malaysiahomes.my';
-    let description = 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos across Kwasa Damansara, Petaling Jaya, and Damansara on malaysiahomes.my. Real-time insights, expert analysis, and direct WhatsApp hotlines.';
-    let keywords = 'malaysiahomes, malaysiahomes.my, Malaysia homes, new condo PJ, Kwasa Damansara property, Zenia Damansara, Atera Phase 2, D\'Tessera, buy condo Selangor, property comparison tool, house price Kuala Lumpur, real estate investment Malaysia, KLCC city view, residential parkhomes';
+    let title = 'Malaysia Homes | New Condo & Landed Property Portal | propertyportal.my';
+    let description = 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos across Kwasa Damansara, Petaling Jaya, and Damansara on propertyportal.my. Real-time insights, expert analysis, and direct WhatsApp hotlines.';
+    let baseKeywords = 'propertyportal, propertyportal.my, Malaysia homes, new condo PJ, Kwasa Damansara property, Zenia Damansara, Atera Phase 2, D\'Tessera, buy condo Selangor, property comparison tool, house price Kuala Lumpur, real estate investment Malaysia, KLCC city view, residential parkhomes';
+    let keywords = baseKeywords;
+
+    // Dynamically append all listing names and variations to improve directory coverage (extremely powerful for AISEO/GEO and search engines)
+    if (projects && projects.length > 0) {
+      const dynamicProjectTerms = projects.map(p => 
+        `${p.name}, ${p.name} price, ${p.name} floor plan, ${p.name} developer, buy ${p.name} ${p.area}`
+      ).join(', ');
+      keywords = `${dynamicProjectTerms}, ${baseKeywords}`;
+    }
 
     if (project) {
       const pName = project.name;
@@ -165,9 +174,9 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       schemaMarkup = {
         '@context': 'https://schema.org',
         '@type': 'RealEstateAgent',
-        '@id': 'https://malaysiahomes.my/#agency',
+        '@id': 'https://propertyportal.my/#agency',
         'name': 'Malaysia Homes',
-        'url': 'https://malaysiahomes.my',
+        'url': 'https://propertyportal.my',
         'logo': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80',
         'description': description,
         'telephone': '+60195598932',

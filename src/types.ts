@@ -91,8 +91,11 @@ export interface Article {
 export interface FAQItem {
   id: string;
   question: string;
+  questionZh?: string;
   answer: string;
+  answerZh?: string;
   category: string;
+  categoryZh?: string;
 }
 
 export type CurrencyCode = 'MYR' | 'SGD' | 'USD' | 'CNY';

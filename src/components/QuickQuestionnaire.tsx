@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, CheckCircle, Flame, ArrowRight, User, Phone, Mail, MapPin } from 'lucide-react';
 import { Project, Lead } from '../types';
-import { TRANSLATIONS } from '../utils/translations';
+import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 
 interface QuestionnaireProps {
   projects: Project[];
@@ -36,6 +36,9 @@ export default function QuickQuestionnaire({
   
   // Matches state
   const [matchedProjects, setMatchedProjects] = useState<Project[]>([]);
+  const translatedMatchedProjects = React.useMemo(() => {
+    return matchedProjects.map((p) => getTranslatedProject(p, lang));
+  }, [matchedProjects, lang]);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
   // States list helper
@@ -386,7 +389,7 @@ export default function QuickQuestionnaire({
 
             {/* Matched recommendations list */}
             <div className="mt-6 space-y-3 max-h-[240px] overflow-y-auto px-1">
-              {matchedProjects.map((proj) => (
+              {translatedMatchedProjects.map((proj) => (
                 <div
                   key={proj.id}
                   onClick={() => {

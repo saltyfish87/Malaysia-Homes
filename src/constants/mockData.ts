@@ -609,25 +609,37 @@ export const MOCK_FAQS: FAQItem[] = [
   {
     id: 'faq-foreigner',
     question: 'Can foreigners buy property in Malaysia?',
+    questionZh: '外籍买家可以在马来西亚买房吗？',
     answer: 'Yes! Foreigners can legally purchase properties under freehold or leasehold titles. However, they must adhere to State-specified minimum price thresholds (e.g., RM 1 million in Kuala Lumpur, RM 1 million in Selangor for developer projects, etc.) to ensure local housing markets remain balanced.',
-    category: 'Foreign Buyer'
+    answerZh: '可以！外籍人士可以合法购买马来西亚的永久产权或租赁产权房产。但必须遵守各州规定的最低购房门槛（例如，吉隆坡为100万令吉，雪兰莪州开发商项目为100万令吉等），以维护本地住房市场的平衡。',
+    category: 'Foreign Buyer',
+    categoryZh: '外籍买家'
   },
   {
     id: 'faq-downpayment',
     question: 'What is the minimum downpayment required for a home?',
+    questionZh: '在马来西亚买房首付比例是多少？',
     answer: 'For a first or second residential property, the standard bank margin of finance is 90%, requiring a minimum 10% cash downpayment. For third property ownership, the financing limit falls to 70%, requiring a 30% downpayment. Real estate taxes, lawyer fees, and stamp duty add roughly 3-5% in ancillary costs.',
-    category: 'Morgage'
+    answerZh: '对于第一套或第二套住宅，标准的银行贷款成数高达90%，即需要至少10%的现金首付。对于第三套房产，贷款成数降至70%，首付要求为30%。此外，契税、律师费和印花税等其他附加费用约占房产价格的3%至5%。',
+    category: 'Morgage',
+    categoryZh: '按揭贷款'
   },
   {
     id: 'faq-difference',
     question: 'What is the main difference between Freehold and Leasehold properties?',
+    questionZh: '永久产权（Freehold）和租赁产权（Leasehold）的主要区别是什么？',
     answer: 'Freehold property grants absolute indefinite ownership of the land. Leasehold titles grant tenancy ownership from the state governate for a specified period (typically 99 years). Leasehold properties are often priced slightly lower initially but may experience stagnating prices as the lease term approaches maturity under 40 years, unless extended.',
-    category: 'Property Type'
+    answerZh: '永久产权房产赋予买家对土地的绝对且无限期的所有权。租赁产权则表示在规定期限内（通常为99年）拥有州政府转让的使用权。租赁产权项目初期的定价通常略低，但随着租期剩余不足40年，除非申请延期，否则其增值空间可能会放缓。',
+    category: 'Property Type',
+    categoryZh: '产权类型'
   },
   {
     id: 'faq-airbnb-friendly',
     question: 'How can I check if a condominium is Airbnb-friendly?',
+    questionZh: '如何确认一个公寓项目是否支持经营民宿/Airbnb？',
     answer: 'Always look for projects that are built on commercial titles or explicitly classified as serviced apartments with commercial operations enabled in their joint-management body (JMB) bylaws. Projects designed with dual-key layouts and distinct concierge areas are optimized for short-term occupants.',
-    category: 'Investment'
+    answerZh: '务必选择建在商业土地上或明确分类为服务式公寓的项目，且其联合管理委员会（JMB）章程中明确允许商业民宿运营。拥有双钥匙（Dual-Key）户型和独立礼宾大堂等专门设计的产品最适合民宿出租。',
+    category: 'Investment',
+    categoryZh: '房产投资'
   }
 ];

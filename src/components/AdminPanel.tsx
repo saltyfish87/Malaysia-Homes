@@ -335,7 +335,7 @@ export default function AdminPanel({
               : 'border-transparent text-stone-500 hover:text-stone-850'
           }`}
         >
-          Manage Listing Projects ({projects.length})
+          {lang === 'en' ? 'Manage Listing Projects' : '房源项目数据管理'} ({projects.length})
         </button>
       </div>
 
@@ -351,7 +351,7 @@ export default function AdminPanel({
                 type="text"
                 value={leadSearchText}
                 onChange={(e) => setLeadSearchText(e.target.value)}
-                placeholder="Search leads by name, email, or intent project..."
+                placeholder={lang === 'en' ? 'Search leads by name, email, or intent project...' : '输入客户姓名、邮箱或意向项目搜索...'}
                 className="block w-full rounded-xl border border-stone-200 bg-white py-2 pl-9 pr-4 text-xs font-bold text-stone-900 focus:outline-hidden focus:border-teal-705"
               />
             </div>
@@ -376,11 +376,11 @@ export default function AdminPanel({
               <table className="w-full min-w-[700px] border-collapse text-xs">
                 <thead className="bg-[#FAF8F5] text-[10px] font-black uppercase tracking-wider text-stone-500">
                   <tr>
-                    <th className="p-4 text-left">Timestamp</th>
-                    <th className="p-4 text-left">Client Contact</th>
-                    <th className="p-4 text-left">Preferred Budget</th>
-                    <th className="p-4 text-left">Interest Sector</th>
-                    <th className="p-4 text-left">Follow-Up Action Status</th>
+                    <th className="p-4 text-left">{lang === 'en' ? 'Timestamp' : '提交时间'}</th>
+                    <th className="p-4 text-left">{lang === 'en' ? 'Client Contact' : '客户联系信息'}</th>
+                    <th className="p-4 text-left">{lang === 'en' ? 'Preferred Budget' : '意向购房预算'}</th>
+                    <th className="p-4 text-left">{lang === 'en' ? 'Interest Sector' : '意向房源项目'}</th>
+                    <th className="p-4 text-left">{lang === 'en' ? 'Follow-Up Action Status' : '跟进状态管理'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100 font-bold text-stone-700">
@@ -441,7 +441,7 @@ export default function AdminPanel({
               type="text"
               value={projectSearchText}
               onChange={(e) => setProjectSearchText(e.target.value)}
-              placeholder="Search properties by title, developer, or location..."
+              placeholder={lang === 'en' ? 'Search properties by title, developer, or location...' : '输入房源标题、开发商或地区搜索...'}
               className="block w-full rounded-xl border border-stone-200 bg-white py-2 pl-9 pr-4 text-xs font-bold text-stone-900 focus:outline-hidden focus:border-teal-705"
             />
           </div>
@@ -450,13 +450,13 @@ export default function AdminPanel({
             <table className="w-full min-w-[700px] border-collapse text-xs">
               <thead className="bg-[#FAF8F5] text-[10px] font-black uppercase tracking-wider text-stone-500">
                 <tr>
-                  <th className="p-4 text-left">Thumbnail</th>
-                  <th className="p-4 text-left">Project Name & Developer</th>
-                  <th className="p-4 text-left">Region Coordinates</th>
-                  <th className="p-4 text-left">Base Starting Price</th>
-                  <th className="p-4 text-left">Yield %</th>
-                  <th className="p-4 text-left">Features</th>
-                  <th className="p-4 text-center">Control Panel</th>
+                  <th className="p-4 text-left">{lang === 'en' ? 'Thumbnail' : '样板间图'}</th>
+                  <th className="p-4 text-left">{lang === 'en' ? 'Project Name & Developer' : '房产项目与开发品牌'}</th>
+                  <th className="p-4 text-left">{lang === 'en' ? 'Region Coordinates' : '州属及区域'}</th>
+                  <th className="p-4 text-left">{lang === 'en' ? 'Base Starting Price' : '起售价 (原币种)'}</th>
+                  <th className="p-4 text-left">{lang === 'en' ? 'Yield %' : '租金收益率'}</th>
+                  <th className="p-4 text-left">{lang === 'en' ? 'Features' : '推荐标签'}</th>
+                  <th className="p-4 text-center">{lang === 'en' ? 'Control Panel' : '管理控制'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 font-bold text-stone-700">
@@ -485,8 +485,8 @@ export default function AdminPanel({
                     </td>
                     <td className="p-4 text-left">
                       <div className="flex flex-wrap gap-1.5">
-                        {p.featured && <span className="bg-amber-100 text-amber-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase">Featured</span>}
-                        {p.airbnbFriendly && <span className="bg-emerald-100 text-emerald-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase">Airbnb Ready</span>}
+                        {p.featured && <span className="bg-amber-100 text-amber-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase">{lang === 'en' ? 'Featured' : '精品推荐'}</span>}
+                        {p.airbnbFriendly && <span className="bg-emerald-100 text-emerald-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase">{lang === 'en' ? 'Airbnb Ready' : '适合短租/民宿'}</span>}
                       </div>
                     </td>
                     <td className="p-4 text-center">
@@ -500,7 +500,7 @@ export default function AdminPanel({
                         </button>
                         <button
                           onClick={() => {
-                            if (confirm(`Erase structural project: ${p.name}?`)) onDeleteProject(p.id);
+                            if (confirm(lang === 'en' ? `Erase structural project: ${p.name}?` : `确定要永久删除房源项目: ${p.name} 吗？`)) onDeleteProject(p.id);
                           }}
                           className="rounded-lg bg-red-50 hover:bg-red-150 border border-stone-200 text-red-500 p-2 cursor-pointer"
                           title="Purge listings completely"

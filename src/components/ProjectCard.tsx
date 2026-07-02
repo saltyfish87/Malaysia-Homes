@@ -7,7 +7,7 @@ import React from 'react';
 import { MapPin, Heart, ArrowRight, Sparkles, Building2, CheckSquare } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Project, CurrencyCode } from '../types';
-import { TRANSLATIONS } from '../utils/translations';
+import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 import { CURRENCIES } from '../constants/mockData';
 
 interface ProjectCardProps {
@@ -33,7 +33,7 @@ export function formatPrice(value: number, currencyCode: CurrencyCode): string {
 }
 
 export default function ProjectCard({
-  project,
+  project: rawProject,
   currency,
   lang,
   isFavorite,
@@ -42,6 +42,7 @@ export default function ProjectCard({
   onToggleCompare,
   onViewDetails
 }: ProjectCardProps) {
+  const project = getTranslatedProject(rawProject, lang);
   const t = TRANSLATIONS[lang];
 
   return (
@@ -131,21 +132,21 @@ export default function ProjectCard({
             <span className="block text-xs font-mono font-black text-stone-900">
               {project.bedrooms} / {project.bathrooms}
             </span>
-            <span>Bed / Bath</span>
+            <span>{lang === 'en' ? 'Bed / Bath' : '卧室/卫浴'}</span>
           </div>
           <div className="border-l border-stone-200 h-6" />
           <div>
             <span className="block text-xs font-mono font-black text-stone-900">
               {project.builtUpMin} - {project.builtUpMax}
             </span>
-            <span>sqft</span>
+            <span>{lang === 'en' ? 'sqft' : '平方英尺'}</span>
           </div>
           <div className="border-l border-stone-200 h-6" />
           <div>
             <span className="block text-xs font-mono font-black text-stone-900">
               {project.completionYear}
             </span>
-            <span>Completion</span>
+            <span>{lang === 'en' ? 'Completion' : '交房年份'}</span>
           </div>
         </div>
 

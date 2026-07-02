@@ -25,13 +25,23 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
     return ['All', ...Array.from(new Set(raw))];
   }, [faqs]);
 
+  const categoryTranslations: Record<string, string> = {
+    'All': lang === 'en' ? 'All' : '全部',
+    'Foreign Buyer': lang === 'en' ? 'Foreign Buyer' : '外籍买家',
+    'Morgage': lang === 'en' ? 'Mortgage' : '按揭贷款',
+    'Property Type': lang === 'en' ? 'Property Type' : '产权类型',
+    'Investment': lang === 'en' ? 'Investment' : '房产投资'
+  };
+
   // Filters FAQ matching Category and Text
   const filteredFaqs = useMemo(() => {
     return faqs.filter((f) => {
       const catMatch = activeCategory === 'All' || f.category === activeCategory;
       const textMatch = 
         f.question.toLowerCase().includes(searchText.toLowerCase()) ||
-        f.answer.toLowerCase().includes(searchText.toLowerCase());
+        f.answer.toLowerCase().includes(searchText.toLowerCase()) ||
+        (f.questionZh && f.questionZh.includes(searchText)) ||
+        (f.answerZh && f.answerZh.includes(searchText));
       return catMatch && textMatch;
     });
   }, [faqs, activeCategory, searchText]);
@@ -65,7 +75,7 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder={lang === 'en' ? 'Search 置业 FAQ...' : '搜索常见置业百科...'}
+            placeholder={lang === 'en' ? 'Search FAQ...' : '搜索常见置业百科...'}
             className="block w-full rounded-lg border border-stone-200 bg-stone-50 py-1.5 pl-9 pr-3 text-xs font-bold text-stone-900 focus:border-teal-700 focus:outline-hidden"
           />
         </div>
@@ -82,7 +92,7 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
                   : 'text-stone-500 hover:bg-stone-100 hover:text-stone-850'
               }`}
             >
-              {cat}
+              {categoryTranslations[cat] || cat}
             </button>
           ))}
         </div>
@@ -109,7 +119,7 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
                   className="flex w-full items-center justify-between p-4 text-left cursor-pointer"
                 >
                   <span className="font-display font-bold text-sm text-stone-900 hover:text-teal-750 transition-colors">
-                    {faq.question}
+                    {lang === 'zh' && faq.questionZh ? faq.questionZh : faq.question}
                   </span>
                   {isOpen ? (
                     <ChevronUp className="h-4 w-4 text-teal-750" />
@@ -121,10 +131,10 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
                 {isOpen && (
                   <div className="border-t border-stone-100 p-4 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
                     <p className="text-xs text-stone-600 leading-relaxed font-bold">
-                      {faq.answer}
+                      {lang === 'zh' && faq.answerZh ? faq.answerZh : faq.answer}
                     </p>
                     <span className="mt-2 text-[9px] font-extrabold uppercase tracking-widest text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full inline-block">
-                      ★ {faq.category}
+                      ★ {lang === 'zh' && faq.categoryZh ? faq.categoryZh : (categoryTranslations[faq.category] || faq.category)}
                     </span>
                   </div>
                 )}

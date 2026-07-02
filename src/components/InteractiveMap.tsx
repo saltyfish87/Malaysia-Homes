@@ -6,7 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Project, CurrencyCode } from '../types';
 import { MapPin, Search, ExternalLink, X, RefreshCw, ZoomIn, ZoomOut, Maximize2, Minimize2 } from 'lucide-react';
-import { TRANSLATIONS } from '../utils/translations';
+import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 import { CURRENCIES } from '../constants/mockData';
 import ProjectCard from './ProjectCard';
 
@@ -57,7 +57,7 @@ const MAP_THEMES = [
 ];
 
 export default function InteractiveMap({
-  projects,
+  projects: rawProjects,
   currency,
   lang,
   onViewProject,
@@ -68,6 +68,11 @@ export default function InteractiveMap({
   onRefreshData
 }: InteractiveMapProps) {
   const t = TRANSLATIONS[lang];
+
+  const projects = React.useMemo(() => {
+    return rawProjects.map((p) => getTranslatedProject(p, lang));
+  }, [rawProjects, lang]);
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
