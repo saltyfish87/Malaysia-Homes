@@ -250,21 +250,29 @@ export default function Header({
             )}
           </div>
 
-          {/* Cloud Sync Database Settings Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setTab('admin');
-            }}
-            className={`hidden lg:flex h-8 w-8 items-center justify-center rounded-lg border transition-colors cursor-pointer shrink-0 z-50 ${
-              currentTab === 'admin'
-                ? 'border-teal-500 bg-teal-50 text-teal-700'
-                : 'border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100'
-            }`}
-            title="Workspace live sync database"
-          >
-            <Settings className={`h-4 w-4 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
-          </button>
+          {/* Cloud Sync Database Settings Button (Only visible to developers/admins in AI Studio preview, localhost, or with custom parameters) */}
+          {(typeof window !== 'undefined' && (
+            window.location.hostname.includes('localhost') || 
+            window.location.hostname.includes('run.app') || 
+            window.location.search.includes('admin=true') ||
+            window.location.search.includes('dev=true') ||
+            localStorage.getItem('admin_mode') === 'true'
+          )) && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setTab('admin');
+              }}
+              className={`hidden lg:flex h-8 w-8 items-center justify-center rounded-lg border transition-colors cursor-pointer shrink-0 z-50 ${
+                currentTab === 'admin'
+                  ? 'border-teal-500 bg-teal-50 text-teal-700'
+                  : 'border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100'
+              }`}
+              title="Workspace live sync database"
+            >
+              <Settings className={`h-4 w-4 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+            </button>
+          )}
 
           {/* Phone Quick CTA */}
           <a

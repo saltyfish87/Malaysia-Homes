@@ -1536,10 +1536,20 @@ export default function App() {
                     setSelectedProject(p);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="w-[224px] shrink-0 p-4 rounded-xl bg-white border border-[#ebdcb9]/60 hover:border-teal-700 hover:text-teal-800 transition-all cursor-pointer text-center hover:scale-[1.03] shadow-xs hover:shadow-md"
+                  className="w-[224px] shrink-0 p-3 rounded-xl bg-white border border-[#ebdcb9]/60 hover:border-teal-700 hover:text-teal-800 transition-all cursor-pointer text-center hover:scale-[1.03] shadow-xs hover:shadow-md group"
                 >
-                  <div className="font-bold text-stone-900 truncate text-xs">{p.name}</div>
-                  <div className="text-[10px] text-stone-500 truncate mt-1">{p.developer}</div>
+                  {/* Aspect-ratio image container with beautiful hover effects */}
+                  <div className="h-28 w-full bg-stone-100 mb-3 rounded-lg overflow-hidden relative border border-stone-100/50">
+                    <img 
+                      src={p.image || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80'} 
+                      alt={p.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="font-bold text-stone-900 truncate text-xs group-hover:text-teal-800">{p.name}</div>
+                  <div className="text-[10px] text-stone-500 truncate mt-0.5">{p.developer}</div>
                   <div className="text-[9px] text-teal-800 font-bold uppercase mt-2.5 bg-teal-50/50 py-1 px-2 rounded-md inline-block">
                     {p.area}, {p.state}
                   </div>
