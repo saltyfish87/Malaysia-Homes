@@ -54,10 +54,10 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
 
       if (lang === 'en') {
         title = `${pName} Price, Location, Floor Plan & Review | ${pArea} ${pType}`;
-        description = `Explore ${pName} by ${pDev} in ${pArea}, ${project.state}. Premium ${pType} starting from ${pPrice}. Review floor plans (${project.sizeMin}-${project.sizeMax} sqft), completion date (${project.completionYear}), tenure (${project.tenure}), and investment score of ${project.investmentScore}/10.`;
+        description = `Explore ${pName} by ${pDev} in ${pArea}, ${project.state}. Premium ${pType} starting from ${pPrice}. Review floor plans (${project.sizeMin}-${project.sizeMax} sqft), completion date (${project.completionYear}), and tenure (${project.tenure}).`;
       } else {
         title = `${pName} 价格、位置、户型图与开发商信息 | ${pArea} 房产推荐`;
-        description = `了解由著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺)、产权 (${project.tenure}) 及投资评分。`;
+        description = `了解由著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺) 及产权 (${project.tenure})。`;
       }
 
       // Add project-specific high-traffic search terms

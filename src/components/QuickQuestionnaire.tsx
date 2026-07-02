@@ -420,9 +420,6 @@ export default function QuickQuestionnaire({
                     <p className="font-mono text-xs font-black text-teal-750">
                       RM {(proj.priceMin / 1000000).toFixed(2)}M +
                     </p>
-                    <p className="text-[10px] text-teal-800 font-black bg-teal-500/10 px-1.5 py-0.5 rounded-full mt-1 inline-block">
-                      ★ {proj.investmentScore} Score
-                    </p>
                   </div>
                 </div>
               ))}

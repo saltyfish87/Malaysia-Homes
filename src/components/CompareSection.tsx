@@ -256,55 +256,7 @@ export default function CompareSection({
                 ))}
               </tr>
 
-              {/* Investment Strength Score */}
-              <tr>
-                <td className="p-4 bg-stone-50 font-black text-stone-900">
-                  {t.investmentAdvantage}
-                </td>
-                {comparedProjects.map((proj) => (
-                  <td key={proj.id} className="p-4 border-l border-stone-200">
-                    <div className="flex items-center space-x-1 font-mono text-sm font-black text-teal-750">
-                      <Sparkles className="h-4 w-4" />
-                      <span>★ {proj.investmentScore} / 10</span>
-                    </div>
-                  </td>
-                ))}
-                {Array.from({ length: 3 - comparedProjects.length }).map((_, idx) => (
-                  <td key={idx} className="p-4 border-l border-stone-200" />
-                ))}
-              </tr>
 
-              {/* Own Stay score */}
-              <tr>
-                <td className="p-4 bg-stone-50 font-black text-stone-900">
-                  {t.ownStayComfort}
-                </td>
-                {comparedProjects.map((proj) => (
-                  <td key={proj.id} className="p-4 border-l border-stone-200">
-                    <div className="flex items-center space-x-1 font-mono text-sm font-bold text-stone-800">
-                      <span>★ {proj.ownStayScore} / 10</span>
-                    </div>
-                  </td>
-                ))}
-                {Array.from({ length: 3 - comparedProjects.length }).map((_, idx) => (
-                  <td key={idx} className="p-4 border-l border-stone-200" />
-                ))}
-              </tr>
-
-              {/* Projected Rental Yields */}
-              <tr>
-                <td className="p-4 bg-stone-50 font-black text-stone-900">
-                  {t.rentalYieldEst}
-                </td>
-                {comparedProjects.map((proj) => (
-                  <td key={proj.id} className="p-4 border-l border-stone-200 text-teal-750 font-black font-mono text-sm">
-                    {proj.rentalYield.toFixed(1)}% p.a.
-                  </td>
-                ))}
-                {Array.from({ length: 3 - comparedProjects.length }).map((_, idx) => (
-                  <td key={idx} className="p-4 border-l border-stone-200" />
-                ))}
-              </tr>
 
               {/* Land tenure specs */}
               <tr>

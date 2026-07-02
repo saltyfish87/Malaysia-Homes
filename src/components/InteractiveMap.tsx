@@ -543,7 +543,6 @@ export default function InteractiveMap({
                       </div>
                       <div className="text-right shrink-0 flex flex-col items-end">
                         <span className="text-xs font-black font-mono text-stone-900">{formatProjectPrice(proj.priceMin)}</span>
-                        <span className="text-[9px] text-teal-750 font-black mt-1">★ {proj.investmentScore}/10</span>
                       </div>
                     </div>
                   </div>
@@ -624,9 +623,6 @@ export default function InteractiveMap({
                 <div className="flex items-baseline justify-between mt-1 gap-2">
                   <span className="text-xs font-black font-mono text-stone-900">
                     From {formatProjectPrice(selectedProject.priceMin)}
-                  </span>
-                  <span className="text-[9.5px] text-teal-755 font-black flex items-center gap-0.5">
-                    ★ {selectedProject.investmentScore}/10
                   </span>
                 </div>
               </div>
