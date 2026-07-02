@@ -152,7 +152,7 @@ async function startServer() {
   app.use(express.json());
 
   // API Route: Google Drive Scraper
-  app.get('/api/drive-images', async (req, res) => {
+  app.get(['/api/drive-images', '/drive-images'], async (req, res) => {
     const isForceRefresh = req.query.refresh === 'true';
     if (driveCache && (Date.now() - driveCacheTime < DRIVE_CACHE_TTL) && !isForceRefresh) {
       return res.json({ success: true, cached: true, driveMap: driveCache });
@@ -170,7 +170,7 @@ async function startServer() {
   });
 
   // API Route: Google Sheets Listings Data
-  app.get('/api/sheets-listings', async (req, res) => {
+  app.get(['/api/sheets-listings', '/sheets-listings'], async (req, res) => {
     try {
       const SPREADSHEET_ID = '1__k-dTt9oxBZSKKp9wI2O42l8QiBpqy0O9dwZK1jyqQ';
       const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=2052526095&cb=${Date.now()}`;
@@ -187,7 +187,7 @@ async function startServer() {
   });
 
   // API Route: Google Sheets Coordinates/Locations Data
-  app.get('/api/sheets-locations', async (req, res) => {
+  app.get(['/api/sheets-locations', '/sheets-locations'], async (req, res) => {
     try {
       const SPREADSHEET_ID = '1__k-dTt9oxBZSKKp9wI2O42l8QiBpqy0O9dwZK1jyqQ';
       const locUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Locations&cb=${Date.now()}`;
@@ -204,7 +204,7 @@ async function startServer() {
   });
 
   // API Route: Google Sheets Full Project Details Data
-  app.get('/api/sheets-full-details', async (req, res) => {
+  app.get(['/api/sheets-full-details', '/sheets-full-details'], async (req, res) => {
     try {
       const SPREADSHEET_ID = '1__k-dTt9oxBZSKKp9wI2O42l8QiBpqy0O9dwZK1jyqQ';
       const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=1727767414&cb=${Date.now()}`;
@@ -221,7 +221,7 @@ async function startServer() {
   });
 
   // API Route: Secure Backend Image Proxy to solve public view Google Drive 403 / Cookie blocks
-  app.get('/api/image-proxy', async (req, res) => {
+  app.get(['/api/image-proxy', '/image-proxy'], async (req, res) => {
     const fileId = req.query.id as string;
     if (!fileId || typeof fileId !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(fileId)) {
       return res.status(400).send('Invalid or missing Google Drive file ID');
@@ -270,7 +270,7 @@ async function startServer() {
   });
 
   // Dynamic sitemap.xml for SEO, AISEO, and GEO indexing of all projects
-  app.get('/sitemap.xml', async (req, res) => {
+  app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
     res.header('Content-Type', 'application/xml');
     
     // Set up default/fallback project IDs (from mock data)
@@ -353,7 +353,7 @@ async function startServer() {
   });
 
   // Serve robots.txt pointing to the dynamic sitemap
-  app.get('/robots.txt', (req, res) => {
+  app.get(['/robots.txt', '/robots'], (req, res) => {
     res.header('Content-Type', 'text/plain');
     res.send(`User-agent: *\nAllow: /\n\nSitemap: https://propertyportal.my/sitemap.xml\n`);
   });
