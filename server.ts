@@ -42,7 +42,7 @@ async function scrapePublicDriveImages() {
       flatFilesList.push({
         id: fileId,
         name: title,
-        url: `https://lh3.googleusercontent.com/d/${fileId}`
+        url: `/api/image-proxy?id=${fileId}`
       });
     }
   }
@@ -102,7 +102,7 @@ async function scrapePublicDriveImages() {
             const fileId = sHref.split('/file/d/')[1].split('/')[0].split(/[?#]/)[0];
             const sTitleMatch = sInner.match(/<div class="flip-entry-title">([^<]+)<\/div>/);
             const sTitle = sTitleMatch ? sTitleMatch[1].trim() : '';
-            const fileUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+            const fileUrl = `/api/image-proxy?id=${fileId}`;
             const lowerName = sTitle.toLowerCase();
             
             files.push({ name: sTitle, url: fileUrl });
@@ -217,6 +217,55 @@ async function startServer() {
     } catch (error: any) {
       console.error('Error exporting sheet full details:', error);
       res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // API Route: Secure Backend Image Proxy to solve public view Google Drive 403 / Cookie blocks
+  app.get('/api/image-proxy', async (req, res) => {
+    const fileId = req.query.id as string;
+    if (!fileId || typeof fileId !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(fileId)) {
+      return res.status(400).send('Invalid or missing Google Drive file ID');
+    }
+
+    const tryFetch = async (url: string) => {
+      return fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36'
+        }
+      });
+    };
+
+    try {
+      // 1. Try fetching from the high-speed cookieless CDN first
+      let driveRes = await tryFetch(`https://lh3.googleusercontent.com/d/${fileId}`);
+      
+      // 2. Fallback to thumbnail generator if CDN fails or returns non-ok status
+      if (!driveRes.ok) {
+        console.warn(`Direct CDN fetch failed for ${fileId} (Status: ${driveRes.status}). Trying thumbnail endpoint...`);
+        driveRes = await tryFetch(`https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`);
+      }
+
+      // 3. Fallback to direct uc download link
+      if (!driveRes.ok) {
+        console.warn(`Thumbnail fetch failed for ${fileId}. Trying direct download link...`);
+        driveRes = await tryFetch(`https://drive.google.com/uc?export=download&id=${fileId}`);
+      }
+
+      if (driveRes.ok) {
+        const contentType = driveRes.headers.get('content-type') || 'image/jpeg';
+        res.setHeader('Content-Type', contentType);
+        // Instruct browsers and edge proxies/CDNs to cache this for 30 days (extremely efficient)
+        res.setHeader('Cache-Control', 'public, max-age=2592000, stale-while-revalidate=86400');
+        
+        const buffer = await driveRes.arrayBuffer();
+        return res.send(Buffer.from(buffer));
+      }
+
+      throw new Error(`All Google Drive fetch attempts failed (Status: ${driveRes.status})`);
+    } catch (err: any) {
+      console.error(`Proxy error for file ${fileId}:`, err.message);
+      // Serve a beautiful, highly polished, premium placeholder image so the frontend never has broken links!
+      res.redirect('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80');
     }
   });
 

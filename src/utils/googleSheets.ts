@@ -35,10 +35,10 @@ export function normalizeDriveUrl(url: string): string {
     }
   }
 
-  // If a valid Google Drive file ID was matched, convert to a direct cookieless CDN URL (lh3.googleusercontent.com/d/)
-  // This bypasses Chrome/Safari/Firefox third-party cookie restrictions and renders images for logged-out public visitors
+  // If a valid Google Drive file ID was matched, convert to our secure backend image proxy URL.
+  // This bypasses browser third-party cookie blocks, SameSite rules, and Google Drive CDN rate-limits for logged-out public visitors.
   if (fileId) {
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
+    return `/api/image-proxy?id=${fileId}`;
   }
 
   return url;
