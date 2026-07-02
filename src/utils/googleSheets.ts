@@ -28,16 +28,17 @@ export function normalizeDriveUrl(url: string): string {
   if (fileDMatch) {
     fileId = fileDMatch[1];
   } else {
-    // Pattern 2/3: id=1_Sg_84z... inside open?id= or uc?id=
+    // Pattern 2/3: id=1_Sg_84z... inside open?id=, uc?id=, or thumbnail?id=
     const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if (idParamMatch) {
       fileId = idParamMatch[1];
     }
   }
 
-  // If a valid Google Drive file ID was matched, convert to a direct thumbnail image URL
+  // If a valid Google Drive file ID was matched, convert to a direct cookieless CDN URL (lh3.googleusercontent.com/d/)
+  // This bypasses Chrome/Safari/Firefox third-party cookie restrictions and renders images for logged-out public visitors
   if (fileId) {
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`;
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
 
   return url;

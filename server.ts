@@ -42,7 +42,7 @@ async function scrapePublicDriveImages() {
       flatFilesList.push({
         id: fileId,
         name: title,
-        url: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`
+        url: `https://lh3.googleusercontent.com/d/${fileId}`
       });
     }
   }
@@ -102,7 +102,7 @@ async function scrapePublicDriveImages() {
             const fileId = sHref.split('/file/d/')[1].split('/')[0].split(/[?#]/)[0];
             const sTitleMatch = sInner.match(/<div class="flip-entry-title">([^<]+)<\/div>/);
             const sTitle = sTitleMatch ? sTitleMatch[1].trim() : '';
-            const fileUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`;
+            const fileUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
             const lowerName = sTitle.toLowerCase();
             
             files.push({ name: sTitle, url: fileUrl });
