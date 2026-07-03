@@ -584,60 +584,7 @@ export default function InteractiveMap({
           <div ref={mapContainerRef} className="w-full h-full z-0" id="leaflet-render-canvas" />
         )}
 
-        {/* MOBILE FLOATING COMPACT CARD OVERLAY */}
-        {selectedProject && (
-          <div className="absolute bottom-22 left-4 right-4 sm:left-6 sm:right-6 lg:hidden z-[1001] animate-in slide-in-from-bottom-5 duration-300">
-            <div className="relative bg-white rounded-3xl shadow-2xl border border-stone-150 p-3 flex gap-3.5 items-center">
-              
-              <button
-                type="button"
-                onClick={() => setSelectedProject(null)}
-                className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-stone-900 text-white shadow-lg hover:scale-110 active:scale-95 border border-white/20 z-10 cursor-pointer"
-                title={lang === 'en' ? 'Close Overlay' : '关闭浮窗'}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
 
-              <div 
-                onClick={() => onViewProject(selectedProject)}
-                className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"
-              >
-                <img 
-                  src={selectedProject.image || undefined} 
-                  alt={selectedProject.name} 
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover" 
-                />
-              </div>
-
-              <div className="flex-1 min-w-0 pr-1 cursor-pointer text-left" onClick={() => onViewProject(selectedProject)}>
-                <span className="text-[8.5px] font-black tracking-widest text-[#C5A059] uppercase block truncate mb-0.5">
-                  {selectedProject.developer}
-                </span>
-                <h4 className="text-xs sm:text-xs.1 font-black text-stone-900 truncate leading-snug">
-                  {selectedProject.name}
-                </h4>
-                <p className="text-[10px] text-stone-500 font-bold truncate leading-tight">
-                  {selectedProject.area}, {selectedProject.state}
-                </p>
-                <div className="flex items-baseline justify-between mt-1 gap-2">
-                  <span className="text-xs font-black font-mono text-stone-900">
-                    From {formatProjectPrice(selectedProject.priceMin)}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => onViewProject(selectedProject)}
-                className="flex items-center justify-center h-9 w-9 rounded-2xl bg-stone-900 text-white hover:scale-105 active:scale-95 shrink-0 shadow-xs cursor-pointer"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </button>
-
-            </div>
-          </div>
-        )}
 
         {/* CUSTOM ZOOM BUTTONS */}
         {isLoaded && !loadError && (
