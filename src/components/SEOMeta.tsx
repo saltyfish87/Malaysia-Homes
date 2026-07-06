@@ -101,6 +101,22 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     updateMetaTag('keywords', keywords);
     updateMetaTag('robots', 'index, follow');
 
+    // Dynamic Canonical URL Injection to solve "User-declared canonical: None"
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    const domain = 'https://propertyportal.my';
+    let canonicalUrl = domain + '/';
+    if (project) {
+      canonicalUrl = `${domain}/?project=${project.id}`;
+    } else if (tab && tab !== 'home') {
+      canonicalUrl = `${domain}/?tab=${tab}`;
+    }
+    canonicalLink.setAttribute('href', canonicalUrl);
+
     // Google Site Verification (Read from environment or use a verified code fallback)
     const gVerification = (import.meta as any).env?.VITE_GOOGLE_VERIFICATION || 'g-google-site-verification-placeholder-code-12345';
     updateMetaTag('google-site-verification', gVerification);

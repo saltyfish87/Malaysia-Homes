@@ -151,6 +151,21 @@ async function startServer() {
   // Express JSON Parsing
   app.use(express.json());
 
+  // Vercel Serverless Rewrite helper: ensures that when Vercel rewrites /sitemap.xml or /robots.txt to the function,
+  // the original request path is matched back so Express routes match correctly.
+  app.use((req, res, next) => {
+    const url = req.url || '';
+    const originalUrl = req.originalUrl || '';
+    const matchedPath = (req.headers['x-matched-path'] as string) || '';
+
+    if (url.includes('sitemap') || originalUrl.includes('sitemap') || matchedPath.includes('sitemap')) {
+      req.url = '/sitemap.xml';
+    } else if (url.includes('robots') || originalUrl.includes('robots') || matchedPath.includes('robots')) {
+      req.url = '/robots.txt';
+    }
+    next();
+  });
+
   // API Route: Google Drive Scraper
   app.get(['/api/drive-images', '/drive-images'], async (req, res) => {
     const isForceRefresh = req.query.refresh === 'true';
