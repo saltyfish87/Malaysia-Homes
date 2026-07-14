@@ -1,0 +1,327 @@
+# propertyportal.my - Malaysia Homes Real Estate Portal
+
+The premier directory, comparison tool, and interactive map directory for new property launches, luxury condominiums, serviced apartments, and landed parkhomes in Kuala Lumpur and Selangor, Malaysia.
+
+## Contact Information
+- **Website**: https://propertyportal.my/
+- **Sitemap**: https://propertyportal.my/sitemap.xml
+- **Focus Regions**: Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, Bangsar, Old Klang Road, KLCC, Seputeh, Sri Petaling, Kuala Lumpur, Selangor.
+
+---
+
+## Active Projects Database
+
+1. **Zenia Damansara**
+   - **Developer**: Park City
+   - **Location**: Kwasa Damansara, Selangor
+   - **Type**: Landed Parkhomes
+   - **Price**: RM 1,300,000 - RM 3,800,000
+   - **Tenure**: Leasehold
+   - **Sizes**: 1,691 - 4,247 sqft (Up to 4 Beds)
+   - **Slug/URL**: https://propertyportal.my/?project=zenia-damansara
+
+2. **Tujuh Residences**
+   - **Developer**: Kwasa Sentral Sdn Bhd (MRCB)
+   - **Location**: Kwasa Damansara, Selangor
+   - **Type**: Serviced Apartment
+   - **Price**: RM 501,000 - RM 839,000
+   - **Tenure**: Leasehold
+   - **Sizes**: 550 - 909 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=tujuh-kwasa
+
+3. **Atera Phase 2**
+   - **Developer**: Paramount Property (Aneka Sepakat Sdn Bhd)
+   - **Location**: Petaling Jaya, Selangor
+   - **Type**: Serviced Apartment
+   - **Price**: RM 691,400 - RM 1,290,000
+   - **Tenure**: Leasehold
+   - **Sizes**: 775 - 1,420 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=atera-phase2
+
+4. **Amika**
+   - **Developer**: Avaland (Next Delta Sdn Bhd)
+   - **Location**: Subang Jaya, Selangor
+   - **Type**: Serviced Apartment
+   - **Price**: RM 697,800 - RM 960,800
+   - **Tenure**: Freehold
+   - **Sizes**: 883 - 1,227 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=amika
+
+5. **Anya**
+   - **Developer**: OSK Property (Aspect Potential Sdn Bhd)
+   - **Location**: Puchong, Selangor
+   - **Type**: Serviced Apartment
+   - **Price**: RM 504,000 - RM 748,000
+   - **Tenure**: Freehold
+   - **Sizes**: 560 - 1,389 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=anya
+
+6. **Aricia**
+   - **Developer**: Fiamma Properties Sdn Bhd
+   - **Location**: Chan Sow Lin, Kuala Lumpur
+   - **Type**: Serviced Apartment
+   - **Price**: RM 461,000 - RM 1,137,000
+   - **Tenure**: Freehold
+   - **Sizes**: 550 - 1,420 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=aricia
+
+7. **Aster Hill Sri Petaling**
+   - **Developer**: UOA Development Bhd
+   - **Location**: Sri Petaling, Kuala Lumpur
+   - **Type**: Serviced Apartment
+   - **Price**: RM 518,000 - RM 843,300
+   - **Tenure**: Freehold
+   - **Sizes**: 846 - 1,077 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=aster-hill
+
+8. **Avantro Residences**
+   - **Developer**: Chin Hin Group
+   - **Location**: Bukit Jalil, Kuala Lumpur
+   - **Type**: Serviced Apartment
+   - **Price**: RM 664,000 - RM 1,250,000
+   - **Tenure**: Freehold
+   - **Sizes**: 550 - 1,389 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=avantro
+
+9. **Ayanna**
+   - **Developer**: BKSP Autoworld Sdn Bhd
+   - **Location**: Bukit Jalil, Kuala Lumpur
+   - **Type**: Condo
+   - **Price**: RM 753,000 - RM 911,000
+   - **Tenure**: Freehold
+   - **Sizes**: 1,155 - 2,453 sqft
+   - **Slug/URL**: https://propertyportal.my/?project=ayanna-res
+
+10. **Bangsar Hill Park – Tower B & C**
+    - **Developer**: Bangsar Hill Park Development Sdn Bhd
+    - **Location**: Bangsar, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 1,123,000 - RM 1,742,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 917 - 1,478 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=bangsar-hill-bc
+
+11. **Bangsar Hill Park – Verdura (Tower D & E)**
+    - **Developer**: Bangsar Hill Park Development Sdn Bhd
+    - **Location**: Bangsar, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 1,200,000 - RM 1,800,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 917 - 1,478 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=bangsar-hill-verdura
+
+12. **CloutHaus**
+    - **Developer**: TA Global
+    - **Location**: KLCC, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 1,548,800 - RM 4,694,800
+    - **Tenure**: Freehold
+    - **Sizes**: 549 - 1,216 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=clouthaus-res
+
+13. **Core Residence @ TRX**
+    - **Developer**: Core Precious Development Sdn Bhd
+    - **Location**: TRX, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 1,500,000 - RM 4,660,000
+    - **Tenure**: Freehold
+    - **Sizes**: 622 - 1,572 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=core-trx
+
+14. **GenStarz**
+    - **Developer**: Majestic Gen Sdn Bhd
+    - **Location**: Old Klang Road, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 593,000 - RM 867,000
+    - **Tenure**: Freehold
+    - **Sizes**: 650 - 874 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=genstarz-res
+
+15. **Luminar Residence (Federal Avenue)**
+    - **Developer**: BRDB
+    - **Location**: Subang Jaya, Selangor
+    - **Type**: Serviced Apartment
+    - **Price**: RM 356,000 - RM 1,027,000
+    - **Tenure**: Freehold
+    - **Sizes**: 549 - 1,389 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=luminar-subang
+
+16. **M Aspira**
+    - **Developer**: Mah Sing Group
+    - **Location**: Taman Desa, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 538,800 - RM 1,000,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 706 - 1,006 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=m-aspira
+
+17. **The Maple Residences**
+    - **Developer**: WCT Land Sdn Bhd
+    - **Location**: OUG, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 600,000 - RM 1,200,000
+    - **Tenure**: Freehold
+    - **Sizes**: 808 - 1,378 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=maple-oug
+
+18. **OAKA Residences**
+    - **Developer**: Berjaya Hartanah Berhad
+    - **Location**: Bukit Jalil, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 836,000 - RM 1,503,000
+    - **Tenure**: Freehold
+    - **Sizes**: 882 - 1,423 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=oaka-res
+
+19. **One Seputeh**
+    - **Developer**: Seputeh Resources Sdn Bhd
+    - **Location**: Seputeh, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 722,700 - RM 1,772,100
+    - **Tenure**: Freehold
+    - **Sizes**: 657 - 1,611 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=one-seputeh
+
+20. **Orion Residence**
+    - **Developer**: Orion Tower Sdn Bhd
+    - **Location**: Bukit Bintang, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 1,580,000 - RM 4,200,000
+    - **Tenure**: Freehold
+    - **Sizes**: 491 - 1,329 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=orion-bid
+
+21. **Park Green Pavilion Bukit Jalil**
+    - **Developer**: Malton Berhad
+    - **Location**: Bukit Jalil, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 1,209,100 - RM 2,000,000
+    - **Tenure**: Freehold
+    - **Sizes**: 1,201 - 1,905 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=park-green
+
+22. **Quaver Residence**
+    - **Developer**: Quaver Sdn Bhd
+    - **Location**: Kuchai Lama, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 555,000 - RM 1,200,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 1,017 - 1,850 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=quaver-kl
+
+23. **Radium Arena**
+    - **Developer**: Radium Development Berhad
+    - **Location**: Old Klang Road, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 480,000 - RM 950,000
+    - **Tenure**: Freehold
+    - **Sizes**: 658 - 920 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=radium-arena
+
+24. **Riverville Residences 2**
+    - **Developer**: Alzac Development Sdn Bhd
+    - **Location**: Old Klang Road, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 430,000 - RM 625,000
+    - **Tenure**: Freehold
+    - **Sizes**: 803 - 915 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=riverville2
+
+25. **Tria Seputeh**
+    - **Developer**: MRCB
+    - **Location**: Seputeh, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 736,800 - RM 3,547,800
+    - **Tenure**: Leasehold
+    - **Sizes**: 764 - 4,575 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=tria-seputeh
+
+26. **Vox**
+    - **Developer**: Kerjaya Property Sdn Bhd
+    - **Location**: Sentul, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 523,200 - RM 782,300
+    - **Tenure**: Freehold
+    - **Sizes**: 667 - 947 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=vox-sentul
+
+27. **Wyn**
+    - **Developer**: Forward Victory Sdn Bhd
+    - **Location**: Puchong, Selangor
+    - **Type**: Serviced Apartment
+    - **Price**: RM 516,700 - RM 708,900
+    - **Tenure**: Leasehold
+    - **Sizes**: 700 - 850 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=wyn-puchong
+
+28. **Ren Residence**
+    - **Developer**: Gaya Kuasa Sdn Bhd
+    - **Location**: Bukit Jalil, Kuala Lumpur
+    - **Type**: Condo
+    - **Price**: RM 537,000 - RM 1,148,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 920 - 1,680 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=ren-bukit-jalil
+
+29. **Aras (WCity OUG)**
+    - **Developer**: WCT OUG Development Sdn Bhd
+    - **Location**: OUG, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 666,000 - RM 950,000
+    - **Tenure**: Freehold
+    - **Sizes**: 850 - 1,062 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=aras-wcity
+
+30. **The Vividz**
+    - **Developer**: Exsim Bukit Jalil City Sdn Bhd
+    - **Location**: Old Klang Road, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 446,400 - RM 850,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 484 - 915 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=vividz-res
+
+31. **Khaya Residence**
+    - **Developer**: Bayu Mantap Sdn Bhd
+    - **Location**: Bangsar, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 893,000 - RM 1,694,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 630 - 1,321 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=khaya-bangsar
+
+32. **Phoeniz Suites @ KL City Centre**
+    - **Developer**: Exsim
+    - **Location**: KLCC, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 1,016,400 - RM 1,421,600
+    - **Tenure**: Freehold
+    - **Sizes**: 484 - 678 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=phoeniz-suites
+
+33. **Branniganz**
+    - **Developer**: Exsim (Lembaran Beruntung Sdn Bhd)
+    - **Location**: KLCC, Kuala Lumpur
+    - **Type**: Serviced Apartment
+    - **Price**: RM 803,500 - RM 1,200,000
+    - **Tenure**: Leasehold
+    - **Sizes**: 344 - 678 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=branniganz-exsim
+
+34. **Alora Residence**
+    - **Developer**: Avaland (USJ Citypoint Sdn Bhd)
+    - **Location**: Subang Jaya, Selangor
+    - **Type**: Serviced Apartment
+    - **Price**: RM 470,800 - RM 995,800
+    - **Tenure**: Freehold
+    - **Sizes**: 568 - 1,457 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=alora-subang
+
+35. **Loop City @ Puchong**
+    - **Developer**: Glomac (Glomac Albatha Sdn Bhd)
+    - **Location**: Puchong, Selangor
+    - **Type**: Serviced Apartment
+    - **Price**: RM 365,610 - RM 612,317
+    - **Tenure**: Leasehold
+    - **Sizes**: 450 - 750 sqft
+    - **Slug/URL**: https://propertyportal.my/?project=loop-city

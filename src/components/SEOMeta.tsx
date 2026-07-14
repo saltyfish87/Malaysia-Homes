@@ -53,15 +53,15 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       const pPrice = project.priceMin ? `RM ${project.priceMin.toLocaleString()}` : '';
 
       if (lang === 'en') {
-        title = `${pName} Price, Location, Floor Plan & Review | ${pArea} ${pType}`;
-        description = `Explore ${pName} by ${pDev} in ${pArea}, ${project.state}. Premium ${pType} starting from ${pPrice}. Review floor plans (${project.sizeMin}-${project.sizeMax} sqft), completion date (${project.completionYear}), and tenure (${project.tenure}).`;
+        title = `${pName} ${pArea} | Developer Price, Layout Floor Plan, Brochure & Review`;
+        description = `Get official developer price lists, layout plans, and PDF brochure downloads for ${pName} by ${pDev} in ${pArea}, ${project.state}. Premium luxury ${pType} starting from ${pPrice}. Review floor plans (${project.sizeMin}-${project.sizeMax} sqft), completion date (${project.completionYear}), and book a show gallery appointment on propertyportal.my.`;
       } else {
-        title = `${pName} 价格、位置、户型图与开发商信息 | ${pArea} 房产推荐`;
-        description = `了解由著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺) 及产权 (${project.tenure})。`;
+        title = `${pName} ${pArea} | 官方开发商售价、户型图、样板房预约与评测`;
+        description = `获取著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）最新官方价格表、户型规划及 PDF 宣传单。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺) 与产权 (${project.tenure})，并在 propertyportal.my 上预约看房。`;
       }
 
       // Add project-specific high-traffic search terms
-      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} developer, ${pName} review, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${keywords}`;
+      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} layout, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, ${keywords}`;
     } else if (tab === 'compare') {
       title = lang === 'en' 
         ? 'Compare Properties & New Launch Condominiums | Malaysia Homes'

@@ -18,6 +18,7 @@ import { fetchSpreadsheetData } from './utils/googleSheets';
 
 // Sub components
 import Header from './components/Header';
+import Breadcrumbs from './components/Breadcrumbs';
 import ProjectCard, { formatPrice } from './components/ProjectCard';
 import QuickQuestionnaire from './components/QuickQuestionnaire';
 import CompareDrawer from './components/CompareDrawer';
@@ -470,6 +471,15 @@ export default function App() {
 
       {/* 2. DYNAMIC MAIN BODY VIEW (ROUTED BY TAB STATE) */}
       <main className="pb-24 overflow-hidden">
+        {/* Dynamic SEO Breadcrumbs Navigation Bar */}
+        <Breadcrumbs 
+          tab={tab} 
+          setTab={setTab} 
+          selectedProject={selectedProject} 
+          setSelectedProject={setSelectedProject} 
+          lang={lang} 
+        />
+
         <AnimatePresence mode="wait">
           {/* ================================= PAGE 1: HOMEPAGE VIEW ================================= */}
           {tab === 'home' && (
