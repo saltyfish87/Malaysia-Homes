@@ -155,12 +155,31 @@ async function startServer() {
   // the original request path is matched back so Express routes match correctly.
   app.use((req, res, next) => {
     const url = req.url || '';
+    const path = req.path || '';
     const originalUrl = req.originalUrl || '';
     const matchedPath = (req.headers['x-matched-path'] as string) || '';
+    const forwardedUri = (req.headers['x-forwarded-uri'] as string) || '';
+    const originalUrlHeader = (req.headers['x-original-url'] as string) || '';
+    
+    const isSitemap = 
+      url.toLowerCase().includes('sitemap') || 
+      path.toLowerCase().includes('sitemap') ||
+      originalUrl.toLowerCase().includes('sitemap') || 
+      matchedPath.toLowerCase().includes('sitemap') ||
+      forwardedUri.toLowerCase().includes('sitemap') ||
+      originalUrlHeader.toLowerCase().includes('sitemap');
 
-    if (url.includes('sitemap') || originalUrl.includes('sitemap') || matchedPath.includes('sitemap')) {
+    const isRobots = 
+      url.toLowerCase().includes('robots') || 
+      path.toLowerCase().includes('robots') ||
+      originalUrl.toLowerCase().includes('robots') || 
+      matchedPath.toLowerCase().includes('robots') ||
+      forwardedUri.toLowerCase().includes('robots') ||
+      originalUrlHeader.toLowerCase().includes('robots');
+
+    if (isSitemap) {
       req.url = '/sitemap.xml';
-    } else if (url.includes('robots') || originalUrl.includes('robots') || matchedPath.includes('robots')) {
+    } else if (isRobots) {
       req.url = '/robots.txt';
     }
     next();

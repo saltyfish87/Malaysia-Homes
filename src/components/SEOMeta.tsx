@@ -31,16 +31,16 @@ interface SEOMetaProps {
 
 export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaProps) {
   useEffect(() => {
-    // 1. DYNAMIC TITLE GENERATION
+    // 1. DYNAMIC TITLE GENERATION WITH GLOBAL APPEAL
     let title = 'Malaysia Homes | New Condo & Landed Property Portal | propertyportal.my';
     let description = 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos across Kwasa Damansara, Petaling Jaya, and Damansara on propertyportal.my. Real-time insights, expert analysis, and direct WhatsApp hotlines.';
-    let baseKeywords = 'propertyportal, propertyportal.my, Malaysia homes, new condo PJ, Kwasa Damansara property, Zenia Damansara, Atera Phase 2, D\'Tessera, buy condo Selangor, property comparison tool, house price Kuala Lumpur, real estate investment Malaysia, KLCC city view, residential parkhomes';
+    let baseKeywords = 'propertyportal, propertyportal.my, Malaysia homes, new condo PJ, Kwasa Damansara property, Zenia Damansara, Amika Subang Jaya, Anya Puchong, Aricia Chan Sow Lin, Aster Hill Sri Petaling, Atera Petaling Jaya, Aurum Business Centre, Avantro Bukit Jalil, Ayanna Bukit Jalil, Bangsar Hill Park, CloutHaus, Core Residence TRX, GenStarz, Luminar Subang, M Aspira, Maple Residences OUG, OAKA Residences, One Seputeh, Orion Residence, Park Green Pavilion, Quaver Residence, Radium Arena, Riverville 2, Tria Seputeh, Tujuh Residences, Vox Sentul, Wyn Puchong, Ren Residence, Aras OUG, The Vividz, Khaya Residence, Phoeniz Suites, Branniganz, Alora Residence, Loop City Puchong, The Aldenz Damansara, Parkside Damansara, ForestHill Residence Damansara, Amaya Residence Damansara, Grand Damansara, Stellar Damansara, Seresta Damansara, Livista Damansara, The Lines Damansara, Pinnacle Ara Damansara, Hampton Damansara, D\'Tessera Damansara, Amara Residence Petaling Jaya, Linari Kwasa Damansara, Mahogany Residences Kwasa Damansara, Panorama Residences Kelana Jaya, Sunway d\'hill Residences, D\'Evia Kwasa, ARRA Petaling Jaya, Paradigm Mall PJ, Kwasa Damansara City Center, The Kingswoodz Bukit Jalil, Queenswoodz Bukit Jalil, KL Wellness City, Veladaz Bukit Jalil, Johor CIQ Causewayz, R&F New Casa Suites, GEN SPHERE, GEN RISE, CIQ, Calia Residences, Bukit Chagar RTS Station, M Grand Minori, The Address Maxim, THE ARDEN, Skyline One Sentosa, Paragon Signatures Suite, The Asteriaz Exsim, NADI Residences, MB World Bay, Paragon Gateway, buy condo Selangor, property comparison tool, house price Kuala Lumpur, real estate investment Malaysia, KLCC city view, residential parkhomes, buy property in malaysia for foreigners, mm2h malaysia my second home property, invest in kuala lumpur real estate, best luxury condo kuala lumpur, klcc properties for sale, property portal malaysia, kuala lumpur property investment yield, singaporean buying house in malaysia, china buyers property malaysia, expatriate property guide malaysia, luxury serviced suites kuala lumpur';
     let keywords = baseKeywords;
 
     // Dynamically append all listing names and variations to improve directory coverage (extremely powerful for AISEO/GEO and search engines)
     if (projects && projects.length > 0) {
       const dynamicProjectTerms = projects.map(p => 
-        `${p.name}, ${p.name} price, ${p.name} floor plan, ${p.name} developer, buy ${p.name} ${p.area}`
+        `${p.name}, ${p.name} price, ${p.name} floor plan, ${p.name} developer, buy ${p.name} ${p.area}, invest ${p.name}`
       ).join(', ');
       keywords = `${dynamicProjectTerms}, ${baseKeywords}`;
     }
@@ -60,8 +60,8 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
         description = `获取著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）最新官方价格表、户型规划及 PDF 宣传单。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺) 与产权 (${project.tenure})，并在 propertyportal.my 上预约看房。`;
       }
 
-      // Add project-specific high-traffic search terms
-      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} layout, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, ${keywords}`;
+      // Add project-specific high-traffic search terms including global variations
+      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} layout, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, foreigner buy ${pName}, ${pName} investment yield, ${keywords}`;
     } else if (tab === 'compare') {
       title = lang === 'en' 
         ? 'Compare Properties & New Launch Condominiums | Malaysia Homes'
@@ -96,10 +96,26 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       element.setAttribute('content', value);
     };
 
-    // Standard SEO Tags
+    // Standard SEO & International Distribution Tags
     updateMetaTag('description', description);
     updateMetaTag('keywords', keywords);
     updateMetaTag('robots', 'index, follow');
+    updateMetaTag('distribution', 'global');
+    updateMetaTag('coverage', 'Worldwide');
+    updateMetaTag('audience', 'all');
+    updateMetaTag('googlebot', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    updateMetaTag('bingbot', 'index, follow');
+
+    // Dynamic GEO-Targeting Meta Tags (Highly critical for Search Engines and GEO ranking)
+    const regionCode = project ? (project.state.toLowerCase().includes('kuala lumpur') ? 'MY-14' : 'MY-10') : 'MY-14;MY-10';
+    const placeName = project ? `${project.area}, ${project.state}, Malaysia` : 'Kuala Lumpur, Selangor, Malaysia';
+    const positionCoords = project ? `${project.latitude};${project.longitude}` : '3.1390;101.6869';
+    const icbmCoords = project ? `${project.latitude}, ${project.longitude}` : '3.1390, 101.6869';
+
+    updateMetaTag('geo.region', regionCode);
+    updateMetaTag('geo.placename', placeName);
+    updateMetaTag('geo.position', positionCoords);
+    updateMetaTag('ICBM', icbmCoords);
 
     // Dynamic Canonical URL Injection to solve "User-declared canonical: None"
     let canonicalLink = document.querySelector('link[rel="canonical"]');
@@ -117,8 +133,24 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     }
     canonicalLink.setAttribute('href', canonicalUrl);
 
+    // Inject International Multilingual hreflang alternate links (Boosts global index visibility)
+    const updateLinkTag = (rel: string, hreflang: string, href: string) => {
+      let element = document.querySelector(`link[rel="${rel}"][hreflang="${hreflang}"]`);
+      if (!element) {
+        element = document.createElement('link');
+        element.setAttribute('rel', rel);
+        element.setAttribute('hreflang', hreflang);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('href', href);
+    };
+
+    updateLinkTag('alternate', 'en', `${domain}/?lang=en`);
+    updateLinkTag('alternate', 'zh-Hans', `${domain}/?lang=zh`);
+    updateLinkTag('alternate', 'x-default', `${domain}/`);
+
     // Google Site Verification (Read from environment or use a verified code fallback)
-    const gVerification = (import.meta as any).env?.VITE_GOOGLE_VERIFICATION || 'g-google-site-verification-placeholder-code-12345';
+    const gVerification = (import.meta as any).env?.VITE_GOOGLE_VERIFICATION || 'OtvCDokPku59DVDdwVyIkzsYLFiRlNtEq0s9ANEcpyo';
     updateMetaTag('google-site-verification', gVerification);
 
     // OpenGraph / Facebook Tags (Crucial for social sharing & previews)
@@ -139,11 +171,11 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
 
-    // 2. SCHEMA.ORG RICH SNIPPETS STRUCTURED DATA (JSON-LD)
+    // 2. SCHEMA.ORG RICH SNIPPETS STRUCTURED DATA (JSON-LD) - Dynamic & Multi-Currency optimized for AI Crawlers
     let schemaMarkup: any = null;
 
     if (project) {
-      // Single property/residence schema (highly optimized for real estate search results)
+      // Single property/residence schema (highly optimized for real estate search results and AI assistant recommendations)
       schemaMarkup = {
         '@context': 'https://schema.org',
         '@type': project.propertyType === 'Landed' ? 'SingleFamilyResidence' : 'ApartmentComplex',
@@ -172,6 +204,8 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
           'priceValuedAs': 'MYR',
         },
         'numberOfRooms': project.bedrooms,
+        'priceRange': `MYR ${project.priceMin.toLocaleString()} - MYR ${project.priceMax.toLocaleString()}`,
+        'currenciesAccepted': 'MYR, SGD, USD, CNY, HKD, AUD, GBP, EUR',
         'amenityFeature': [
           {
             '@type': 'LocationFeatureSpecification',
@@ -182,6 +216,11 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
             '@type': 'LocationFeatureSpecification',
             'name': 'Developer',
             'value': project.developer,
+          },
+          {
+            '@type': 'LocationFeatureSpecification',
+            'name': 'Area',
+            'value': project.area,
           }
         ]
       };
@@ -196,6 +235,16 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
         'logo': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80',
         'description': description,
         'telephone': '+60195598932',
+        'priceRange': 'MYR 300,000 - MYR 5,000,000',
+        'currenciesAccepted': 'MYR, SGD, USD, CNY, HKD, AUD, GBP, EUR',
+        'openingHours': 'Mo-Su 09:00-21:00',
+        'contactPoint': {
+          '@type': 'ContactPoint',
+          'telephone': '+60195598932',
+          'contactType': 'sales',
+          'areaServed': 'MY',
+          'availableLanguage': ['English', 'Chinese', 'Malay']
+        },
         'areaServed': ['Kwasa Damansara', 'Petaling Jaya', 'Damansara', 'Selangor', 'Kuala Lumpur'],
         'knowsAbout': projects.map(p => p.name),
         'makesOffer': projects.map(p => ({
