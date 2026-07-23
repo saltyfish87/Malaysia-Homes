@@ -314,7 +314,11 @@ app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
     'branniganz-exsim', 'alora-subang', 'loop-city', 'aldenz', 'parkside', 'foresthill', 
     'amaya', 'grand-damansara', 'stellar-damansara', 'seresta', 'livista', 'the-lines', 
     'pinnacle-ara', 'hampton', 'd-tessera', 'amara-res', 'linari-kwasa', 'mahogany', 
-    'panorama-kelana', 'sunway-dhill', 'd-evia-kwasa'
+    'panorama-kelana', 'sunway-dhill', 'd-evia-kwasa', 'arra-res', 'paradigm-mall',
+    'kwasa-cc', 'kingswoodz', 'queenswoodz', 'wellness-city', 'veladaz', 'johor-causeway',
+    'rf-casa', 'gen-sphere', 'gen-rise', 'ciq-johor', 'calia-pgb', 'bukit-chagar',
+    'm-grand-minori', 'address-maxim', 'arden-johor', 'skyline-tslaw', 'paragon-signatures',
+    'asteriaz-exsim', 'nadi-southkey', 'mb-world-bay', 'paragon-gateway'
   ]);
 
   try {

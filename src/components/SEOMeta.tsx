@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { MOCK_PROJECTS } from '../constants/mockData';
 
 export interface Project {
   id: string;
@@ -33,14 +34,16 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
   useEffect(() => {
     // 1. DYNAMIC TITLE GENERATION WITH GLOBAL APPEAL
     let title = 'Malaysia Homes | New Condo & Landed Property Portal | propertyportal.my';
-    let description = 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos across Kwasa Damansara, Petaling Jaya, and Damansara on propertyportal.my. Real-time insights, expert analysis, and direct WhatsApp hotlines.';
+    let description = 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos across Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, Bangsar, KLCC, and Johor Bahru on propertyportal.my. Real-time insights, expert analysis, and direct WhatsApp hotlines.';
     let baseKeywords = 'propertyportal, propertyportal.my, Malaysia homes, new condo PJ, Kwasa Damansara property, Zenia Damansara, Amika Subang Jaya, Anya Puchong, Aricia Chan Sow Lin, Aster Hill Sri Petaling, Atera Petaling Jaya, Aurum Business Centre, Avantro Bukit Jalil, Ayanna Bukit Jalil, Bangsar Hill Park, CloutHaus, Core Residence TRX, GenStarz, Luminar Subang, M Aspira, Maple Residences OUG, OAKA Residences, One Seputeh, Orion Residence, Park Green Pavilion, Quaver Residence, Radium Arena, Riverville 2, Tria Seputeh, Tujuh Residences, Vox Sentul, Wyn Puchong, Ren Residence, Aras OUG, The Vividz, Khaya Residence, Phoeniz Suites, Branniganz, Alora Residence, Loop City Puchong, The Aldenz Damansara, Parkside Damansara, ForestHill Residence Damansara, Amaya Residence Damansara, Grand Damansara, Stellar Damansara, Seresta Damansara, Livista Damansara, The Lines Damansara, Pinnacle Ara Damansara, Hampton Damansara, D\'Tessera Damansara, Amara Residence Petaling Jaya, Linari Kwasa Damansara, Mahogany Residences Kwasa Damansara, Panorama Residences Kelana Jaya, Sunway d\'hill Residences, D\'Evia Kwasa, ARRA Petaling Jaya, Paradigm Mall PJ, Kwasa Damansara City Center, The Kingswoodz Bukit Jalil, Queenswoodz Bukit Jalil, KL Wellness City, Veladaz Bukit Jalil, Johor CIQ Causewayz, R&F New Casa Suites, GEN SPHERE, GEN RISE, CIQ, Calia Residences, Bukit Chagar RTS Station, M Grand Minori, The Address Maxim, THE ARDEN, Skyline One Sentosa, Paragon Signatures Suite, The Asteriaz Exsim, NADI Residences, MB World Bay, Paragon Gateway, buy condo Selangor, property comparison tool, house price Kuala Lumpur, real estate investment Malaysia, KLCC city view, residential parkhomes, buy property in malaysia for foreigners, mm2h malaysia my second home property, invest in kuala lumpur real estate, best luxury condo kuala lumpur, klcc properties for sale, property portal malaysia, kuala lumpur property investment yield, singaporean buying house in malaysia, china buyers property malaysia, expatriate property guide malaysia, luxury serviced suites kuala lumpur';
     let keywords = baseKeywords;
 
-    // Dynamically append all listing names and variations to improve directory coverage (extremely powerful for AISEO/GEO and search engines)
-    if (projects && projects.length > 0) {
-      const dynamicProjectTerms = projects.map(p => 
-        `${p.name}, ${p.name} price, ${p.name} floor plan, ${p.name} developer, buy ${p.name} ${p.area}, invest ${p.name}`
+    const activeProjectsList = (projects && projects.length > 0) ? projects : MOCK_PROJECTS;
+
+    // Dynamically append all listing names and search intent variations (for maximum search engine coverage)
+    if (activeProjectsList && activeProjectsList.length > 0) {
+      const dynamicProjectTerms = activeProjectsList.map(p => 
+        `${p.name}, ${p.name} price, ${p.name} floor plan, ${p.name} layout, ${p.name} developer, ${p.name} brochure, ${p.name} review, ${p.name} ${p.area}, ${p.name} ${p.state}, ${p.developer} ${p.name}, buy ${p.name}, invest in ${p.name}, ${p.name} sales gallery, ${p.name} show unit, ${p.name} price list`
       ).join(', ');
       keywords = `${dynamicProjectTerms}, ${baseKeywords}`;
     }
@@ -61,14 +64,14 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       }
 
       // Add project-specific high-traffic search terms including global variations
-      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} layout, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, foreigner buy ${pName}, ${pName} investment yield, ${keywords}`;
+      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} layout, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, foreigner buy ${pName}, ${pName} investment yield, ${keywords}`;
     } else if (tab === 'compare') {
       title = lang === 'en' 
         ? 'Compare Properties & New Launch Condominiums | Malaysia Homes'
         : '对比马来西亚新楼盘与优质公寓 | 马来西亚房产网';
       description = lang === 'en'
-        ? 'Use our advanced multi-property comparison tool to compare pricing, layouts, developer track records, tenure, and location scores for top properties in Kuala Lumpur and Selangor.'
-        : '使用我们先进的多房产对比工具，对比吉隆坡及雪兰莪各大楼盘的价格、户型、开发商业绩、产权年限及投资评分。';
+        ? 'Use our advanced multi-property comparison tool to compare pricing, layouts, developer track records, tenure, and location scores for top properties in Kuala Lumpur, Selangor, and Johor.'
+        : '使用我们先进的多房产对比工具，对比吉隆坡、雪兰莪及柔佛各大楼盘的价格、户型、开发商业绩、产权年限及投资评分。';
     } else if (tab === 'guide') {
       title = lang === 'en'
         ? 'Malaysia Real Estate Buying Guide & Investment Insights'
@@ -162,7 +165,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     if (project && project.image) {
       updateMetaTag('og:image', project.image, true);
     } else {
-      const defaultImg = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80';
+      const defaultImg = `${domain}/og_preview.jpg`;
       updateMetaTag('og:image', defaultImg, true);
     }
 
@@ -245,13 +248,20 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
           'areaServed': 'MY',
           'availableLanguage': ['English', 'Chinese', 'Malay']
         },
-        'areaServed': ['Kwasa Damansara', 'Petaling Jaya', 'Damansara', 'Selangor', 'Kuala Lumpur'],
-        'knowsAbout': projects.map(p => p.name),
-        'makesOffer': projects.map(p => ({
+        'areaServed': ['Kwasa Damansara', 'Petaling Jaya', 'Subang Jaya', 'Puchong', 'Bukit Jalil', 'Bangsar', 'KLCC', 'Johor Bahru', 'Selangor', 'Kuala Lumpur', 'Johor'],
+        'knowsAbout': activeProjectsList.map(p => p.name),
+        'makesOffer': activeProjectsList.map(p => ({
           '@type': 'Offer',
+          'url': `https://propertyportal.my/?project=${p.id}`,
+          'priceSpecification': {
+            '@type': 'PriceSpecification',
+            'price': p.priceMin,
+            'priceCurrency': 'MYR'
+          },
           'itemOffered': {
-            '@type': 'Place',
+            '@type': p.propertyType === 'Landed' ? 'SingleFamilyResidence' : 'ApartmentComplex',
             'name': p.name,
+            'url': `https://propertyportal.my/?project=${p.id}`,
             'address': {
               '@type': 'PostalAddress',
               'addressLocality': p.area,

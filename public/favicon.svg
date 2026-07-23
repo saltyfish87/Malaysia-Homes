@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#F3E5AB" />
+      <stop offset="100%" stop-color="#AA7C11" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+  </defs>
+  <!-- Rounded background -->
+  <rect width="128" height="128" rx="28" fill="url(#bgGrad)" />
+  <!-- Minimalist roofline and door of the house (M and H monogram) -->
+  <path d="M28 78 L64 36 L100 78" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <path d="M44 72 L44 94 C44 96.2 45.8 98 48 98 L58 98 L58 84 C58 81.8 59.8 80 62 80 L66 80 C68.2 80 70 81.8 70 84 L70 98 L80 98 C82.2 98 84 96.2 84 94 L84 72" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- Glowing subtle peak dot -->
+  <circle cx="64" cy="22" r="6" fill="#F3E5AB" />
+</svg>
