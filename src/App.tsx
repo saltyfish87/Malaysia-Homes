@@ -26,6 +26,7 @@ import ProjectDetailModal from './components/ProjectDetailModal';
 import CompareSection from './components/CompareSection';
 import FAQSection from './components/FAQSection';
 import BuyingGuide from './components/BuyingGuide';
+import CalculatorsPage from './components/CalculatorsPage';
 import InteractiveMap from './components/InteractiveMap';
 import AdminPanel from './components/AdminPanel';
 import SEOMeta from './components/SEOMeta';
@@ -195,43 +196,117 @@ export default function App() {
     localStorage.setItem('malaysianhomes-favorites', JSON.stringify(favorites));
   }, [favorites]);
 
-  // Sync tab and selectedProject state from and to URL parameters for SEO and deep-linking
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlTab = params.get('tab');
-    const urlProjectId = params.get('project');
-
-    if (urlTab && ['home', 'compare', 'guide', 'admin', 'favorites'].includes(urlTab)) {
-      setTab(urlTab);
+  // Helper to get clean pretty URL path
+  const getCleanPath = (currentTab: string, currentProject: Project | null) => {
+    if (currentProject) {
+      return `/project/${currentProject.id}`;
     }
+    if (currentTab && currentTab !== 'home') {
+      return `/${currentTab}`;
+    }
+    return '/';
+  };
 
-    if (urlProjectId) {
-      const matched = projects.find(p => p.id === urlProjectId);
-      if (matched) {
-        setSelectedProject(matched);
+  // Sync tab and selectedProject state from and to URL parameters/paths for pretty URLs and deep-linking
+  useEffect(() => {
+    const parseRouteFromLocation = () => {
+      const pathname = window.location.pathname.replace(/\/$/, '') || '/';
+      const params = new URLSearchParams(window.location.search);
+      
+      let matchedTab = 'home';
+      let matchedProject: Project | null = null;
+
+      // 1. Path-based check
+      const projectMatch = pathname.match(/^\/(?:project|projects|property|properties)\/([^\/]+)$/i);
+      if (projectMatch && projectMatch[1]) {
+        const slug = projectMatch[1].toLowerCase();
+        const found = projects.find(p => p.id === slug || p.id.toLowerCase() === slug);
+        if (found) {
+          matchedProject = found;
+          matchedTab = 'residences';
+        }
+      } else if (pathname === '/residences' || pathname === '/properties') {
+        matchedTab = 'residences';
+      } else if (pathname === '/compare') {
+        matchedTab = 'compare';
+      } else if (pathname === '/guide') {
+        matchedTab = 'guide';
+      } else if (pathname === '/calculators' || pathname === '/calculator') {
+        matchedTab = 'calculators';
+      } else if (pathname === '/map') {
+        matchedTab = 'map';
+      } else if (pathname === '/favorites') {
+        matchedTab = 'favorites';
+      } else if (pathname === '/admin') {
+        matchedTab = 'admin';
       }
+
+      // 2. Query param fallback (legacy URLs like ?project=amika or ?tab=residences)
+      const urlProjectId = params.get('project');
+      const urlTab = params.get('tab');
+
+      if (!matchedProject && urlProjectId) {
+        const found = projects.find(p => p.id === urlProjectId);
+        if (found) {
+          matchedProject = found;
+        }
+      }
+
+      if (matchedTab === 'home' && urlTab && ['home', 'residences', 'compare', 'guide', 'admin', 'favorites', 'map', 'calculators'].includes(urlTab)) {
+        matchedTab = urlTab;
+      }
+
+      return { matchedTab, matchedProject };
+    };
+
+    const { matchedTab, matchedProject } = parseRouteFromLocation();
+    if (matchedTab) setTab(matchedTab);
+    if (matchedProject) setSelectedProject(matchedProject);
+
+    // Replace URL if it was using legacy query parameters to elevate to clean pretty path
+    const expectedPath = getCleanPath(matchedTab, matchedProject);
+    const currentFull = window.location.pathname + window.location.search;
+    if (currentFull !== expectedPath && (window.location.search.includes('project=') || window.location.search.includes('tab='))) {
+      window.history.replaceState(null, '', expectedPath);
     }
   }, [projects]);
 
+  // Handle browser back/forward navigation (popstate)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    
-    if (tab && tab !== 'home') {
-      params.set('tab', tab);
-    } else {
-      params.delete('tab');
-    }
+    const handlePopState = () => {
+      const pathname = window.location.pathname.replace(/\/$/, '') || '/';
+      const projectMatch = pathname.match(/^\/(?:project|projects|property|properties)\/([^\/]+)$/i);
+      if (projectMatch && projectMatch[1]) {
+        const found = projects.find(p => p.id === projectMatch[1].toLowerCase());
+        if (found) {
+          setSelectedProject(found);
+          setTab('residences');
+          return;
+        }
+      }
+      
+      setSelectedProject(null);
+      if (pathname === '/residences' || pathname === '/properties') setTab('residences');
+      else if (pathname === '/compare') setTab('compare');
+      else if (pathname === '/guide') setTab('guide');
+      else if (pathname === '/calculators' || pathname === '/calculator') setTab('calculators');
+      else if (pathname === '/map') setTab('map');
+      else if (pathname === '/favorites') setTab('favorites');
+      else if (pathname === '/admin') setTab('admin');
+      else setTab('home');
+    };
 
-    if (selectedProject) {
-      params.set('project', selectedProject.id);
-    } else {
-      params.delete('project');
-    }
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [projects]);
 
-    const newQuery = params.toString();
-    const newPath = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
-    
-    window.history.replaceState(null, '', newPath);
+  // Sync state to URL bar on tab or project change
+  useEffect(() => {
+    const cleanPath = getCleanPath(tab, selectedProject);
+    const currentFull = window.location.pathname + window.location.search;
+    if (currentFull !== cleanPath) {
+      window.history.pushState(null, '', cleanPath);
+    }
   }, [tab, selectedProject]);
 
   // Contextual Area choices mapping helper
@@ -1376,6 +1451,19 @@ export default function App() {
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             <BuyingGuide lang={lang} />
+          </motion.div>
+        )}
+
+        {/* ================================= PAGE 4.5: COMPREHENSIVE PROPERTY CALCULATORS ================================= */}
+        {tab === 'calculators' && (
+          <motion.div
+            key="calculators"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <CalculatorsPage lang={lang} currency={currency} />
           </motion.div>
         )}
 

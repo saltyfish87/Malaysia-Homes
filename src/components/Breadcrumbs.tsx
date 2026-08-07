@@ -23,6 +23,7 @@ export default function Breadcrumbs({
     residences: { en: 'Explore Residences', zh: '甄选华邸' },
     favorites: { en: 'Saved Collection', zh: '我的收藏' },
     compare: { en: 'Compare Properties', zh: '对比分析' },
+    calculators: { en: 'Property Calculators', zh: '房产计算器' },
     guide: { en: 'Buying Guide', zh: '置业指南' },
     map: { en: 'Interactive Map', zh: '互动地图' },
     admin: { en: 'CRM & System Panel', zh: '开发商系统' },
@@ -60,7 +61,7 @@ export default function Breadcrumbs({
     const tabLabel = tabNames[parentTab]?.[lang] || parentTab;
     items.push({
       name: tabLabel,
-      url: `https://propertyportal.my/?tab=${parentTab}`,
+      url: `https://propertyportal.my/${parentTab}`,
       onClick: (e: React.MouseEvent) => handleTabClick(e, parentTab),
     });
   }
@@ -69,7 +70,7 @@ export default function Breadcrumbs({
   if (selectedProject) {
     items.push({
       name: selectedProject.name,
-      url: `https://propertyportal.my/?project=${selectedProject.id}`,
+      url: `https://propertyportal.my/project/${selectedProject.id}`,
       onClick: (e: React.MouseEvent) => {
         e.preventDefault();
         // Keep active

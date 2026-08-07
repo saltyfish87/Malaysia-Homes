@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Home, Compass, GitCompare, HelpCircle, FileText, Settings, Sparkles, Heart, Building, Map, Globe, ChevronDown, Check } from 'lucide-react';
+import { Home, Compass, GitCompare, HelpCircle, FileText, Settings, Sparkles, Heart, Building, Map, Globe, ChevronDown, Check, Calculator } from 'lucide-react';
 import { CurrencyCode, CurrencyConfig } from '../types';
 import { TRANSLATIONS } from '../utils/translations';
 import { CURRENCIES } from '../constants/mockData';
@@ -82,12 +82,13 @@ export default function Header({
         </div>
 
         {/* Tab Selection Navigation */}
-        <nav className="hidden lg:flex items-center space-x-1 relative shrink-0" id="header-nav-menu">
+        <nav className="hidden md:flex items-center space-x-0.5 lg:space-x-1 relative shrink-0" id="header-nav-menu">
           {[
             { id: 'home', label: t.navHome, icon: Compass },
             { id: 'residences', label: t.navProjects, icon: Building },
             { id: 'map', label: t.navMap, icon: Map },
             { id: 'compare', label: t.navCompare, icon: GitCompare },
+            { id: 'calculators', label: t.navCalculators || 'Calculators', icon: Calculator },
             { id: 'guide', label: t.navGuide, icon: FileText },
             { id: 'favorites', label: t.favoritesTitle, icon: Heart, count: favoritesCount }
           ].map((item) => {
@@ -97,7 +98,7 @@ export default function Header({
               <button
                 key={item.id}
                 onClick={() => setTab(item.id)}
-                className={`relative flex items-center space-x-1.5 rounded-full px-4 py-2 font-display text-sm font-bold transition-all duration-300 cursor-pointer ${
+                className={`relative flex items-center space-x-1 rounded-full px-2.5 py-1.5 lg:px-3.5 lg:py-1.5 font-display text-xs lg:text-sm font-bold transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'text-white'
                     : 'text-stone-600 hover:text-stone-900'
@@ -110,10 +111,10 @@ export default function Header({
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
-                <Icon className={`h-4 w-4 ${item.id === 'favorites' && favoritesCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
+                <Icon className={`h-3.5 w-3.5 lg:h-4 lg:w-4 ${item.id === 'favorites' && favoritesCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
                 <span>{item.label}</span>
                 {item.id === 'favorites' && favoritesCount > 0 && (
-                  <span className="ml-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-extrabold text-white animate-pulse">
+                  <span className="ml-1 flex h-4 w-4 lg:h-4.5 lg:w-4.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-extrabold text-white animate-pulse">
                     {favoritesCount}
                   </span>
                 )}
@@ -274,13 +275,6 @@ export default function Header({
             </button>
           )}
 
-          {/* Phone Quick CTA */}
-          <a
-            href="tel:0195598932"
-            className="hidden md:block text-xs font-extrabold text-stone-700 hover:text-brand-gold transition-colors"
-          >
-            📞 019-5598932
-          </a>
         </div>
       </div>
 
@@ -321,6 +315,15 @@ export default function Header({
         >
           <GitCompare className="h-4 w-4 mb-1" />
           <span>{t.navCompare}</span>
+        </button>
+        <button
+          onClick={() => setTab('calculators')}
+          className={`flex flex-col items-center text-[10px] font-bold transition-colors cursor-pointer ${
+            currentTab === 'calculators' ? 'text-brand-gold' : 'text-stone-400 hover:text-stone-600'
+          }`}
+        >
+          <Calculator className="h-4 w-4 mb-1" />
+          <span>{t.navCalculators || 'Calculators'}</span>
         </button>
         <button
           onClick={() => setTab('guide')}

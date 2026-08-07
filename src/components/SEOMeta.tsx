@@ -33,14 +33,14 @@ interface SEOMetaProps {
 export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaProps) {
   useEffect(() => {
     // 1. DYNAMIC TITLE GENERATION WITH GLOBAL APPEAL
-    let title = 'Malaysia Homes | New Condo & Landed Property Portal | propertyportal.my';
+    let title = 'Malaysia Homes | New Launch Condo & Landed Property Portal | propertyportal.my';
     let description = 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos across Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, Bangsar, KLCC, and Johor Bahru on propertyportal.my. Real-time insights, expert analysis, and direct WhatsApp hotlines.';
     let baseKeywords = 'propertyportal, propertyportal.my, Malaysia homes, new condo PJ, Kwasa Damansara property, Zenia Damansara, Amika Subang Jaya, Anya Puchong, Aricia Chan Sow Lin, Aster Hill Sri Petaling, Atera Petaling Jaya, Aurum Business Centre, Avantro Bukit Jalil, Ayanna Bukit Jalil, Bangsar Hill Park, CloutHaus, Core Residence TRX, GenStarz, Luminar Subang, M Aspira, Maple Residences OUG, OAKA Residences, One Seputeh, Orion Residence, Park Green Pavilion, Quaver Residence, Radium Arena, Riverville 2, Tria Seputeh, Tujuh Residences, Vox Sentul, Wyn Puchong, Ren Residence, Aras OUG, The Vividz, Khaya Residence, Phoeniz Suites, Branniganz, Alora Residence, Loop City Puchong, The Aldenz Damansara, Parkside Damansara, ForestHill Residence Damansara, Amaya Residence Damansara, Grand Damansara, Stellar Damansara, Seresta Damansara, Livista Damansara, The Lines Damansara, Pinnacle Ara Damansara, Hampton Damansara, D\'Tessera Damansara, Amara Residence Petaling Jaya, Linari Kwasa Damansara, Mahogany Residences Kwasa Damansara, Panorama Residences Kelana Jaya, Sunway d\'hill Residences, D\'Evia Kwasa, ARRA Petaling Jaya, Paradigm Mall PJ, Kwasa Damansara City Center, The Kingswoodz Bukit Jalil, Queenswoodz Bukit Jalil, KL Wellness City, Veladaz Bukit Jalil, Johor CIQ Causewayz, R&F New Casa Suites, GEN SPHERE, GEN RISE, CIQ, Calia Residences, Bukit Chagar RTS Station, M Grand Minori, The Address Maxim, THE ARDEN, Skyline One Sentosa, Paragon Signatures Suite, The Asteriaz Exsim, NADI Residences, MB World Bay, Paragon Gateway, buy condo Selangor, property comparison tool, house price Kuala Lumpur, real estate investment Malaysia, KLCC city view, residential parkhomes, buy property in malaysia for foreigners, mm2h malaysia my second home property, invest in kuala lumpur real estate, best luxury condo kuala lumpur, klcc properties for sale, property portal malaysia, kuala lumpur property investment yield, singaporean buying house in malaysia, china buyers property malaysia, expatriate property guide malaysia, luxury serviced suites kuala lumpur';
     let keywords = baseKeywords;
 
     const activeProjectsList = (projects && projects.length > 0) ? projects : MOCK_PROJECTS;
 
-    // Dynamically append all listing names and search intent variations (for maximum search engine coverage)
+    // Dynamically append all listing names and search intent variations
     if (activeProjectsList && activeProjectsList.length > 0) {
       const dynamicProjectTerms = activeProjectsList.map(p => 
         `${p.name}, ${p.name} price, ${p.name} floor plan, ${p.name} layout, ${p.name} developer, ${p.name} brochure, ${p.name} review, ${p.name} ${p.area}, ${p.name} ${p.state}, ${p.developer} ${p.name}, buy ${p.name}, invest in ${p.name}, ${p.name} sales gallery, ${p.name} show unit, ${p.name} price list`
@@ -63,7 +63,6 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
         description = `获取著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）最新官方价格表、户型规划及 PDF 宣传单。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺) 与产权 (${project.tenure})，并在 propertyportal.my 上预约看房。`;
       }
 
-      // Add project-specific high-traffic search terms including global variations
       keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} layout, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, foreigner buy ${pName}, ${pName} investment yield, ${keywords}`;
     } else if (tab === 'compare') {
       title = lang === 'en' 
@@ -79,6 +78,27 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       description = lang === 'en'
         ? 'The ultimate guide to buying residential property in Malaysia. Learn about RPGT, progressive billing, stamp duty exemptions, and critical investment strategies.'
         : '在马来西亚购买住宅房产的终极指南。全面解析房产增值税 (RPGT)、渐进式付款、印花税减免及核心投资策略。';
+    } else if (tab === 'residences') {
+      title = lang === 'en'
+        ? 'All Residences & New Property Launches in Malaysia | propertyportal.my'
+        : '所有新楼盘与优质住宅列表 | 马来西亚房产网';
+      description = lang === 'en'
+        ? 'Explore our complete directory of luxury condominiums, serviced apartments, and landed parkhomes across Selangor, Kuala Lumpur, and Johor.'
+        : '浏览我们在雪兰莪、吉隆坡和柔佛的全部豪华公寓、服务式公寓和排屋别墅完整目录。';
+    } else if (tab === 'map') {
+      title = lang === 'en'
+        ? 'Interactive Property Map Directory | Kuala Lumpur & Selangor Real Estate'
+        : '互动式房产地图目录 | 吉隆坡与雪兰莪房产网';
+      description = lang === 'en'
+        ? 'Explore properties on an interactive geographic map across Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, KLCC, and Johor.'
+        : '在互动地图上探索 Kwasa Damansara、Petaling Jaya、Subang Jaya、Puchong、Bukit Jalil、KLCC 和柔佛的精选楼盘。';
+    } else if (tab === 'calculators') {
+      title = lang === 'en'
+        ? 'Malaysia Home Loan & Mortgage Calculator | Stamp Duty & RPGT'
+        : '马来西亚房屋贷款与房贷计算器 | 印花税与房产税';
+      description = lang === 'en'
+        ? 'Calculate monthly mortgage repayments, progressive billing interest, legal fees, stamp duty, and RPGT for buying property in Malaysia.'
+        : '计算在马来西亚购房的每月房贷还款额、渐进式利息、律师费、印花税及房产增值税。';
     } else if (tab === 'admin') {
       title = 'Property CRM & Admin Sync Dashboard | Malaysia Homes';
       description = 'Secure administrator interface for managing active listings, syncing with live Google Sheets database, and viewing captured client hotleads.';
@@ -87,7 +107,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     // Update document title
     document.title = title;
 
-    // Update Meta Tags dynamically (or create if missing)
+    // Helper for Meta Tag Injection
     const updateMetaTag = (name: string, value: string, isProperty = false) => {
       const attribute = isProperty ? 'property' : 'name';
       let element = document.querySelector(`meta[${attribute}="${name}"]`);
@@ -102,14 +122,22 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     // Standard SEO & International Distribution Tags
     updateMetaTag('description', description);
     updateMetaTag('keywords', keywords);
-    updateMetaTag('robots', 'index, follow');
+    updateMetaTag('robots', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
     updateMetaTag('distribution', 'global');
     updateMetaTag('coverage', 'Worldwide');
     updateMetaTag('audience', 'all');
     updateMetaTag('googlebot', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
-    updateMetaTag('bingbot', 'index, follow');
+    updateMetaTag('bingbot', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    updateMetaTag('theme-color', '#1C1917');
+    updateMetaTag('apple-mobile-web-app-title', 'Malaysia Homes');
 
-    // Dynamic GEO-Targeting Meta Tags (Highly critical for Search Engines and GEO ranking)
+    // AI Crawlers & LLM Indexing Meta Permissions
+    updateMetaTag('chatgpt-plugin', 'allowed');
+    updateMetaTag('GPTBot', 'index, follow');
+    updateMetaTag('ClaudeBot', 'index, follow');
+    updateMetaTag('PerplexityBot', 'index, follow');
+
+    // Dynamic GEO-Targeting Meta Tags
     const regionCode = project ? (project.state.toLowerCase().includes('kuala lumpur') ? 'MY-14' : 'MY-10') : 'MY-14;MY-10';
     const placeName = project ? `${project.area}, ${project.state}, Malaysia` : 'Kuala Lumpur, Selangor, Malaysia';
     const positionCoords = project ? `${project.latitude};${project.longitude}` : '3.1390;101.6869';
@@ -120,7 +148,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     updateMetaTag('geo.position', positionCoords);
     updateMetaTag('ICBM', icbmCoords);
 
-    // Dynamic Canonical URL Injection to solve "User-declared canonical: None"
+    // Dynamic Canonical URL Injection
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
       canonicalLink = document.createElement('link');
@@ -130,13 +158,13 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     const domain = 'https://propertyportal.my';
     let canonicalUrl = domain + '/';
     if (project) {
-      canonicalUrl = `${domain}/?project=${project.id}`;
+      canonicalUrl = `${domain}/project/${project.id}`;
     } else if (tab && tab !== 'home') {
-      canonicalUrl = `${domain}/?tab=${tab}`;
+      canonicalUrl = `${domain}/${tab}`;
     }
     canonicalLink.setAttribute('href', canonicalUrl);
 
-    // Inject International Multilingual hreflang alternate links (Boosts global index visibility)
+    // Inject Multilingual hreflang alternate links
     const updateLinkTag = (rel: string, hreflang: string, href: string) => {
       let element = document.querySelector(`link[rel="${rel}"][hreflang="${hreflang}"]`);
       if (!element) {
@@ -152,51 +180,159 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     updateLinkTag('alternate', 'zh-Hans', `${domain}/?lang=zh`);
     updateLinkTag('alternate', 'x-default', `${domain}/`);
 
-    // Google Site Verification (Read from environment or use a verified code fallback)
+    // Google Site Verification
     const gVerification = (import.meta as any).env?.VITE_GOOGLE_VERIFICATION || 'OtvCDokPku59DVDdwVyIkzsYLFiRlNtEq0s9ANEcpyo';
     updateMetaTag('google-site-verification', gVerification);
 
-    // OpenGraph / Facebook Tags (Crucial for social sharing & previews)
-    const currentUrl = window.location.href;
+    // OpenGraph / Facebook Tags
+    updateMetaTag('og:site_name', 'Malaysia Homes | propertyportal.my', true);
     updateMetaTag('og:title', title, true);
     updateMetaTag('og:description', description, true);
     updateMetaTag('og:type', 'website', true);
-    updateMetaTag('og:url', currentUrl, true);
+    updateMetaTag('og:url', canonicalUrl, true);
+    updateMetaTag('og:locale', lang === 'zh' ? 'zh_CN' : 'en_US', true);
+    updateMetaTag('og:locale:alternate', lang === 'zh' ? 'en_US' : 'zh_CN', true);
+
     if (project && project.image) {
       updateMetaTag('og:image', project.image, true);
+      updateMetaTag('og:image:width', '1200', true);
+      updateMetaTag('og:image:height', '675', true);
+      updateMetaTag('og:image:alt', `${project.name} ${project.area} ${project.developer}`, true);
     } else {
       const defaultImg = `${domain}/og_preview.jpg`;
       updateMetaTag('og:image', defaultImg, true);
+      updateMetaTag('og:image:width', '1200', true);
+      updateMetaTag('og:image:height', '675', true);
+      updateMetaTag('og:image:alt', 'Malaysia Homes Property Portal', true);
     }
 
     // Twitter Tags
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
+    if (project) {
+      updateMetaTag('twitter:label1', 'Developer Price');
+      updateMetaTag('twitter:data1', `RM ${project.priceMin?.toLocaleString() || 'Contact'}`);
+      updateMetaTag('twitter:label2', 'Location');
+      updateMetaTag('twitter:data2', `${project.area}, ${project.state}`);
+    }
 
-    // 2. SCHEMA.ORG RICH SNIPPETS STRUCTURED DATA (JSON-LD) - Dynamic & Multi-Currency optimized for AI Crawlers
-    let schemaMarkup: any = null;
+    // 2. SCHEMA.ORG RICH SNIPPETS STRUCTURED DATA (JSON-LD)
+    const jsonLdGraph: any[] = [];
+
+    // A. WebSite & SearchAction Schema
+    jsonLdGraph.push({
+      '@type': 'WebSite',
+      '@id': `${domain}/#website`,
+      'url': domain,
+      'name': 'Malaysia Homes',
+      'alternateName': 'propertyportal.my',
+      'description': 'Malaysia New Launch Condominiums and Landed Property Portal',
+      'inLanguage': ['en', 'zh-Hans'],
+      'potentialAction': {
+        '@type': 'SearchAction',
+        'target': `${domain}/?search={search_term_string}`,
+        'query-input': 'required name=search_term_string'
+      }
+    });
+
+    // B. Organization / RealEstateAgent Schema
+    jsonLdGraph.push({
+      '@type': 'RealEstateAgent',
+      '@id': `${domain}/#agency`,
+      'name': 'Malaysia Homes',
+      'url': domain,
+      'logo': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80',
+      'image': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+      'description': description,
+      'telephone': '+60195598932',
+      'priceRange': 'MYR 300,000 - MYR 5,000,000',
+      'currenciesAccepted': 'MYR, SGD, USD, CNY, HKD, AUD, GBP, EUR',
+      'openingHours': 'Mo-Su 09:00-21:00',
+      'contactPoint': {
+        '@type': 'ContactPoint',
+        'telephone': '+60195598932',
+        'contactType': 'sales',
+        'areaServed': 'MY',
+        'availableLanguage': ['English', 'Chinese', 'Malay']
+      },
+      'address': {
+        '@type': 'PostalAddress',
+        'addressLocality': 'Kuala Lumpur',
+        'addressRegion': 'Wilayah Persekutuan',
+        'addressCountry': 'MY'
+      },
+      'areaServed': ['Kwasa Damansara', 'Petaling Jaya', 'Subang Jaya', 'Puchong', 'Bukit Jalil', 'Bangsar', 'KLCC', 'Johor Bahru', 'Selangor', 'Kuala Lumpur', 'Johor'],
+      'knowsAbout': activeProjectsList.map(p => p.name)
+    });
+
+    // C. BreadcrumbList Schema
+    const breadcrumbList = [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': `${domain}/`
+      }
+    ];
 
     if (project) {
-      // Single property/residence schema (highly optimized for real estate search results and AI assistant recommendations)
-      schemaMarkup = {
-        '@context': 'https://schema.org',
+      breadcrumbList.push({
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Properties',
+        'item': `${domain}/residences`
+      });
+      breadcrumbList.push({
+        '@type': 'ListItem',
+        'position': 3,
+        'name': project.name,
+        'item': `${domain}/project/${project.id}`
+      });
+    } else if (tab && tab !== 'home') {
+      const tabNames: Record<string, string> = {
+        compare: 'Compare Properties',
+        guide: 'Buying Guide',
+        residences: 'Residences',
+        map: 'Property Map',
+        calculators: 'Calculators',
+        favorites: 'Saved Favorites',
+        admin: 'Admin Dashboard'
+      };
+      breadcrumbList.push({
+        '@type': 'ListItem',
+        'position': 2,
+        'name': tabNames[tab] || tab,
+        'item': `${domain}/${tab}`
+      });
+    }
+
+    jsonLdGraph.push({
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      'itemListElement': breadcrumbList
+    });
+
+    // D. Item-Specific Schema (Single Property vs Real Estate Offer Collection)
+    if (project) {
+      // Single property/residence schema
+      jsonLdGraph.push({
         '@type': project.propertyType === 'Landed' ? 'SingleFamilyResidence' : 'ApartmentComplex',
-        'id': `${currentUrl}#project`,
+        '@id': `${canonicalUrl}#project`,
         'name': project.name,
         'description': project.description || description,
-        'url': currentUrl,
-        'image': project.image || '',
+        'url': canonicalUrl,
+        'image': project.gallery && project.gallery.length > 0 ? project.gallery : [project.image || ''],
         'address': {
           '@type': 'PostalAddress',
           'addressLocality': project.area,
           'addressRegion': project.state,
-          'addressCountry': 'MY',
+          'addressCountry': 'MY'
         },
         'geo': {
           '@type': 'GeoCoordinates',
           'latitude': project.latitude,
-          'longitude': project.longitude,
+          'longitude': project.longitude
         },
         'offers': {
           '@type': 'AggregateOffer',
@@ -204,7 +340,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
           'lowPrice': project.priceMin,
           'highPrice': project.priceMax,
           'offerCount': '1',
-          'priceValuedAs': 'MYR',
+          'priceValuedAs': 'MYR'
         },
         'numberOfRooms': project.bedrooms,
         'priceRange': `MYR ${project.priceMin.toLocaleString()} - MYR ${project.priceMax.toLocaleString()}`,
@@ -213,65 +349,103 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
           {
             '@type': 'LocationFeatureSpecification',
             'name': 'Tenure',
-            'value': project.tenure,
+            'value': project.tenure
           },
           {
             '@type': 'LocationFeatureSpecification',
             'name': 'Developer',
-            'value': project.developer,
+            'value': project.developer
           },
           {
             '@type': 'LocationFeatureSpecification',
             'name': 'Area',
-            'value': project.area,
+            'value': project.area
+          },
+          {
+            '@type': 'LocationFeatureSpecification',
+            'name': 'Completion Year',
+            'value': String(project.completionYear)
           }
         ]
-      };
-    } else {
-      // Real estate agency schema for the entire portal listing multiple properties
-      schemaMarkup = {
-        '@context': 'https://schema.org',
-        '@type': 'RealEstateAgent',
-        '@id': 'https://propertyportal.my/#agency',
-        'name': 'Malaysia Homes',
-        'url': 'https://propertyportal.my',
-        'logo': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80',
-        'description': description,
-        'telephone': '+60195598932',
-        'priceRange': 'MYR 300,000 - MYR 5,000,000',
-        'currenciesAccepted': 'MYR, SGD, USD, CNY, HKD, AUD, GBP, EUR',
-        'openingHours': 'Mo-Su 09:00-21:00',
-        'contactPoint': {
-          '@type': 'ContactPoint',
-          'telephone': '+60195598932',
-          'contactType': 'sales',
-          'areaServed': 'MY',
-          'availableLanguage': ['English', 'Chinese', 'Malay']
-        },
-        'areaServed': ['Kwasa Damansara', 'Petaling Jaya', 'Subang Jaya', 'Puchong', 'Bukit Jalil', 'Bangsar', 'KLCC', 'Johor Bahru', 'Selangor', 'Kuala Lumpur', 'Johor'],
-        'knowsAbout': activeProjectsList.map(p => p.name),
-        'makesOffer': activeProjectsList.map(p => ({
-          '@type': 'Offer',
-          'url': `https://propertyportal.my/?project=${p.id}`,
-          'priceSpecification': {
-            '@type': 'PriceSpecification',
-            'price': p.priceMin,
-            'priceCurrency': 'MYR'
+      });
+
+      // FAQPage Rich Snippet Schema for Project
+      jsonLdGraph.push({
+        '@type': 'FAQPage',
+        '@id': `${canonicalUrl}#faq`,
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': `What is the starting price for ${project.name}?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `The developer starting price for ${project.name} in ${project.area}, ${project.state} starts from RM ${project.priceMin.toLocaleString()}.`
+            }
           },
-          'itemOffered': {
-            '@type': p.propertyType === 'Landed' ? 'SingleFamilyResidence' : 'ApartmentComplex',
-            'name': p.name,
-            'url': `https://propertyportal.my/?project=${p.id}`,
-            'address': {
-              '@type': 'PostalAddress',
-              'addressLocality': p.area,
-              'addressRegion': p.state,
-              'addressCountry': 'MY'
+          {
+            '@type': 'Question',
+            'name': `Who is the developer of ${project.name}?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `${project.name} is developed by ${project.developer}.`
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': `What is the land tenure for ${project.name}?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `${project.name} holds a ${project.tenure} title.`
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': `When is the estimated completion date for ${project.name}?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `Estimated completion year for ${project.name} is ${project.completionYear}.`
             }
           }
-        }))
-      };
+        ]
+      });
+    } else if (tab === 'guide') {
+      // FAQPage Rich Snippet Schema for Buying Guide
+      jsonLdGraph.push({
+        '@type': 'FAQPage',
+        '@id': `${canonicalUrl}#faq`,
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': 'Can foreigners buy property in Malaysia?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Yes, foreigners can buy property in Malaysia subject to minimum price thresholds set by state authorities (typically RM 1,000,000 in Kuala Lumpur and Selangor for most residential properties).'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'What is Real Property Gains Tax (RPGT) in Malaysia?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'RPGT is a tax levied on the net profit derived from the disposal of real property. For Malaysian citizens, RPGT is 30% in year 1-3, 20% in year 4, 15% in year 5, and 0% after 5 years.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'What are the main costs when buying a property in Malaysia?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Main costs include stamp duty on Memorandum of Transfer (MOT), legal fees for Sales & Purchase Agreement (SPA), loan agreement legal fees and stamp duty, and valuation fees.'
+            }
+          }
+        ]
+      });
     }
+
+    const fullSchemaMarkup = {
+      '@context': 'https://schema.org',
+      '@graph': jsonLdGraph
+    };
 
     // Insert or update script tag
     let scriptTag = document.getElementById('seo-jsonld-schema');
@@ -281,13 +455,10 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       scriptTag.setAttribute('type', 'application/ld+json');
       document.head.appendChild(scriptTag);
     }
-    scriptTag.textContent = JSON.stringify(schemaMarkup, null, 2);
+    scriptTag.textContent = JSON.stringify(fullSchemaMarkup, null, 2);
 
-    // Cleanup function when component unmounts
-    return () => {
-      // Don't necessarily strip metadata, so search engines keep reading it
-    };
+    return () => {};
   }, [project, tab, lang, projects]);
 
-  return null; // This is a logic-only SEO side-effect injector component
+  return null;
 }

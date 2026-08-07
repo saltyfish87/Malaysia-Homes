@@ -75,9 +75,11 @@ export default function ProjectDetailModal({
       ];
 
       if (originalProject.allDriveFiles && originalProject.allDriveFiles.length > 0) {
-        // Filter layout plans specifically for Condovilla (must contain condo/villa and not contain park/home/terrace/landed)
+        // Filter layout plans specifically for Condovilla (must contain condo/villa and not contain park/home/terrace/landed/facilities/living/retail/g floor)
         const condoLayoutFiles = originalProject.allDriveFiles.filter(f => {
           const ln = f.name.toLowerCase();
+          const isShowcase = ln.includes('facility') || ln.includes('facilities') || ln.includes('living') || ln.includes('retail') || ln.includes('g floor') || ln.includes('ground floor') || ln.includes('g-floor');
+          if (isShowcase) return false;
           const isLayout = ln.includes('layout') || ln.includes('plan') || ln.includes('type') || ln.includes('floor');
           if (!isLayout) return false;
           
@@ -91,8 +93,9 @@ export default function ProjectDetailModal({
         // Define default or custom image
         const condoPhotos = originalProject.allDriveFiles.filter(f => {
           const ln = f.name.toLowerCase();
+          const isShowcase = ln.includes('facility') || ln.includes('facilities') || ln.includes('living') || ln.includes('retail') || ln.includes('g floor') || ln.includes('ground floor') || ln.includes('g-floor');
           const isPhoto = !ln.includes('layout') && !ln.includes('plan') && !ln.includes('type') && !ln.includes('floor') && !ln.includes('map') && !ln.includes('location');
-          return isPhoto && (ln.includes('condo') || ln.includes('villa'));
+          return (isPhoto || isShowcase) && (ln.includes('condo') || ln.includes('villa') || isShowcase);
         });
 
         const dynamicGallery = condoPhotos.map(f => f.url);
@@ -188,9 +191,11 @@ export default function ProjectDetailModal({
       ];
 
       if (originalProject.allDriveFiles && originalProject.allDriveFiles.length > 0) {
-        // Filter layout plans specifically for Parkhome (must contain park/home/terrace/landed and not contain condo/villa)
+        // Filter layout plans specifically for Parkhome (must contain park/home/terrace/landed and not contain condo/villa/facilities/living/retail/g floor)
         const parkLayoutFiles = originalProject.allDriveFiles.filter(f => {
           const ln = f.name.toLowerCase();
+          const isShowcase = ln.includes('facility') || ln.includes('facilities') || ln.includes('living') || ln.includes('retail') || ln.includes('g floor') || ln.includes('ground floor') || ln.includes('g-floor');
+          if (isShowcase) return false;
           const isLayout = ln.includes('layout') || ln.includes('plan') || ln.includes('type') || ln.includes('floor');
           if (!isLayout) return false;
           
@@ -203,8 +208,9 @@ export default function ProjectDetailModal({
 
         const parkPhotos = originalProject.allDriveFiles.filter(f => {
           const ln = f.name.toLowerCase();
+          const isShowcase = ln.includes('facility') || ln.includes('facilities') || ln.includes('living') || ln.includes('retail') || ln.includes('g floor') || ln.includes('ground floor') || ln.includes('g-floor');
           const isPhoto = !ln.includes('layout') && !ln.includes('plan') && !ln.includes('type') && !ln.includes('floor') && !ln.includes('map') && !ln.includes('location');
-          return isPhoto && (ln.includes('park') || ln.includes('home') || ln.includes('terrace') || ln.includes('landed'));
+          return (isPhoto || isShowcase) && (ln.includes('park') || ln.includes('home') || ln.includes('terrace') || ln.includes('landed') || isShowcase);
         });
 
         const dynamicGallery = parkPhotos.map(f => f.url);
@@ -309,14 +315,24 @@ export default function ProjectDetailModal({
   // Mapped Interactive Layout Plans for this developer showcase
   const LAYOUT_PLANS: LayoutPlan[] = useMemo(() => {
     if (project.layoutPlans && project.layoutPlans.length > 0) {
-      return project.layoutPlans.map(lp => ({
-        name: lp.name,
-        sizeSqft: lp.sizeSqft || project.builtUpMin,
-        bedrooms: project.bedrooms || 3,
-        bathrooms: project.bathrooms || 2,
-        imageUrl: lp.imageUrl,
-        description: lp.description
-      }));
+      const filtered = project.layoutPlans.filter(lp => {
+        const lowerName = (lp.name || '').toLowerCase();
+        const isFacility = lowerName.includes('facility') || lowerName.includes('facilities');
+        const isLiving = lowerName.includes('living');
+        const isRetail = lowerName.includes('retail');
+        const isGFloor = lowerName.includes('g floor') || lowerName.includes('ground floor') || lowerName.includes('g-floor');
+        return !isFacility && !isLiving && !isRetail && !isGFloor;
+      });
+      if (filtered.length > 0) {
+        return filtered.map(lp => ({
+          name: lp.name,
+          sizeSqft: lp.sizeSqft || project.builtUpMin,
+          bedrooms: project.bedrooms || 3,
+          bathrooms: project.bathrooms || 2,
+          imageUrl: lp.imageUrl,
+          description: lp.description
+        }));
+      }
     }
     return [
       {
@@ -351,6 +367,36 @@ export default function ProjectDetailModal({
       }
     ];
   }, [project, lang]);
+
+  // Combined Visual Showcase Gallery array including facilities, living area, retail, and G floor images
+  const displayGallery = useMemo(() => {
+    const gal = [...(project.gallery || [])];
+    // Gather any facility, living, retail, g floor images from project.layoutPlans
+    if (project.layoutPlans) {
+      project.layoutPlans.forEach(lp => {
+        const ln = (lp.name || '').toLowerCase();
+        const isShowcase = ln.includes('facility') || ln.includes('facilities') || ln.includes('living') || ln.includes('retail') || ln.includes('g floor') || ln.includes('ground floor') || ln.includes('g-floor');
+        if (isShowcase && lp.imageUrl) {
+          if (!gal.includes(lp.imageUrl)) {
+            gal.push(lp.imageUrl);
+          }
+        }
+      });
+    }
+    // Gather any facility, living, retail, g floor images from project.allDriveFiles
+    if (project.allDriveFiles) {
+      project.allDriveFiles.forEach(f => {
+        const ln = (f.name || '').toLowerCase();
+        const isShowcase = ln.includes('facility') || ln.includes('facilities') || ln.includes('living') || ln.includes('retail') || ln.includes('g floor') || ln.includes('ground floor') || ln.includes('g-floor');
+        if (isShowcase && f.url) {
+          if (!gal.includes(f.url)) {
+            gal.push(f.url);
+          }
+        }
+      });
+    }
+    return gal.length > 0 ? gal : [project.image];
+  }, [project]);
 
   // Computed Loan metrics
   const principalAmount = useMemo(() => {
@@ -413,14 +459,14 @@ export default function ProjectDetailModal({
 
   // Next image helper
   const nextImg = () => {
-    if (project.gallery && project.gallery.length > 0) {
-      setActiveImgIdx((activeImgIdx + 1) % project.gallery.length);
+    if (displayGallery && displayGallery.length > 0) {
+      setActiveImgIdx((activeImgIdx + 1) % displayGallery.length);
     }
   };
 
   const prevImg = () => {
-    if (project.gallery && project.gallery.length > 0) {
-      setActiveImgIdx((activeImgIdx - 1 + project.gallery.length) % project.gallery.length);
+    if (displayGallery && displayGallery.length > 0) {
+      setActiveImgIdx((activeImgIdx - 1 + displayGallery.length) % displayGallery.length);
     }
   };
 
@@ -465,7 +511,7 @@ export default function ProjectDetailModal({
     }, 2500);
   };
 
-  const currentActiveImg = project.gallery?.[activeImgIdx] || project.image;
+  const currentActiveImg = displayGallery?.[activeImgIdx] || project.image;
 
   return (
     <motion.div 
@@ -533,7 +579,7 @@ export default function ProjectDetailModal({
       </nav>
 
       {/* 2. HERO SPLASH HEADER BLOCK */}
-      <header className="relative w-full h-[65vh] sm:h-[75vh] lg:h-[82vh] bg-slate-900 text-white flex items-end select-none">
+      <header className="relative w-full h-[50vh] sm:h-[50vh] lg:h-[50vh] min-h-[50vh] bg-slate-900 text-white flex items-end select-none">
         <div className="absolute inset-0 overflow-hidden cursor-zoom-in" onClick={() => setLightboxImg(project.image || null)}>
           <img 
             src={project.image || undefined} 
@@ -544,7 +590,7 @@ export default function ProjectDetailModal({
         </div>
         <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/20 to-transparent" />
         
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full pb-10 text-left">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full flex flex-col justify-end pb-8 sm:pb-10 text-left">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <span className="rounded-full bg-[#C5A059] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
               👑 {project.propertyType}
@@ -914,7 +960,7 @@ export default function ProjectDetailModal({
                 />
                 
                 {/* Carousel directional button icons */}
-                {project.gallery && project.gallery.length > 1 && (
+                {displayGallery && displayGallery.length > 1 && (
                   <>
                     <button
                       onClick={prevImg}
@@ -933,14 +979,14 @@ export default function ProjectDetailModal({
 
                 {/* Frame Counter indicators */}
                 <div className="absolute bottom-4 right-4 rounded-md bg-slate-950/85 border border-white/10 px-3 py-1 font-mono text-2xs font-extrabold text-brand-gold backdrop-blur-md">
-                  {activeImgIdx + 1} / {project.gallery?.length || 1}
+                  {activeImgIdx + 1} / {displayGallery?.length || 1}
                 </div>
               </div>
 
               {/* Thumbnails list row selection */}
-              {project.gallery && project.gallery.length > 0 && (
+              {displayGallery && displayGallery.length > 0 && (
                 <div className="flex gap-2 w-full overflow-x-auto pb-2 select-none">
-                  {project.gallery.map((img, index) => (
+                  {displayGallery.map((img, index) => (
                     <button
                       key={index}
                       onClick={() => setActiveImgIdx(index)}

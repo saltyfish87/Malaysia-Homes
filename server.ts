@@ -307,7 +307,7 @@ async function startServer() {
   app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
     res.header('Content-Type', 'application/xml');
     
-    // Set up default/fallback project IDs (from mock data)
+    // Set up default/fallback project IDs and names
     const projectSlugs = new Set([
       'amika', 'anya', 'aricia', 'aster-hill', 'atera-phase2', 'aurum-business', 
       'avantro', 'ayanna-res', 'bangsar-hill-bc', 'bangsar-hill-verdura', 'clouthaus-res', 
@@ -332,10 +332,8 @@ async function startServer() {
       const response = await fetch(spreadsheetUrl);
       if (response.ok) {
         const csvText = await response.text();
-        // Super simple lightweight CSV row parse
         const lines = csvText.split(/\r?\n/);
         if (lines.length > 1) {
-          // Find "project name" column index
           const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase());
           const nameIdx = headers.indexOf('project name') !== -1 ? headers.indexOf('project name') : headers.findIndex(h => h.includes('name'));
           const idIdx = headers.indexOf('id') !== -1 ? headers.indexOf('id') : headers.indexOf('slug');
@@ -344,7 +342,6 @@ async function startServer() {
             for (let i = 1; i < lines.length; i++) {
               const line = lines[i];
               if (!line.trim()) continue;
-              // Split considering double quotes (lightweight split)
               const matches = line.split(',');
               if (matches && matches.length > nameIdx) {
                 const rawName = matches[nameIdx].replace(/^"|"$/g, '').trim();
@@ -371,29 +368,71 @@ async function startServer() {
     const domain = 'https://propertyportal.my';
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Build XML string
+    // Build XML string with Google Image Search namespace support
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
 
-    // Static page URLs
+    // Core static page URLs
     xml += `  <url>\n    <loc>${domain}/</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
-    xml += `  <url>\n    <loc>${domain}/?tab=compare</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-    xml += `  <url>\n    <loc>${domain}/?tab=guide</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-    xml += `  <url>\n    <loc>${domain}/?tab=favorites</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.5</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/residences</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/map</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/compare</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/guide</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    xml += `  <url>\n    <loc>${domain}/calculators</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
 
-    // Dynamic project URLs
+    // Dynamic project URLs with Google Image metadata
     projectSlugs.forEach(slug => {
-      xml += `  <url>\n    <loc>${domain}/?project=${slug}</loc>\n    <lastmod>${currentDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+      const formattedTitle = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      xml += `  <url>\n`;
+      xml += `    <loc>${domain}/project/${slug}</loc>\n`;
+      xml += `    <lastmod>${currentDate}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>0.9</priority>\n`;
+      xml += `    <image:image>\n`;
+      xml += `      <image:loc>https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&amp;fit=crop&amp;w=1200&amp;q=80</image:loc>\n`;
+      xml += `      <image:title>${formattedTitle} Condominium Floor Plan &amp; Gallery</image:title>\n`;
+      xml += `    </image:image>\n`;
+      xml += `  </url>\n`;
     });
 
     xml += `</urlset>`;
     res.send(xml);
   });
 
-  // Serve robots.txt pointing to the dynamic sitemap
+  // Serve AI & Bot Friendly robots.txt
   app.get(['/robots.txt', '/robots'], (req, res) => {
     res.header('Content-Type', 'text/plain');
-    res.send(`User-agent: *\nAllow: /\n\nSitemap: https://propertyportal.my/sitemap.xml\n`);
+    res.send(
+`User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /?tab=admin
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://propertyportal.my/sitemap.xml
+`
+    );
   });
 
   // Vite integration / Static files serving

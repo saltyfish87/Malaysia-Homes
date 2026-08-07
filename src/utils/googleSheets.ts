@@ -808,13 +808,15 @@ export async function fetchSpreadsheetData(accessToken?: string): Promise<Projec
         }
 
         // B. LAYOUT SECTION IMAGE: USE IMAGE NAME TYPE X
-        // Collect files where name has 'type', 'layout', 'plan', 'floor' (excluding map, location, logo, pdf)
+        // Collect files where name has 'type', 'layout', 'plan', 'floor' (excluding map, location, logo, pdf, facility, facilities, living, retail, g floor)
         const layoutFiles = allProjectFiles.filter(f => {
           const lowerName = f.name.toLowerCase();
           const isLayout = lowerName.includes('type') || lowerName.includes('layout') || lowerName.includes('plan') || lowerName.includes('floor');
           const isMap = lowerName.includes('map') || lowerName.includes('location') || lowerName.includes('amenit');
           const isMisc = lowerName.includes('logo') || lowerName.includes('pdf') || lowerName.includes('brochure');
-          return isLayout && !isMap && !isMisc;
+          const isFacility = lowerName.includes('facility') || lowerName.includes('facilities');
+          const isVisualShowcase = lowerName.includes('living') || lowerName.includes('retail') || lowerName.includes('g floor') || lowerName.includes('ground floor') || lowerName.includes('g-floor');
+          return isLayout && !isMap && !isMisc && !isFacility && !isVisualShowcase;
         });
 
         // Sort layout plans alphabetically/numerically
@@ -831,13 +833,16 @@ export async function fetchSpreadsheetData(accessToken?: string): Promise<Projec
           });
         }
 
-        // C. VISUAL GALLERY: REMOVE LOGO, PDF, AND LAYOUT IMAGES
+        // C. VISUAL GALLERY: INCLUDE FACILITY AND SHOWCASE IMAGES, REMOVE LOGO, PDF, AND NON-SHOWCASE LAYOUT IMAGES
         const galleryFiles = allProjectFiles.filter(f => {
           const lowerName = f.name.toLowerCase();
           const hasLogo = lowerName.includes('logo');
           const hasPdf = lowerName.includes('pdf');
+          const isFacility = lowerName.includes('facility') || lowerName.includes('facilities');
+          const isVisualShowcase = lowerName.includes('living') || lowerName.includes('retail') || lowerName.includes('g floor') || lowerName.includes('ground floor') || lowerName.includes('g-floor');
           const hasLayout = lowerName.includes('layout') || lowerName.includes('plan') || lowerName.includes('type') || lowerName.includes('floor');
           const hasMap = lowerName.includes('map') || lowerName.includes('location');
+          if (isFacility || isVisualShowcase) return true;
           return !hasLogo && !hasPdf && !hasLayout && !hasMap;
         });
 
