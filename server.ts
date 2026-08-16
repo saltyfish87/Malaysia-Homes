@@ -151,6 +151,62 @@ async function startServer() {
   // Express JSON Parsing
   app.use(express.json());
 
+  // Canonical Domain (www -> non-www) & URL Normalization Middleware (Fixes Google Search Console "Page with redirect")
+  app.use((req, res, next) => {
+    const host = (req.headers.host || '').toLowerCase();
+    
+    // 1. Force naked domain (propertyportal.my) if accessed via www
+    if (host.startsWith('www.propertyportal.my')) {
+      const canonicalHost = host.replace(/^www\./, '');
+      const fullUrl = `https://${canonicalHost}${req.originalUrl || req.url}`;
+      return res.redirect(301, fullUrl);
+    }
+
+    // 2. Safely handle literal Google/Bing crawler bot search template hits ({search_term_string})
+    if (req.url.includes('{search_term_string}') || req.url.includes('%7Bsearch_term_string%7D')) {
+      if (process.env.NODE_ENV === 'production') {
+        const distPath = path.join(process.cwd(), 'dist');
+        return res.sendFile(path.join(distPath, 'index.html'));
+      }
+      req.url = '/residences';
+      return next();
+    }
+
+    // 3. HTTP 301 Permanent Redirects for legacy query parameters to elevate to canonical clean URLs
+    const rawUrl = req.url || '';
+    if (rawUrl.includes('project=') || rawUrl.includes('tab=')) {
+      try {
+        const parsed = new URL(rawUrl, `http://${host || 'localhost'}`);
+        const projectParam = parsed.searchParams.get('project');
+        const tabParam = parsed.searchParams.get('tab');
+
+        if (projectParam) {
+          const cleanSlug = projectParam.toLowerCase().trim();
+          // Aliases check
+          const slugAliases: Record<string, string> = {
+            'alora-residence': 'alora-subang',
+            'forest-hill': 'foresthill',
+            'centrix': 'core-trx',
+            'causeway': 'johor-causeway',
+            'causeways': 'johor-causeway',
+            'causewayz': 'johor-causeway',
+            'kl-wellness-city': 'wellness-city'
+          };
+          const targetSlug = slugAliases[cleanSlug] || cleanSlug;
+          return res.redirect(301, `/project/${targetSlug}`);
+        }
+
+        if (tabParam && ['residences', 'compare', 'guide', 'calculators', 'map', 'favorites'].includes(tabParam)) {
+          return res.redirect(301, `/${tabParam}`);
+        }
+      } catch (e) {
+        // Fall through
+      }
+    }
+
+    next();
+  });
+
   // Vercel Serverless Rewrite helper: ensures that when Vercel rewrites /sitemap.xml or /robots.txt to the function,
   // the original request path is matched back so Express routes match correctly.
   app.use((req, res, next) => {

@@ -196,6 +196,51 @@ export default function App() {
     localStorage.setItem('malaysianhomes-favorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  // Helper to find project by slug or alias with robust fallback
+  const findProjectBySlug = (slug: string, list: Project[]): Project | null => {
+    if (!slug) return null;
+    const cleanSlug = slug.toLowerCase().trim();
+    const stripped = cleanSlug.replace(/[^a-z0-9]/g, '');
+
+    // 1. Direct ID match
+    let found = list.find(p => p.id.toLowerCase() === cleanSlug);
+    if (found) return found;
+
+    // 2. Normalized alphanumeric match (e.g., 'forest-hill' vs 'foresthill')
+    found = list.find(p => p.id.toLowerCase().replace(/[^a-z0-9]/g, '') === stripped);
+    if (found) return found;
+
+    // 3. Name match
+    found = list.find(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '') === stripped);
+    if (found) return found;
+
+    // 4. Aliases / common alternative slugs
+    const slugAliases: Record<string, string> = {
+      'alora-residence': 'alora-subang',
+      'alora': 'alora-subang',
+      'forest-hill': 'foresthill',
+      'forest-hill-residence': 'foresthill',
+      'centrix': 'core-trx',
+      'trx': 'core-trx',
+      'causeway': 'johor-causeway',
+      'causeways': 'johor-causeway',
+      'causewayz': 'johor-causeway',
+      'bangsar-hill': 'bangsar-hill-bc',
+      'kl-wellness-city': 'wellness-city',
+      'wellnesscity': 'wellness-city',
+      'tria': 'tria-seputeh',
+      'zenia': 'zenia-damansara'
+    };
+
+    const targetId = slugAliases[cleanSlug] || slugAliases[stripped];
+    if (targetId) {
+      found = list.find(p => p.id === targetId || p.id.toLowerCase().replace(/[^a-z0-9]/g, '') === targetId.replace(/[^a-z0-9]/g, ''));
+      if (found) return found;
+    }
+
+    return null;
+  };
+
   // Helper to get clean pretty URL path
   const getCleanPath = (currentTab: string, currentProject: Project | null) => {
     if (currentProject) {
@@ -219,8 +264,8 @@ export default function App() {
       // 1. Path-based check
       const projectMatch = pathname.match(/^\/(?:project|projects|property|properties)\/([^\/]+)$/i);
       if (projectMatch && projectMatch[1]) {
-        const slug = projectMatch[1].toLowerCase();
-        const found = projects.find(p => p.id === slug || p.id.toLowerCase() === slug);
+        const slug = decodeURIComponent(projectMatch[1]);
+        const found = findProjectBySlug(slug, projects);
         if (found) {
           matchedProject = found;
           matchedTab = 'residences';
@@ -246,7 +291,7 @@ export default function App() {
       const urlTab = params.get('tab');
 
       if (!matchedProject && urlProjectId) {
-        const found = projects.find(p => p.id === urlProjectId);
+        const found = findProjectBySlug(decodeURIComponent(urlProjectId), projects);
         if (found) {
           matchedProject = found;
         }
@@ -277,7 +322,8 @@ export default function App() {
       const pathname = window.location.pathname.replace(/\/$/, '') || '/';
       const projectMatch = pathname.match(/^\/(?:project|projects|property|properties)\/([^\/]+)$/i);
       if (projectMatch && projectMatch[1]) {
-        const found = projects.find(p => p.id === projectMatch[1].toLowerCase());
+        const slug = decodeURIComponent(projectMatch[1]);
+        const found = findProjectBySlug(slug, projects);
         if (found) {
           setSelectedProject(found);
           setTab('residences');

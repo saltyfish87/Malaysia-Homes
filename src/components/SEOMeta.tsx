@@ -220,7 +220,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     // 2. SCHEMA.ORG RICH SNIPPETS STRUCTURED DATA (JSON-LD)
     const jsonLdGraph: any[] = [];
 
-    // A. WebSite & SearchAction Schema
+    // A. WebSite & SearchAction Schema (Google Sitelinks Searchbox Specification)
     jsonLdGraph.push({
       '@type': 'WebSite',
       '@id': `${domain}/#website`,
@@ -231,7 +231,10 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       'inLanguage': ['en', 'zh-Hans'],
       'potentialAction': {
         '@type': 'SearchAction',
-        'target': `${domain}/?search={search_term_string}`,
+        'target': {
+          '@type': 'EntryPoint',
+          'urlTemplate': `${domain}/residences?search={search_term_string}`
+        },
         'query-input': 'required name=search_term_string'
       }
     });
