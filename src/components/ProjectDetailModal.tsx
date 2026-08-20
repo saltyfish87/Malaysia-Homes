@@ -568,7 +568,7 @@ export default function ProjectDetailModal({
 
         <div>
           <a
-            href={`https://wa.me/60195598932?text=${encodeURIComponent(t.whatsappChatHelp + ' ' + project.name)}`}
+            href={`https://wa.me/60108278932?text=${encodeURIComponent(t.whatsappChatHelp + ' ' + project.name)}`}
             target="_blank"
             rel="noreferrer"
             className="rounded-full bg-emerald-500 px-4 py-2 text-xs font-black text-white shadow-xs hover:bg-emerald-650 transition-all flex items-center space-x-1"
@@ -1176,7 +1176,7 @@ export default function ProjectDetailModal({
                       required
                       value={bookPhone}
                       onChange={(e) => setBookPhone(e.target.value)}
-                      placeholder="e.g. 019-559 8932"
+                      placeholder="e.g. 010-827 8932"
                       className="block w-full rounded-lg border border-slate-250 bg-slate-50 py-2.5 px-3.5 text-xs font-bold focus:border-brand-gold focus:outline-hidden dark:border-slate-800 dark:bg-slate-900 dark:text-white focus:ring-1 focus:ring-brand-gold"
                     />
                   </div>
@@ -1260,7 +1260,7 @@ export default function ProjectDetailModal({
               {/* HELPFUL CONTACT QUICK CALL */}
               <div className="mt-3 grid grid-cols-2 gap-2 text-center text-xs font-black">
                 <a
-                  href={`https://wa.me/60195598932?text=${encodeURIComponent(
+                  href={`https://wa.me/60108278932?text=${encodeURIComponent(
                     `Hi! I am looking for the e-brochure & layout details of ${project.name} (from MalaysianHomes). Please share details.`
                   )}`}
                   target="_blank"
@@ -1270,10 +1270,10 @@ export default function ProjectDetailModal({
                   <span>WhatsApp direct</span>
                 </a>
                 <a
-                  href="tel:0195598932"
+                  href="tel:0108278932"
                   className="rounded-lg bg-slate-100 dark:bg-slate-900 dark:border-slate-800 text-slate-800 dark:text-gray-100 hover:bg-slate-200 border border-slate-200 py-2 flex items-center justify-center space-x-1 cursor-pointer text-[10px] tracking-wide"
                 >
-                  <span>📞 019-5598932</span>
+                  <span>📞 010-8278932</span>
                 </a>
               </div>
 

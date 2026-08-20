@@ -1606,7 +1606,7 @@ export default function App() {
       {/* 6. RESPONSIVE PERISTENT STICKY CALL-TO-ACTIONS HOTLINES */}
       <div className="fixed bottom-3 right-3 z-30 flex flex-col space-y-2">
         <a 
-          href={`https://wa.me/60195598932?text=${encodeURIComponent(t.whatsappChatHelp)}`}
+          href={`https://wa.me/60108278932?text=${encodeURIComponent(t.whatsappChatHelp)}`}
           target="_blank"
           rel="noreferrer"
           className="flex h-11 items-center space-x-2 rounded-full bg-green-500 px-4.5 text-xs font-black text-white shadow-xl hover:bg-green-600 hover:scale-103 transition-all cursor-pointer"

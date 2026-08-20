@@ -1572,7 +1572,7 @@ export default function CalculatorsPage({ lang, currency, onOpenConsultation }: 
                 <p className="text-xs text-stone-300 mt-1">{isZh ? '联系我们的官方房产理财专家，获取针对各大银行的专业做单评估' : 'Connect with our official property consultants for tailored bank loan submission strategies.'}</p>
               </div>
               <a
-                href={`https://wa.me/60195598932?text=${encodeURIComponent(isZh ? `您好，我在计算器页面测算了 ${activeCalcId}，希望能预约资深顾问做精准银行做单评估。` : `Hi! I calculated ${activeCalcId} on MalaysianHomes portal and would like professional loan submission consultation.`)}`}
+                href={`https://wa.me/60108278932?text=${encodeURIComponent(isZh ? `您好，我在计算器页面测算了 ${activeCalcId}，希望能预约资深顾问做精准银行做单评估。` : `Hi! I calculated ${activeCalcId} on MalaysianHomes portal and would like professional loan submission consultation.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="shrink-0 px-5 py-2.5 rounded-xl bg-brand-gold text-stone-900 text-xs font-black hover:bg-amber-400 transition-colors cursor-pointer"

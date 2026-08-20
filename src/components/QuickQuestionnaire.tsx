@@ -317,7 +317,7 @@ export default function QuickQuestionnaire({
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder={t.formPhone + ' (e.g. +6019...)'}
+                        placeholder={t.formPhone + ' (e.g. +6010...)'}
                         className="block w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-bold text-stone-900 shadow-xs focus:border-teal-700 focus:outline-hidden focus:ring-1 focus:ring-teal-700"
                       />
                     </div>
@@ -433,7 +433,7 @@ export default function QuickQuestionnaire({
                 {lang === 'en' ? 'Close Window' : '关闭窗口'}
               </button>
               <a
-                href={`https://wa.me/60195598932?text=${encodeURIComponent(
+                href={`https://wa.me/60108278932?text=${encodeURIComponent(
                   `Hey! I just completed the Smart Match test. My name is ${name} and I am interested in ${matchedProjects[0]?.name || 'TRX Residences'}. Please send the pricing catalog.`
                 )}`}
                 target="_blank"
