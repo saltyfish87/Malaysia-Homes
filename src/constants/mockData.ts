@@ -227,7 +227,67 @@ export const MOCK_PROJECTS: Project[] = [
     let ownStayScore = 8.5;
     let rentalYield = 5.2;
 
-    if (projId === 'zenia-damansara') {
+    if (projId === 'aricia') {
+      keyHighlights = [
+        "Prime Freehold transit-oriented residence in vibrant Chan Sow Lin, Kuala Lumpur",
+        "Just 1 MRT stop to Tun Razak Exchange (TRX Financial Hub) & 3 stops to KLCC East",
+        "Direct dual-line connectivity via Chan Sow Lin MRT & LRT interchange stations",
+        "Panoramic city skyline views facing Tun Razak Exchange (TRX) and Merdeka 118",
+        "Diverse flexible layouts from 550 sqft (1-2 bed) to 1,420 sqft (dual-key 4 bed)",
+        "Resort-class amenities including Sky Infinity Pool, co-working hub, and fitness center"
+      ];
+      nearbyAmenities = [
+        "Chan Sow Lin MRT & LRT Interchange (0.4km)",
+        "Tun Razak Exchange - TRX Mall & Banking Hub (2.0km)",
+        "Sunway Velocity Mall & Medical Centre (1.8km)",
+        "MyTown Shopping Centre & IKEA Cheras (1.5km)",
+        "Pavilion Kuala Lumpur & Bukit Bintang (3.5km)",
+        "Prince Court Medical Centre (3.2km)"
+      ];
+      description = "Aricia Residences by Fiamma Properties is an exceptional Freehold luxury residential development situated in Chan Sow Lin, Kuala Lumpur. Engineered for modern urban executives, savvy investors, and multi-generational families, Aricia offers exceptional connectivity to the TRX Financial Hub and downtown KLCC via rapid transit links. Featuring masterfully planned architectural suites, high-ceiling layouts, Sky Infinity Pool overlooking the KL skyline, multi-tier biometric security, and premium developer fittings.";
+      image = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80';
+      gallery = [
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=80'
+      ];
+      layoutPlans = [
+        {
+          name: "Type A (550 sqft)",
+          imageUrl: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
+          description: "Efficient 1-2 Bedroom urban suite layout designed for young professionals and high-yield Airbnb / long-term rental investors.",
+          sizeSqft: 550
+        },
+        {
+          name: "Type B (750 sqft)",
+          imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80",
+          description: "Functional 2 Bedroom, 2 Bathroom open-plan layout featuring bright living spaces, integrated kitchen, and private balcony.",
+          sizeSqft: 750
+        },
+        {
+          name: "Type C (1,050 sqft)",
+          imageUrl: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+          description: "Spacious 3 Bedroom, 2 Bathroom family residence with dedicated utility yard, dry/wet kitchen counter, and master ensuite.",
+          sizeSqft: 1050
+        },
+        {
+          name: "Type D Dual-Key (1,420 sqft)",
+          imageUrl: "https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=800&q=80",
+          description: "Premium 4 Bedroom Dual-Key luxury configuration allowing simultaneous self-stay and independent studio rental income.",
+          sizeSqft: 1420
+        }
+      ];
+      featured = true;
+      bathrooms = 2;
+      carPark = 2;
+      totalUnits = 650;
+      totalFloors = 45;
+      investmentScore = 9.4;
+      ownStayScore = 8.9;
+      rentalYield = 5.8;
+    } else if (projId === 'zenia-damansara') {
       keyHighlights = [
         "Premium low-density Condovillas and luxury 3-storey Parkhomes",
         "Developed by legendary township specialist developer Park City",

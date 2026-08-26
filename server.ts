@@ -1,6 +1,9 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
+import { getProjectSEOData } from './src/constants/allProjectsSeo';
+import { MOCK_PROJECTS } from './src/constants/mockData';
 
 // In-Memory Caches for smooth fast performance
 let driveCache: any = null;
@@ -185,12 +188,35 @@ async function startServer() {
           // Aliases check
           const slugAliases: Record<string, string> = {
             'alora-residence': 'alora-subang',
+            'alora': 'alora-subang',
             'forest-hill': 'foresthill',
+            'forest-hill-residence': 'foresthill',
             'centrix': 'core-trx',
+            'trx': 'core-trx',
             'causeway': 'johor-causeway',
             'causeways': 'johor-causeway',
             'causewayz': 'johor-causeway',
-            'kl-wellness-city': 'wellness-city'
+            'ciq': 'johor-causeway',
+            'bangsar-hill': 'bangsar-hill-bc',
+            'kl-wellness-city': 'wellness-city',
+            'wellnesscity': 'wellness-city',
+            'tria': 'tria-seputeh',
+            'zenia': 'zenia-damansara',
+            'aricia-residence': 'aricia',
+            'aricia-residences': 'aricia',
+            'aricia-chan-sow-lin': 'aricia',
+            'aricia-chansowlin': 'aricia',
+            'aricia-fiamma': 'aricia',
+            'amika-residence': 'amika',
+            'amika-subang': 'amika',
+            'anya-puchong': 'anya',
+            'anya-shorea-park': 'anya',
+            'aster-hill-sri-petaling': 'aster-hill',
+            'asterhill': 'aster-hill',
+            'kingswoodz-bukit-jalil': 'kingswoodz',
+            'queenswoodz-bukit-jalil': 'queenswoodz',
+            'rf-princess-cove': 'rf-casa',
+            'princess-cove': 'rf-casa'
           };
           const targetSlug = slugAliases[cleanSlug] || cleanSlug;
           return res.redirect(301, `/project/${targetSlug}`);
@@ -491,16 +517,214 @@ Sitemap: https://propertyportal.my/sitemap.xml
     );
   });
 
+  // SSR Project Dynamic SEO HTML Renderer
+  const renderProjectPageSEO = (rawHtml: string, slug: string): string => {
+    const cleanSlug = slug.toLowerCase().trim();
+    const strippedSlug = cleanSlug.replace(/[^a-z0-9]/g, '');
+
+    // 1. Find matched project in MOCK_PROJECTS
+    const foundProject = MOCK_PROJECTS.find(p => 
+      p.id.toLowerCase().trim() === cleanSlug ||
+      p.id.toLowerCase().replace(/[^a-z0-9]/g, '') === strippedSlug
+    );
+
+    // 2. Get rich, tailored SEO data
+    const projectInfo = getProjectSEOData(cleanSlug, foundProject);
+
+    const canonicalUrl = `https://propertyportal.my/project/${cleanSlug}`;
+    const pageTitle = `${projectInfo.name} ${projectInfo.area} | Developer Price, Layout Floor Plan, Brochure & Review | propertyportal.my`;
+    const pageDescription = `${projectInfo.name} by ${projectInfo.developer} in ${projectInfo.area}, ${projectInfo.state}. Official developer price from RM ${projectInfo.priceMin.toLocaleString()} to RM ${projectInfo.priceMax.toLocaleString()}, ${projectInfo.tenure} ${projectInfo.propertyType} with ${projectInfo.sizeMin}-${projectInfo.sizeMax} sqft layouts (${projectInfo.bedrooms}+ beds). View floor plans, MRT connectivity, and schedule a showroom appointment.`;
+    const pageKeywords = `${projectInfo.name}, ${projectInfo.name} price, ${projectInfo.name} floor plan, ${projectInfo.name} layout, ${projectInfo.name} developer, ${projectInfo.name} brochure, ${projectInfo.name} review, ${projectInfo.name} ${projectInfo.area}, ${projectInfo.developer} ${projectInfo.name}, buy ${projectInfo.name}, ${projectInfo.area} property, ${projectInfo.name} show gallery, ${projectInfo.name} showroom, foreigner buy ${projectInfo.name}, propertyportal.my`;
+
+    // JSON-LD Schema graph
+    const schemaGraph = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          '@id': 'https://propertyportal.my/#website',
+          'url': 'https://propertyportal.my',
+          'name': 'Malaysia Homes',
+          'alternateName': 'propertyportal.my',
+          'potentialAction': {
+            '@type': 'SearchAction',
+            'target': {
+              '@type': 'EntryPoint',
+              'urlTemplate': 'https://propertyportal.my/residences?search={search_term_string}'
+            },
+            'query-input': 'required name=search_term_string'
+          }
+        },
+        {
+          '@type': 'RealEstateAgent',
+          '@id': 'https://propertyportal.my/#agency',
+          'name': 'Malaysia Homes',
+          'url': 'https://propertyportal.my',
+          'telephone': '+60108278932',
+          'priceRange': 'MYR 300,000 - MYR 5,000,000'
+        },
+        {
+          '@type': 'BreadcrumbList',
+          '@id': `${canonicalUrl}#breadcrumb`,
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://propertyportal.my/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Properties', 'item': 'https://propertyportal.my/residences' },
+            { '@type': 'ListItem', 'position': 3, 'name': projectInfo.name, 'item': canonicalUrl }
+          ]
+        },
+        {
+          '@type': projectInfo.propertyType === 'Landed' ? ['SingleFamilyResidence', 'Product'] : ['ApartmentComplex', 'Product'],
+          '@id': `${canonicalUrl}#project`,
+          'name': `${projectInfo.name} ${projectInfo.area}`,
+          'alternateName': `${projectInfo.name} by ${projectInfo.developer}`,
+          'description': projectInfo.description,
+          'url': canonicalUrl,
+          'image': [projectInfo.image],
+          'address': {
+            '@type': 'PostalAddress',
+            'streetAddress': `${projectInfo.area}, ${projectInfo.state}`,
+            'addressLocality': projectInfo.area,
+            'addressRegion': projectInfo.state,
+            'addressCountry': 'MY'
+          },
+          'offers': {
+            '@type': 'AggregateOffer',
+            'priceCurrency': 'MYR',
+            'lowPrice': projectInfo.priceMin,
+            'highPrice': projectInfo.priceMax,
+            'offerCount': '1',
+            'priceValuedAs': 'MYR',
+            'availability': 'https://schema.org/InStock',
+            'url': canonicalUrl,
+            'seller': {
+              '@type': 'RealEstateAgent',
+              'name': 'Malaysia Homes',
+              'telephone': '+60108278932'
+            }
+          },
+          'numberOfRooms': projectInfo.bedrooms,
+          'priceRange': `MYR ${projectInfo.priceMin.toLocaleString()} - MYR ${projectInfo.priceMax.toLocaleString()}`,
+          'amenityFeature': [
+            { '@type': 'LocationFeatureSpecification', 'name': 'Tenure', 'value': projectInfo.tenure },
+            { '@type': 'LocationFeatureSpecification', 'name': 'Developer', 'value': projectInfo.developer },
+            { '@type': 'LocationFeatureSpecification', 'name': 'Area', 'value': projectInfo.area },
+            { '@type': 'LocationFeatureSpecification', 'name': 'Completion Year', 'value': String(projectInfo.completionYear) },
+            { '@type': 'LocationFeatureSpecification', 'name': 'Built-Up Range', 'value': `${projectInfo.sizeMin} sqft - ${projectInfo.sizeMax} sqft` }
+          ]
+        },
+        {
+          '@type': 'FAQPage',
+          '@id': `${canonicalUrl}#faq`,
+          'mainEntity': projectInfo.faqs.map(f => ({
+            '@type': 'Question',
+            'name': f.q,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': f.a
+            }
+          }))
+        }
+      ]
+    };
+
+    let modified = rawHtml;
+
+    // Replace Title
+    modified = modified.replace(/<title>[\s\S]*?<\/title>/i, `<title>${pageTitle}</title>`);
+
+    // Replace Description
+    modified = modified.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${pageDescription}" />`);
+
+    // Replace Keywords
+    modified = modified.replace(/<meta\s+name="keywords"\s+content="[^"]*"\s*\/?>/i, `<meta name="keywords" content="${pageKeywords}" />`);
+
+    // Replace Canonical link
+    modified = modified.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${canonicalUrl}" />`);
+
+    // Replace or add OpenGraph / Twitter tags
+    const ogBlock = `
+    <!-- Dynamic Project OpenGraph / Twitter SEO Meta -->
+    <meta property="og:title" content="${pageTitle}" />
+    <meta property="og:description" content="${pageDescription}" />
+    <meta property="og:image" content="${projectInfo.image}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${pageTitle}" />
+    <meta name="twitter:description" content="${pageDescription}" />
+    <meta name="twitter:image" content="${projectInfo.image}" />
+    <script id="seo-jsonld-schema" type="application/ld+json">${JSON.stringify(schemaGraph, null, 2)}</script>
+    `;
+
+    modified = modified.replace('</head>', `${ogBlock}\n</head>`);
+
+    // Semantic Pre-rendered Crawler Body Block
+    const semanticCrawlerBlock = `
+      <div id="seo-prerender-root" style="display:none;" class="seo-crawler-content">
+        <h1>${projectInfo.name} – ${projectInfo.area}, ${projectInfo.state}</h1>
+        <p><strong>${projectInfo.name}</strong> is a premier <strong>${projectInfo.tenure} ${projectInfo.propertyType}</strong> developed by <strong>${projectInfo.developer}</strong> located in <strong>${projectInfo.area}, ${projectInfo.state}</strong>.</p>
+        <p>Official developer price range: <strong>RM ${projectInfo.priceMin.toLocaleString()} – RM ${projectInfo.priceMax.toLocaleString()}</strong>. Built-up sizes range from <strong>${projectInfo.sizeMin} to ${projectInfo.sizeMax} sqft</strong> (${projectInfo.bedrooms}+ bedrooms). Estimated completion: <strong>${projectInfo.completionYear}</strong>.</p>
+        <h2>Key Highlights & Features</h2>
+        <ul>
+          ${projectInfo.highlights.map(h => `<li>${h}</li>`).join('\n          ')}
+        </ul>
+        <h2>Nearby Amenities & Transit Access</h2>
+        <ul>
+          ${projectInfo.amenities.map(a => `<li>${a}</li>`).join('\n          ')}
+        </ul>
+        <h2>Frequently Asked Questions (FAQs)</h2>
+        ${projectInfo.faqs.map(f => `<article><h3>${f.q}</h3><p>${f.a}</p></article>`).join('\n        ')}
+        <p>For VIP showroom viewings and official PDF brochures, contact MalaysianHomes WhatsApp Hotline: <a href="https://wa.me/60108278932">+6010-8278932</a>.</p>
+      </div>
+    `;
+
+    if (modified.includes('<div id="root"></div>')) {
+      modified = modified.replace('<div id="root"></div>', `<div id="root"></div>\n${semanticCrawlerBlock}`);
+    }
+
+    return modified;
+  };
+
   // Vite integration / Static files serving
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
+
+    // Handle /project/:slug with SSR SEO injection in dev mode
+    app.get(['/project/:slug', '/project/:slug/'], async (req, res, next) => {
+      try {
+        const slug = req.params.slug;
+        const indexPath = path.resolve(process.cwd(), 'index.html');
+        if (fs.existsSync(indexPath)) {
+          let template = fs.readFileSync(indexPath, 'utf-8');
+          template = await vite.transformIndexHtml(req.originalUrl, template);
+          const seoHtml = renderProjectPageSEO(template, slug);
+          return res.status(200).set({ 'Content-Type': 'text/html' }).end(seoHtml);
+        }
+      } catch (e) {
+        next(e);
+      }
+    });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+
+    // Handle /project/:slug with SSR SEO injection in production mode
+    app.get(['/project/:slug', '/project/:slug/'], (req, res) => {
+      const slug = req.params.slug;
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        const template = fs.readFileSync(indexPath, 'utf-8');
+        const seoHtml = renderProjectPageSEO(template, slug);
+        return res.status(200).set({ 'Content-Type': 'text/html' }).end(seoHtml);
+      }
+      res.sendFile(indexPath);
+    });
+
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });

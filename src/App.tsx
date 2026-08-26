@@ -225,11 +225,27 @@ export default function App() {
       'causeway': 'johor-causeway',
       'causeways': 'johor-causeway',
       'causewayz': 'johor-causeway',
+      'ciq': 'johor-causeway',
       'bangsar-hill': 'bangsar-hill-bc',
       'kl-wellness-city': 'wellness-city',
       'wellnesscity': 'wellness-city',
       'tria': 'tria-seputeh',
-      'zenia': 'zenia-damansara'
+      'zenia': 'zenia-damansara',
+      'aricia-residence': 'aricia',
+      'aricia-residences': 'aricia',
+      'aricia-chan-sow-lin': 'aricia',
+      'aricia-chansowlin': 'aricia',
+      'aricia-fiamma': 'aricia',
+      'amika-residence': 'amika',
+      'amika-subang': 'amika',
+      'anya-puchong': 'anya',
+      'anya-shorea-park': 'anya',
+      'aster-hill-sri-petaling': 'aster-hill',
+      'asterhill': 'aster-hill',
+      'kingswoodz-bukit-jalil': 'kingswoodz',
+      'queenswoodz-bukit-jalil': 'queenswoodz',
+      'rf-princess-cove': 'rf-casa',
+      'princess-cove': 'rf-casa'
     };
 
     const targetId = slugAliases[cleanSlug] || slugAliases[stripped];

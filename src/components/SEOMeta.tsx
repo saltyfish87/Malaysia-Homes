@@ -56,14 +56,14 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       const pPrice = project.priceMin ? `RM ${project.priceMin.toLocaleString()}` : '';
 
       if (lang === 'en') {
-        title = `${pName} ${pArea} | Developer Price, Layout Floor Plan, Brochure & Review`;
-        description = `Get official developer price lists, layout plans, and PDF brochure downloads for ${pName} by ${pDev} in ${pArea}, ${project.state}. Premium luxury ${pType} starting from ${pPrice}. Review floor plans (${project.sizeMin}-${project.sizeMax} sqft), completion date (${project.completionYear}), and book a show gallery appointment on propertyportal.my.`;
+        title = `${pName} ${pArea} | Developer Price, Layout Floor Plan, Brochure & Review | propertyportal.my`;
+        description = `${pName} by ${pDev} in ${pArea}, ${project.state}. Official developer price list from ${pPrice}, ${project.tenure} ${pType} with ${project.sizeMin}-${project.sizeMax} sqft layouts (${project.bedrooms}+ beds). View floor plans, MRT connectivity, and schedule a sales gallery appointment on propertyportal.my.`;
       } else {
-        title = `${pName} ${pArea} | 官方开发商售价、户型图、样板房预约与评测`;
-        description = `获取著名开发商 ${pDev} 倾力打造的 ${pName}（位于 ${pArea}，${project.state}）最新官方价格表、户型规划及 PDF 宣传单。优质 ${pType} 起售价 ${pPrice}。查看户型规划 (${project.sizeMin}-${project.sizeMax} 平方英尺) 与产权 (${project.tenure})，并在 propertyportal.my 上预约看房。`;
+        title = `${pName} ${pArea} | 官方开发商售价、户型图、样板房预约与评测 | propertyportal.my`;
+        description = `${pDev} 打造的 ${pName}（位于 ${pArea}，${project.state}）。官方价格从 ${pPrice} 起，${project.tenure} ${pType}，户型面积 ${project.sizeMin}-${project.sizeMax} 平方英尺。查看户型规划、公共交通配套并在 propertyportal.my 预约看房。`;
       }
 
-      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} layout, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, foreigner buy ${pName}, ${pName} investment yield, ${keywords}`;
+      keywords = `${pName}, ${pName} price, ${pName} floor plan, ${pName} layout, ${pName} developer, ${pName} brochure, ${pName} review, ${pName} ${pArea}, ${pDev} ${pName}, buy ${pName}, ${pArea} property, ${pName} pricing, ${pName} master plan, ${pName} show gallery, ${pName} sales gallery, foreigner buy ${pName}, ${pName} investment yield, ${pName} chan sow lin, ${pName} mrt, ${pName} trx, ${keywords}`;
     } else if (tab === 'compare') {
       title = lang === 'en' 
         ? 'Compare Properties & New Launch Condominiums | Malaysia Homes'
@@ -320,14 +320,16 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     if (project) {
       // Single property/residence schema
       jsonLdGraph.push({
-        '@type': project.propertyType === 'Landed' ? 'SingleFamilyResidence' : 'ApartmentComplex',
+        '@type': project.propertyType === 'Landed' ? ['SingleFamilyResidence', 'Product'] : ['ApartmentComplex', 'Product'],
         '@id': `${canonicalUrl}#project`,
-        'name': project.name,
+        'name': `${project.name} ${project.area}`,
+        'alternateName': `${project.name} by ${project.developer}`,
         'description': project.description || description,
         'url': canonicalUrl,
         'image': project.gallery && project.gallery.length > 0 ? project.gallery : [project.image || ''],
         'address': {
           '@type': 'PostalAddress',
+          'streetAddress': `${project.area}, ${project.state}`,
           'addressLocality': project.area,
           'addressRegion': project.state,
           'addressCountry': 'MY'
@@ -343,7 +345,14 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
           'lowPrice': project.priceMin,
           'highPrice': project.priceMax,
           'offerCount': '1',
-          'priceValuedAs': 'MYR'
+          'priceValuedAs': 'MYR',
+          'availability': 'https://schema.org/InStock',
+          'url': canonicalUrl,
+          'seller': {
+            '@type': 'RealEstateAgent',
+            'name': 'Malaysia Homes',
+            'telephone': '+60108278932'
+          }
         },
         'numberOfRooms': project.bedrooms,
         'priceRange': `MYR ${project.priceMin.toLocaleString()} - MYR ${project.priceMax.toLocaleString()}`,
@@ -368,6 +377,16 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
             '@type': 'LocationFeatureSpecification',
             'name': 'Completion Year',
             'value': String(project.completionYear)
+          },
+          {
+            '@type': 'LocationFeatureSpecification',
+            'name': 'Property Type',
+            'value': project.propertyType
+          },
+          {
+            '@type': 'LocationFeatureSpecification',
+            'name': 'Built-Up Range',
+            'value': `${project.sizeMin} sqft - ${project.sizeMax} sqft`
           }
         ]
       });
@@ -379,26 +398,26 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
         'mainEntity': [
           {
             '@type': 'Question',
-            'name': `What is the starting price for ${project.name}?`,
+            'name': `What is the developer starting price for ${project.name}?`,
             'acceptedAnswer': {
               '@type': 'Answer',
-              'text': `The developer starting price for ${project.name} in ${project.area}, ${project.state} starts from RM ${project.priceMin.toLocaleString()}.`
+              'text': `The developer starting price for ${project.name} in ${project.area}, ${project.state} starts from RM ${project.priceMin.toLocaleString()} up to RM ${project.priceMax.toLocaleString()} with various layout choices.`
             }
           },
           {
             '@type': 'Question',
-            'name': `Who is the developer of ${project.name}?`,
+            'name': `Who is the developer of ${project.name} and what is the land tenure?`,
             'acceptedAnswer': {
               '@type': 'Answer',
-              'text': `${project.name} is developed by ${project.developer}.`
+              'text': `${project.name} is developed by ${project.developer} with a prestigious ${project.tenure} land tenure.`
             }
           },
           {
             '@type': 'Question',
-            'name': `What is the land tenure for ${project.name}?`,
+            'name': `What layout sizes and bedroom configurations are offered at ${project.name}?`,
             'acceptedAnswer': {
               '@type': 'Answer',
-              'text': `${project.name} holds a ${project.tenure} title.`
+              'text': `${project.name} features unit sizes ranging from ${project.sizeMin} sqft to ${project.sizeMax} sqft, offering ${project.bedrooms} or more bedrooms suitable for young executives, families, and dual-key investors.`
             }
           },
           {
@@ -406,7 +425,23 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
             'name': `When is the estimated completion date for ${project.name}?`,
             'acceptedAnswer': {
               '@type': 'Answer',
-              'text': `Estimated completion year for ${project.name} is ${project.completionYear}.`
+              'text': `The estimated completion year for ${project.name} is ${project.completionYear}.`
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': `Can international buyers or MM2H applicants purchase ${project.name}?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `Yes, international buyers and MM2H participants can purchase eligible units at ${project.name} subject to the state-level foreign purchaser guidelines in ${project.state}. Contact our sales advisory for tailored guidance.`
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': `How do I book a private show gallery appointment or download the brochure for ${project.name}?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `You can connect directly with the official developer sales team on propertyportal.my or via direct WhatsApp hotline at +6010-8278932 for instant brochure downloads and showroom VIP bookings.`
             }
           }
         ]
