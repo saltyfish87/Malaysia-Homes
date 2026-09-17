@@ -702,4 +702,77 @@ export const MOCK_FAQS: FAQItem[] = [
     category: 'Investment',
     categoryZh: '房产投资'
   }
+  ,
+  {
+    id: 'faq-buying-costs',
+    question: 'What extra costs should I budget for when buying a new launch in Malaysia?',
+    questionZh: '在马来西亚买新楼盘，除了房价还要准备哪些费用？',
+    answer: 'Beyond the downpayment, budget for: (1) stamp duty on the Memorandum of Transfer, charged on a sliding scale of 1% on the first RM 100,000, 2% on RM 100,001 to RM 500,000, 3% on RM 500,001 to RM 1,000,000 and 4% above that; (2) legal fees for the Sale & Purchase Agreement and for the loan agreement, both on a scale set by the Solicitors Remuneration Order; (3) stamp duty on the loan agreement at 0.5% of the loan amount; and (4) a valuation fee if the bank requires one. Some developer packages cover part of these fees. Always ask for the full breakdown in writing before signing.',
+    answerZh: '除了首付，还要预算：(1) 产权转让（MOT）印花税，按阶梯计算：首 10 万令吉 1%，10 万零 1 至 50 万令吉 2%，50 万零 1 至 100 万令吉 3%，超过 100 万令吉 4%；(2) 买卖合约和贷款合约的律师费，按律师收费法令的费率计算；(3) 贷款合约印花税，为贷款额的 0.5%；(4) 银行要求时的估价费。部分发展商配套会承担其中一些费用，签约前务必索取书面的完整费用明细。',
+    category: 'Costs & Fees',
+    categoryZh: '费用与税务'
+  },
+  {
+    id: 'faq-mot',
+    question: 'What is the Memorandum of Transfer (MOT) and when do I pay its stamp duty?',
+    questionZh: '什么是产权转让书（MOT）？印花税什么时候付？',
+    answer: 'The Memorandum of Transfer is the document that registers the property title in your name. For a new launch, it is signed and stamped when the individual or strata title is issued, which is often around or after vacant possession rather than at the time you sign the Sale & Purchase Agreement. Until the strata title is ready, ownership is recorded through a Deed of Assignment. Your lawyer will notify you when the MOT stamp duty is due, so keep that amount set aside even after you have moved in.',
+    answerZh: '产权转让书（MOT）是把房产地契登记到你名下的文件。新楼盘通常在个别地契或分层地契发出后才签署和盖印，时间往往在交楼前后，而不是签买卖合约的时候。在分层地契发出前，产权以转让契据（Deed of Assignment）记录。律师会通知你何时缴付 MOT 印花税，所以即使已经入住，也要预留这笔钱。',
+    category: 'Buying Process',
+    categoryZh: '购买流程'
+  },
+  {
+    id: 'faq-hda',
+    question: 'What does it mean when a project is sold under the Housing Development Act (HDA)?',
+    questionZh: '楼盘受房屋发展法令（HDA）保护是什么意思？',
+    answer: 'The Housing Development (Control and Licensing) Act 1966 governs licensed housing developers in Peninsular Malaysia. Under HDA the developer must hold a valid developer licence and advertising permit, use the standard Schedule G (landed) or Schedule H (strata) Sale & Purchase Agreement, keep buyers’ money in a Housing Development Account, deliver vacant possession within 24 months (landed) or 36 months (strata) of the agreement date, pay liquidated damages of 10% per annum on late delivery, and honour a 24-month defect liability period. Serviced apartments on commercial land are covered when the developer sells them under HDA, which is stated in the agreement, so check this for each project.',
+    answerZh: '1966 年房屋发展（管制与执照）法令规管西马的持牌房屋发展商。受 HDA 约束的发展商必须持有有效的发展商执照和广告准证，使用标准的 Schedule G（有地房产）或 Schedule H（分层房产）买卖合约，把买家的款项存入房屋发展账户，在合约日期起 24 个月（有地）或 36 个月（分层）内交楼，逾期按每年 10% 支付赔偿金，并提供 24 个月的缺陷保修期。建在商业地契上的服务式公寓，如果发展商以 HDA 方式出售，也同样受保护，这会写在合约里，每个楼盘都要确认。',
+    category: 'Buying Process',
+    categoryZh: '购买流程'
+  },
+  {
+    id: 'faq-progressive-payment',
+    question: 'How do payments work while a new launch is still under construction?',
+    questionZh: '楼盘还在建的时候，房贷是怎么付的？',
+    answer: 'New launches use a progressive payment schedule fixed by the Sale & Purchase Agreement (Schedule H for strata projects). You pay the first 10% on signing, and the remaining 90% is released by your bank in stages as the architect certifies each construction milestone, such as foundation, structural frame, walls, services and completion. During construction you normally pay only interest on the amount the bank has released so far, and full monthly instalments begin after the final disbursement. Some developer packages vary this, so confirm the schedule for the project you are considering.',
+    answerZh: '新楼盘采用买卖合约规定的分期付款进度（分层项目用 Schedule H）。签约时付首 10%，其余 90% 由银行按建筑师签发的各个工程阶段证明分批放款，例如地基、主体结构、墙体、水电设施和竣工。建筑期间通常只需支付银行已放款部分的利息，全额月供在最后一笔放款后才开始。部分发展商配套会有所不同，请以你考虑的楼盘为准。',
+    category: 'Morgage',
+    categoryZh: '按揭贷款'
+  },
+  {
+    id: 'faq-completion-time',
+    question: 'How long does a new launch take to complete, and what if it is late?',
+    questionZh: '新楼盘要多久才交楼？迟交怎么办？',
+    answer: 'Under the standard HDA agreement the developer must deliver vacant possession within 36 months for strata projects (condominiums and serviced apartments) or 24 months for landed homes, counted from the date of the Sale & Purchase Agreement. Many projects hand over earlier than the deadline. Each project page on propertyportal.my shows the completion status and expected completion year from the developer. If delivery is late, the buyer is entitled to liquidated ascertained damages calculated at 10% per annum of the purchase price for the delayed period.',
+    answerZh: '按照标准 HDA 合约，发展商必须在买卖合约日期起 36 个月内（公寓和服务式公寓等分层项目）或 24 个月内（有地房产）交楼。很多楼盘会提前交付。propertyportal.my 每个楼盘页面都列出发展商提供的完工状态和预计完工年份。如果逾期交楼，买家有权按房价每年 10% 的比例获得逾期赔偿金。',
+    category: 'Buying Process',
+    categoryZh: '购买流程'
+  },
+  {
+    id: 'faq-maintenance-fee',
+    question: 'How much are the maintenance fee and sinking fund for a condominium?',
+    questionZh: '公寓的管理费和维修储备金大概多少？',
+    answer: 'Maintenance fees are charged per square foot of your unit every month and pay for security, cleaning, lifts, pools and other shared facilities. In the Klang Valley most new condominiums and serviced apartments charge roughly RM 0.25 to RM 0.45 per square foot, with lower-density or facility-rich projects at the higher end. The sinking fund, usually 10% of the maintenance fee, is collected on top for major future repairs. Each project page on propertyportal.my lists the developer’s stated maintenance fee, so you can compare the monthly cost between projects before you commit.',
+    answerZh: '管理费按单位面积每月计算，用于保安、清洁、电梯、泳池等公共设施。巴生谷大多数新公寓和服务式公寓的管理费约为每平方英尺 RM 0.25 至 RM 0.45，低密度或设施较多的项目会偏高。维修储备金（sinking fund）通常是管理费的 10%，另外收取，用于日后的大型维修。propertyportal.my 每个楼盘页面都列出发展商公布的管理费，方便你在决定前比较每月成本。',
+    category: 'Costs & Fees',
+    categoryZh: '费用与税务'
+  },
+  {
+    id: 'faq-bumi-units',
+    question: 'What are Bumiputera units, and can a non-Bumiputera buyer purchase one?',
+    questionZh: '什么是土著单位？非土著买家可以买吗？',
+    answer: 'Every state requires developers to reserve a share of units in a project for Bumiputera buyers, commonly around 30%, and to sell them at a discount set by that state. These units are marked as Bumi lots in the developer’s price list. A non-Bumiputera buyer can only purchase a Bumi lot after the developer obtains a release from the state authority, which usually happens later in the sales cycle if the units remain unsold. If you are not Bumiputera, choose from the open units, and if you are, ask for the Bumi price list to see the discount you are entitled to.',
+    answerZh: '各州都要求发展商在每个楼盘中保留一定比例的单位给土著买家，通常约 30%，并按该州规定的折扣出售。这些单位在发展商价单上标为土著单位（Bumi lot）。非土著买家只有在发展商向州政府申请解除限制后才能购买，这通常在销售后期、单位仍未售出时才会发生。如果你不是土著，请从公开单位中选择；如果你是土著，记得索取土著价单，了解你可享的折扣。',
+    category: 'Property Type',
+    categoryZh: '产权类型'
+  },
+  {
+    id: 'faq-check-developer',
+    question: 'How do I check that a developer and its project are legitimate?',
+    questionZh: '怎么确认发展商和楼盘是合法可靠的？',
+    answer: 'Ask the sales team for the developer licence number and the advertising permit (APDL) number, then verify both on the Ministry of Housing and Local Government (KPKT) portal, which also lists blacklisted developers and abandoned projects. Confirm that the land is not charged in a way that blocks the sale, that the project is sold under the HDA with the standard agreement, and look at the developer’s completed projects and delivery track record. Only pay booking money to the developer’s account, and make sure every promise about price or fittings is written into the agreement.',
+    answerZh: '向销售人员索取发展商执照号码和广告准证（APDL）号码，然后到房屋及地方政府部（KPKT）的网站核实，该网站也会列出黑名单发展商和被弃置的项目。确认土地没有妨碍出售的抵押，楼盘是以 HDA 标准合约出售，并查看发展商已完成的项目和过往交楼记录。订金只付给发展商的账户，而且关于价格或配置的任何承诺都必须写进合约。',
+    category: 'Buying Process',
+    categoryZh: '购买流程'
+  }
 ];

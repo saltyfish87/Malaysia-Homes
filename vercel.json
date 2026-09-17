@@ -3,6 +3,11 @@
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/sitemap.xml", "destination": "/api/index" },
     { "source": "/robots.txt", "destination": "/api/index" },
-    { "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)", "destination": "/index.html" }
+    { "source": "/llms.txt", "destination": "/api/index" },
+    { "source": "/project/(.*)", "destination": "/api/index" },
+    { "source": "/projects/(.*)", "destination": "/api/index" },
+    { "source": "/property/(.*)", "destination": "/api/index" },
+    { "source": "/properties/(.*)", "destination": "/api/index" },
+    { "source": "/((?!api/|sitemap\\.xml|robots\\.txt|llms\\.txt|projects?/|property/|properties/).*)", "destination": "/index.html" }
   ]
 }

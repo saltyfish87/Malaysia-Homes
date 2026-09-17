@@ -30,7 +30,9 @@ export default function FAQSection({ lang, faqs = MOCK_FAQS }: FAQSectionProps) 
     'Foreign Buyer': lang === 'en' ? 'Foreign Buyer' : '外籍买家',
     'Morgage': lang === 'en' ? 'Mortgage' : '按揭贷款',
     'Property Type': lang === 'en' ? 'Property Type' : '产权类型',
-    'Investment': lang === 'en' ? 'Investment' : '房产投资'
+    'Investment': lang === 'en' ? 'Investment' : '房产投资',
+    'Costs & Fees': lang === 'en' ? 'Costs & Fees' : '费用与税务',
+    'Buying Process': lang === 'en' ? 'Buying Process' : '购买流程'
   };
 
   // Filters FAQ matching Category and Text
