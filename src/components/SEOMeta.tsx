@@ -155,7 +155,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       canonicalLink.setAttribute('rel', 'canonical');
       document.head.appendChild(canonicalLink);
     }
-    const domain = 'https://propertyportal.my';
+    const domain = 'https://www.propertyportal.my';
     let canonicalUrl = domain + '/';
     if (project) {
       canonicalUrl = `${domain}/project/${project.id}`;
