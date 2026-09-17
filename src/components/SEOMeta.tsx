@@ -249,6 +249,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       'image': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
       'description': description,
       'telephone': '+60108278932',
+      'sameAs': ['https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
       'priceRange': 'MYR 300,000 - MYR 5,000,000',
       'currenciesAccepted': 'MYR, SGD, USD, CNY, HKD, AUD, GBP, EUR',
       'openingHours': 'Mo-Su 09:00-21:00',

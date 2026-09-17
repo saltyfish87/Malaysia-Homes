@@ -441,6 +441,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
       'email': AGENT.email,
       'url': `${SITE_URL}/`,
       'areaServed': ['Kuala Lumpur', 'Selangor', 'Johor', 'Penang'],
+      'sameAs': ['https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
       'parentOrganization': { '@type': 'Organization', 'name': AGENT.company },
       'address': { '@type': 'PostalAddress', 'addressLocality': 'Kuala Lumpur', 'addressCountry': 'MY' }
     },
