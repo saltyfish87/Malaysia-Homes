@@ -1,16 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "has": [
-        {
-          "type": "query",
-          "key": "seo-prerender"
-        }
-      ],
-      "destination": "/index.html"
-    },
-    {
       "source": "/api/(.*)",
       "destination": "/api/index"
     },

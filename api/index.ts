@@ -443,11 +443,11 @@ let indexHtmlCache: { html: string; time: number } | null = null;
 
 async function loadIndexHtml(req: express.Request): Promise<string> {
   if (indexHtmlCache && Date.now() - indexHtmlCache.time < SEO_CACHE_TTL) return indexHtmlCache.html;
-  const candidates = [path.join(process.cwd(), 'dist', 'index.html')];
+  const candidates = [path.join(process.cwd(), 'dist', 'app-shell.html'), path.join(process.cwd(), 'dist', 'index.html')];
   for (const p of candidates) {
     try {
       const html = fs.readFileSync(p, 'utf8');
-      if (html.includes('/assets/')) {
+      if (html.includes('/assets/') && !html.includes('id="seo-prerender"')) {
         indexHtmlCache = { html, time: Date.now() };
         return html;
       }
@@ -455,7 +455,7 @@ async function loadIndexHtml(req: express.Request): Promise<string> {
   }
   const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || 'www.propertyportal.my';
   const proto = (req.headers['x-forwarded-proto'] as string) || (host.startsWith('localhost') ? 'http' : 'https');
-  const res = await fetch(`${proto}://${host}/?seo-prerender=1`, { headers: { 'User-Agent': 'propertyportal-seo-prerender' } });
+  const res = await fetch(`${proto}://${host}/app-shell.html`, { headers: { 'User-Agent': 'propertyportal-seo-prerender' } });
   if (!res.ok) throw new Error(`index.html fetch returned ${res.status}`);
   const html = await res.text();
   if (!html.includes('id="root"')) throw new Error('index.html fetch returned unexpected content');
@@ -1079,5 +1079,11 @@ app.use(async (req, res) => {
     res.redirect(302, '/');
   }
 });
+
+// Used by scripts/prerender-home.ts at build time (home is a static file on Vercel).
+export async function renderHomeForBuild(shellHtml: string): Promise<string> {
+  const projects = await fetchSeoProjects();
+  return renderRouteHtml(shellHtml, '/', projects);
+}
 
 export default app;
