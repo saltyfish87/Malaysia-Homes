@@ -176,9 +176,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       element.setAttribute('href', href);
     };
 
-    updateLinkTag('alternate', 'en', `${domain}/?lang=en`);
-    updateLinkTag('alternate', 'zh-Hans', `${domain}/?lang=zh`);
-    updateLinkTag('alternate', 'x-default', `${domain}/`);
+    // hreflang tags removed: there is no separate language URL, so alternates would only point back to this page.
 
     // Google Site Verification
     const gVerification = (import.meta as any).env?.VITE_GOOGLE_VERIFICATION || 'OtvCDokPku59DVDdwVyIkzsYLFiRlNtEq0s9ANEcpyo';
@@ -392,61 +390,8 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
         ]
       });
 
-      // FAQPage Rich Snippet Schema for Project
-      jsonLdGraph.push({
-        '@type': 'FAQPage',
-        '@id': `${canonicalUrl}#faq`,
-        'mainEntity': [
-          {
-            '@type': 'Question',
-            'name': `What is the developer starting price for ${project.name}?`,
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': `The developer starting price for ${project.name} in ${project.area}, ${project.state} starts from RM ${project.priceMin.toLocaleString()} up to RM ${project.priceMax.toLocaleString()} with various layout choices.`
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': `Who is the developer of ${project.name} and what is the land tenure?`,
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': `${project.name} is developed by ${project.developer} with a prestigious ${project.tenure} land tenure.`
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': `What layout sizes and bedroom configurations are offered at ${project.name}?`,
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': `${project.name} features unit sizes ranging from ${project.sizeMin} sqft to ${project.sizeMax} sqft, offering ${project.bedrooms} or more bedrooms suitable for young executives, families, and dual-key investors.`
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': `When is the estimated completion date for ${project.name}?`,
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': `The estimated completion year for ${project.name} is ${project.completionYear}.`
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': `Can international buyers or MM2H applicants purchase ${project.name}?`,
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': `Yes, international buyers and MM2H participants can purchase eligible units at ${project.name} subject to the state-level foreign purchaser guidelines in ${project.state}. Contact our sales advisory for tailored guidance.`
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': `How do I book a private show gallery appointment or download the brochure for ${project.name}?`,
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': `You can connect directly with the official developer sales team on propertyportal.my or via direct WhatsApp hotline at +6010-8278932 for instant brochure downloads and showroom VIP bookings.`
-            }
-          }
-        ]
-      });
+      // Project FAQ schema removed here: the questions were never shown on the page, which Google's FAQ policy does not allow.
+      // A visible per-project FAQ (with matching schema) is added server-side in a later step.
     } else if (tab === 'guide') {
       // FAQPage Rich Snippet Schema for Buying Guide
       jsonLdGraph.push({

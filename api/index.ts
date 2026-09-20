@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import { MOCK_PROJECTS } from '../src/constants/mockData';
 import fs from 'fs';
 
 // In-Memory Caches for smooth fast performance (stored per serverless function instance container)
@@ -275,7 +276,11 @@ async function fetchSeoProjects(): Promise<SeoProject[]> {
       }
       return '';
     };
-    const baseSlug = seoSlugify(name) || 'project';
+    // Use the same id the app uses for this project (from the built-in project list, matched by name),
+    // so the address in the browser, the canonical tag and the sitemap are one and the same.
+    const nameKey = seoAlnum(name);
+    const appMatch = MOCK_PROJECTS.find(m => seoAlnum(m.name) === nameKey);
+    const baseSlug = (appMatch && appMatch.id) || seoSlugify(name) || 'project';
     let slug = baseSlug;
     let n = 2;
     while (seen.has(slug)) slug = `${baseSlug}-${n++}`;
@@ -398,6 +403,8 @@ function projectSummary(p: SeoProject) {
   return { title, description, price, sizes, beds };
 }
 
+let ALL_PROJECTS_FOR_LINKS: SeoProject[] = [];
+
 function renderProjectHtml(indexHtml: string, p: SeoProject): string {
   const canonical = `${SITE_URL}/project/${p.slug}`;
   const { title, description, price, sizes, beds } = projectSummary(p);
@@ -500,20 +507,156 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
     `<script id="seo-jsonld-schema" type="application/ld+json">${jsonLd}</script>`
   ].join('\n    ');
 
-  const noscript = `<noscript><article style="padding:20px;font-family:sans-serif;max-width:800px;margin:0 auto">` +
-    `<h1>${escHtml(p.name)} ${escHtml(p.area)}</h1><p>${escHtml(description)}</p><ul>` +
-    factRows.map(([k, v]) => `<li><strong>${escHtml(k)}:</strong> ${escHtml(v)}</li>`).join('') +
-    `</ul><p>Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp ${escHtml(AGENT.telephoneDisplay)}.</p></article></noscript>`;
+  const others = ALL_PROJECTS_FOR_LINKS.filter(o => o.slug !== p.slug && o.area && o.area === p.area).slice(0, 8);
+  const table = `<table style="border-collapse:collapse;width:100%;margin:16px 0"><tbody>` +
+    factRows.map(([k, v]) => `<tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e7e5e4;width:40%">${escHtml(k)}</th><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(v)}</td></tr>`).join('') +
+    `</tbody></table>`;
+  const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/residences">Residences</a> › ${escHtml(p.name)}</nav>` +
+    `<article><h1>${escHtml(p.name)} ${escHtml(p.area)}</h1><p>${escHtml(description)}</p>` +
+    `<h2>${escHtml(p.name)} project information</h2>${table}` +
+    (p.notes ? `<p>${escHtml(p.notes)}</p>` : '') +
+    `<p>Enquiries and sales gallery appointments: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    (others.length ? `<h2>Other projects in ${escHtml(p.area)}</h2><ul>${others.map(projectLine).join('')}</ul>` : '') +
+    `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Loan calculator</a></p>` +
+    `</article></div>`;
 
   let html = indexHtml;
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escHtml(title)}</title>`);
   html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escHtml(description)}" />`);
   html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${escHtml(canonical)}" />`);
-  html = html.replace(/(<link\s+rel="alternate"\s+hreflang="en"\s+href=")[^"]*(")/i, `$1${escHtml(canonical)}?lang=en$2`);
-  html = html.replace(/(<link\s+rel="alternate"\s+hreflang="zh-Hans"\s+href=")[^"]*(")/i, `$1${escHtml(canonical)}?lang=zh$2`);
-  html = html.replace(/(<link\s+rel="alternate"\s+hreflang="x-default"\s+href=")[^"]*(")/i, `$1${escHtml(canonical)}$2`);
   html = html.replace(/<\/head>/i, `    ${headExtra}\n  </head>`);
-  html = html.replace(/(<div id="root"><\/div>)/i, `$1\n    ${noscript}`);
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+  return html;
+}
+
+
+// ---------------------------------------------------------------------------
+// Static app routes (home, residences, compare, guide, calculators, map): the same
+// app shell, but each with its own title, description, canonical, JSON-LD and a
+// crawlable body (real links) so search engines and AI crawlers that do not run
+// JavaScript still see content. React replaces the body on mount.
+// ---------------------------------------------------------------------------
+const STATIC_ROUTES: Record<string, { title: string; description: string; crumb: string; h1: string; index: boolean }> = {
+  '/': {
+    title: 'Malaysia Homes | New Condo & Landed Property Portal | propertyportal.my',
+    description: 'Discover and compare top premium property developments, landed parkhomes, and luxury low-density condos in Kuala Lumpur, Selangor, and Johor on propertyportal.my. Real-time developer pricing, layouts, and expert insights.',
+    crumb: 'Home', h1: 'Malaysia Homes | Premium Property Developments, Landed Parkhomes, and Luxury Condos', index: true
+  },
+  '/residences': {
+    title: 'All Residences & New Property Launches in Malaysia | propertyportal.my',
+    description: 'Explore our complete directory of luxury condominiums, serviced apartments, and landed parkhomes across Selangor, Kuala Lumpur, and Johor.',
+    crumb: 'Residences', h1: 'All Residences & New Property Launches in Malaysia', index: true
+  },
+  '/compare': {
+    title: 'Compare Properties & New Launch Condominiums | Malaysia Homes',
+    description: 'Use our advanced multi-property comparison tool to compare pricing, layouts, developer track records, tenure, and location scores for top properties in Kuala Lumpur, Selangor, and Johor.',
+    crumb: 'Compare', h1: 'Compare New Launch Properties in Malaysia', index: true
+  },
+  '/guide': {
+    title: 'Malaysia Real Estate Buying Guide & Investment Insights',
+    description: 'The ultimate guide to buying residential property in Malaysia. Learn about RPGT, progressive billing, stamp duty exemptions, and critical investment strategies.',
+    crumb: 'Guide', h1: 'Malaysia Real Estate Buying Guide', index: true
+  },
+  '/calculators': {
+    title: 'Malaysia Home Loan & Mortgage Calculator | Stamp Duty & RPGT',
+    description: 'Calculate monthly mortgage repayments, progressive billing interest, legal fees, stamp duty, and RPGT for buying property in Malaysia.',
+    crumb: 'Calculators', h1: 'Malaysia Home Loan, Stamp Duty & RPGT Calculators', index: true
+  },
+  '/map': {
+    title: 'Interactive Property Map Directory | Kuala Lumpur & Selangor Real Estate',
+    description: 'Explore properties on an interactive geographic map across Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, KLCC, and Johor.',
+    crumb: 'Map', h1: 'New Launch Property Map: Kuala Lumpur, Selangor & Johor', index: true
+  },
+  '/favorites': { title: 'Saved Properties | propertyportal.my', description: 'Your shortlisted projects on propertyportal.my.', crumb: 'Favorites', h1: 'Saved Properties', index: false },
+  '/admin': { title: 'Property CRM & Admin Sync Dashboard | Malaysia Homes', description: 'Secure administrator interface.', crumb: 'Admin', h1: 'Admin', index: false }
+};
+const ROUTE_ALIASES: Record<string, string> = { '/properties': '/residences', '/calculator': '/calculators', '/index.html': '/' };
+
+function normalizeRoute(pathname: string): string {
+  let p = (pathname || '/').split('?')[0].split('#')[0];
+  if (p.length > 1) p = p.replace(/\/+$/, '');
+  return ROUTE_ALIASES[p] || p || '/';
+}
+
+function baseGraph(): any[] {
+  return [
+    { '@type': 'WebSite', '@id': `${SITE_URL}/#website`, 'name': 'Malaysia Homes', 'alternateName': 'propertyportal.my', 'url': `${SITE_URL}/`, 'publisher': { '@id': `${SITE_URL}/#agent` } },
+    {
+      '@type': 'RealEstateAgent', '@id': `${SITE_URL}/#agent`, 'name': AGENT.name, 'alternateName': 'Malaysia Homes | propertyportal.my',
+      'identifier': AGENT.ren, 'telephone': AGENT.telephone, 'email': AGENT.email, 'url': `${SITE_URL}/`,
+      'areaServed': ['Kuala Lumpur', 'Selangor', 'Johor', 'Penang'],
+      'sameAs': ['https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
+      'parentOrganization': { '@type': 'Organization', 'name': AGENT.company },
+      'address': { '@type': 'PostalAddress', 'addressLocality': 'Kuala Lumpur', 'addressCountry': 'MY' }
+    }
+  ];
+}
+
+function projectLine(p: SeoProject): string {
+  const price = p.priceMin ? `from RM ${p.priceMin.toLocaleString('en-MY')}` : '';
+  const bits = [p.area && p.state ? `${p.area}, ${p.state}` : (p.area || p.state), p.tenure, p.propertyType, price].filter(Boolean);
+  return `<li><a href="/project/${escHtml(p.slug)}">${escHtml(p.name)}</a>${bits.length ? ` — ${escHtml(bits.join(' · '))}` : ''}</li>`;
+}
+
+function applyHead(html: string, title: string, description: string, canonical: string, graph: any[], index: boolean): string {
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/<\//g, '<\\/');
+  const headExtra = [
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:url" content="${escHtml(canonical)}" />`,
+    `<meta property="og:title" content="${escHtml(title)}" />`,
+    `<meta property="og:description" content="${escHtml(description)}" />`,
+    `<meta property="og:site_name" content="Malaysia Homes | propertyportal.my" />`,
+    `<meta name="twitter:title" content="${escHtml(title)}" />`,
+    `<meta name="twitter:description" content="${escHtml(description)}" />`,
+    `<script id="seo-jsonld-schema" type="application/ld+json">${jsonLd}</script>`
+  ].join('\n    ');
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escHtml(title)}</title>`);
+  html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escHtml(description)}" />`);
+  html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${escHtml(canonical)}" />`);
+  if (!index) html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, `<meta name="robots" content="noindex, follow" />`);
+  html = html.replace(/<\/head>/i, `    ${headExtra}\n  </head>`);
+  return html;
+}
+
+const SEO_BODY_STYLE = 'padding:24px 20px;font-family:system-ui,-apple-system,sans-serif;max-width:960px;margin:0 auto;color:#1c1917;line-height:1.6';
+
+function renderRouteHtml(indexHtml: string, route: string, projects: SeoProject[]): string {
+  const meta = STATIC_ROUTES[route];
+  const canonical = route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}`;
+  const graph = baseGraph();
+  if (route !== '/') {
+    graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 2, 'name': meta.crumb, 'item': canonical }
+    ] });
+  }
+  let body = '';
+  if (meta.index) {
+    const byState: Record<string, SeoProject[]> = {};
+    for (const p of projects) (byState[p.state || 'Malaysia'] ||= []).push(p);
+    if (route === '/' || route === '/residences') {
+      graph.push({ '@type': 'ItemList', '@id': `${canonical}#projects`, 'name': 'New launch projects on propertyportal.my', 'numberOfItems': projects.length,
+        'itemListElement': projects.map((p, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': p.name, 'url': `${SITE_URL}/project/${p.slug}` })) });
+    }
+    const nav = `<nav aria-label="Site sections"><a href="/residences">All residences</a> · <a href="/compare">Compare</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Calculators</a> · <a href="/map">Map</a></nav>`;
+    const lists = Object.keys(byState).sort().map(state => `<h2>${escHtml(state)} (${byState[state].length})</h2><ul>${byState[state].map(projectLine).join('')}</ul>`).join('');
+    const intro = route === '/'
+      ? `<p>Welcome to <strong>propertyportal.my</strong>, a comparison portal and interactive map directory for new launch projects, luxury condominiums, serviced apartments and landed parkhomes across Kuala Lumpur, Selangor, Johor and Penang. Each project page lists the developer price, tenure, built-up sizes, bedrooms, completion date and how to book a sales gallery visit.</p>`
+      : `<p>${escHtml(meta.description)}</p>`;
+    body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">${nav}<h1>${escHtml(meta.h1)}</h1>${intro}` +
+      (projects.length ? `<p>${projects.length} projects listed. Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}, WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>${lists}` : '') +
+      `</div>`;
+  }
+  let html = applyHead(indexHtml, meta.title, meta.description, canonical, graph, meta.index);
+  if (body) html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+  return html;
+}
+
+function renderNotFoundHtml(indexHtml: string): string {
+  const graph = baseGraph();
+  let html = applyHead(indexHtml, 'Page not found | propertyportal.my', 'This page does not exist on propertyportal.my.', `${SITE_URL}/`, graph, false);
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root"><div id="seo-prerender" style="${SEO_BODY_STYLE}"><h1>Page not found</h1><p>The page you asked for does not exist. <a href="/">Go to the home page</a> or <a href="/residences">browse all residences</a>.</p></div></div>`);
   return html;
 }
 
@@ -594,6 +737,8 @@ const app = express();
 
 // Express JSON Parsing
 app.use(express.json());
+// Local testing only (Vercel serves /assets itself): let `npx tsx` runs load the built JS/CSS.
+if (!process.env.VERCEL) app.use(express.static(path.join(process.cwd(), 'dist'), { index: false }));
 
 // Vercel Serverless Rewrite helper: when Vercel rewrites /sitemap.xml, /robots.txt, /llms.txt or
 // /project/<slug> to this function, recover the original path so the Express routes below match.
@@ -614,6 +759,17 @@ app.use((req, res, next) => {
     if (m) { projectMatch = m; break; }
   }
 
+  let routeMatch = '';
+  for (const c of candidates) {
+    const pth = normalizeRoute(String(c || '').replace(/^https?:\/\/[^/]+/, ''));
+    if (STATIC_ROUTES[pth] && pth !== '/') { routeMatch = pth; break; }
+  }
+  if (!routeMatch) {
+    // A bare "/" only counts when no candidate names a different path.
+    const named = candidates.map(c => normalizeRoute(String(c || '').replace(/^https?:\/\/[^/]+/, ''))).filter(c => c && c !== '/' && !/^\/api\//.test(c));
+    if (named.length === 0) routeMatch = '/';
+  }
+
   if (has(/sitemap/i)) {
     req.url = '/sitemap.xml';
   } else if (has(/robots/i)) {
@@ -622,6 +778,8 @@ app.use((req, res, next) => {
     req.url = '/llms.txt';
   } else if (projectMatch && !has(/\/api\/(drive-images|sheets-|image-proxy)/i)) {
     req.url = `/project/${projectMatch[1]}`;
+  } else if (routeMatch && !has(/\/api\/(drive-images|sheets-|image-proxy)/i)) {
+    req.url = routeMatch;
   }
   next();
 });
@@ -797,10 +955,11 @@ app.get(['/project/:slug', '/projects/:slug', '/property/:slug', '/properties/:s
     ]);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
+    ALL_PROJECTS_FOR_LINKS = projects;
     const project = findSeoProject(slug, projects);
     if (!project) {
       // Unknown slug: still serve the app (it shows the home page), but tell search engines it is not a real page.
-      res.status(projects.length ? 404 : 200).send(indexHtml);
+      res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml);
       return;
     }
     res.send(renderProjectHtml(indexHtml, project));
@@ -816,11 +975,30 @@ app.get(['/robots.txt', '/robots'], (req, res) => {
   res.send(`User-agent: *\nAllow: /\n\nSitemap: https://www.propertyportal.my/sitemap.xml\n`);
 });
 
-// Anything else that reaches this function: serve the app shell instead of "Cannot GET"
+// Home and the app's section pages: the shell with that page's own head tags and a crawlable body.
+app.get(['/', ...Object.keys(STATIC_ROUTES).filter(r => r !== '/'), ...Object.keys(ROUTE_ALIASES)], async (req, res) => {
+  const route = normalizeRoute(req.path);
+  try {
+    const [projects, indexHtml] = await Promise.all([
+      fetchSeoProjects().catch((e) => { console.warn('Route prerender: sheet unavailable', e); return [] as SeoProject[]; }),
+      loadIndexHtml(req)
+    ]);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
+    res.send(STATIC_ROUTES[route] ? renderRouteHtml(indexHtml, route, projects) : indexHtml);
+  } catch (err) {
+    console.error('Route prerender failed, serving plain shell:', err);
+    try { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.send(await loadIndexHtml(req)); } catch { res.redirect(302, '/?seo-prerender=1'); }
+  }
+});
+
+// Anything else that reaches this function is not a real page: serve the shell with a 404 status
 app.use(async (req, res) => {
   try {
+    res.status(404);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(await loadIndexHtml(req));
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600');
+    res.send(renderNotFoundHtml(await loadIndexHtml(req)));
   } catch {
     res.redirect(302, '/');
   }

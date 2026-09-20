@@ -484,7 +484,10 @@ export async function fetchSpreadsheetData(accessToken?: string): Promise<Projec
     }
 
     const fallbackId = generateSlug(rawName);
-    const baseId = getVal(indexMap.id, fallbackId).toLowerCase() || 'project';
+    // Keep the id the app has always used for this project (built-in list, matched by name) so URLs never change.
+    const normName = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const knownId = MOCK_PROJECTS.find(m => m.name.toLowerCase().replace(/[^a-z0-9]/g, '') === normName)?.id;
+    const baseId = (getVal(indexMap.id, '') || knownId || fallbackId).toLowerCase() || 'project';
     let id = baseId;
     let counter = 2;
     while (seenIds.has(id)) {

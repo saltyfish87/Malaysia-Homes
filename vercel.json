@@ -1,13 +1,34 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/sitemap.xml", "destination": "/api/index" },
-    { "source": "/robots.txt", "destination": "/api/index" },
-    { "source": "/llms.txt", "destination": "/api/index" },
-    { "source": "/project/(.*)", "destination": "/api/index" },
-    { "source": "/projects/(.*)", "destination": "/api/index" },
-    { "source": "/property/(.*)", "destination": "/api/index" },
-    { "source": "/properties/(.*)", "destination": "/api/index" },
-    { "source": "/((?!api/|sitemap\\.xml|robots\\.txt|llms\\.txt|projects?/|property/|properties/).*)", "destination": "/index.html" }
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "seo-prerender"
+        }
+      ],
+      "destination": "/index.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/llms.txt",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/((?!.*\\.[a-zA-Z0-9]{1,5}$).*)",
+      "destination": "/api/index"
+    }
   ]
 }

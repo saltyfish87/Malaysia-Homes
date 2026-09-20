@@ -108,11 +108,11 @@ export default function ProjectCard({
         </span>
 
         {/* Project Name */}
-        <h4 
-          onClick={onViewDetails} 
-          className="mt-1 flex-1 font-display text-base font-black text-stone-900 hover:text-teal-700 transition-colors cursor-pointer tracking-tight"
-        >
-          {project.name}
+        <h4 className="mt-1 flex-1 font-display text-base font-black text-stone-900 hover:text-teal-700 transition-colors cursor-pointer tracking-tight">
+          {/* A real link (crawlable) that still opens the in-app detail view on click */}
+          <a href={`/project/${project.id}`} onClick={(e) => { e.preventDefault(); onViewDetails(); }} className="hover:text-teal-700">
+            {project.name}
+          </a>
         </h4>
 
         {/* Location Row */}
@@ -179,13 +179,15 @@ export default function ProjectCard({
             </button>
 
             {/* View Project Details CTA */}
-            <button
-              onClick={onViewDetails}
+            <a
+              href={`/project/${project.id}`}
+              onClick={(e) => { e.preventDefault(); onViewDetails(); }}
               className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-xs transition-colors"
               title="View Complete Project Landing Page"
+              aria-label={`View ${project.name}`}
             >
               <ArrowRight className="h-4 w-4" />
-            </button>
+            </a>
           </div>
         </div>
 
