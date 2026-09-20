@@ -13,6 +13,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Project, CurrencyCode, Lead } from '../types';
 import { TRANSLATIONS, getTranslatedProject } from '../utils/translations';
 import { formatPrice } from './ProjectCard';
+import ProjectFactsExtra from './ProjectFactsExtra';
 
 interface ProjectDetailModalProps {
   project: Project;
@@ -547,6 +548,7 @@ export default function ProjectDetailModal({
             { id: 'location', label: lang === 'en' ? 'Location Map' : '区位配套' },
             { id: 'layouts', label: lang === 'en' ? 'Layout Plans' : '户型选择' },
             { id: 'gallery', label: lang === 'en' ? 'High-Def Gallery' : '臻美实景' },
+            { id: 'faq', label: lang === 'en' ? 'FAQ' : '常见问题' },
             { id: 'calculator', label: lang === 'en' ? 'Loan Calculator' : '房贷计算器' }
           ].map((sec) => (
             <button
@@ -1000,6 +1002,9 @@ export default function ProjectDetailModal({
                 </div>
               )}
             </section>
+
+            {/* Unit types, highlights, facilities, nearby, FAQ (same data as the crawler-visible page) */}
+            <ProjectFactsExtra projectId={project.id} lang={lang} />
 
             {/* MORTGAGE AND ESTIMATED YIELD CALCULATOR */}
             <section id="sec-calculator" className="scroll-mt-24 space-y-4">
