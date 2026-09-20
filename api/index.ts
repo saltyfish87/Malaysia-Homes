@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import { MOCK_PROJECTS } from '../src/constants/mockData';
 import fs from 'fs';
 
 // In-Memory Caches for smooth fast performance (stored per serverless function instance container)
@@ -245,6 +244,85 @@ function seoDetectState(...texts: string[]): string {
 
 let seoProjectsCache: { projects: SeoProject[]; time: number } | null = null;
 
+// Project ids the app has always used (from src/constants/mockData.ts, keyed by the project name with
+// everything but letters and digits removed). Kept inline: the serverless function must not import app files.
+const APP_PROJECT_IDS: Record<string, string> = {
+  "amika": "amika",
+  "anya": "anya",
+  "aricia": "aricia",
+  "asterhillsripetaling": "aster-hill",
+  "ateraphase2": "atera-phase2",
+  "aurumbusinesscentresuites": "aurum-business",
+  "avantroresidences": "avantro",
+  "ayanna": "ayanna-res",
+  "bangsarhillparktowerbc": "bangsar-hill-bc",
+  "bangsarhillparkverduratowerde": "bangsar-hill-verdura",
+  "clouthaus": "clouthaus-res",
+  "coreresidencetrx": "core-trx",
+  "genstarz": "genstarz-res",
+  "luminarresidencefederalavenue": "luminar-subang",
+  "maspira": "m-aspira",
+  "themapleresidences": "maple-oug",
+  "oakaresidences": "oaka-res",
+  "oneseputeh": "one-seputeh",
+  "orionresidence": "orion-bid",
+  "parkgreenpavilionbukitjalil": "park-green",
+  "quaverresidence": "quaver-kl",
+  "radiumarena": "radium-arena",
+  "rivervilleresidences2": "riverville2",
+  "triaseputeh": "tria-seputeh",
+  "tujuhresidences": "tujuh-kwasa",
+  "vox": "vox-sentul",
+  "wyn": "wyn-puchong",
+  "zeniadamansara": "zenia-damansara",
+  "renresidence": "ren-bukit-jalil",
+  "araswcityoug": "aras-wcity",
+  "thevividz": "vividz-res",
+  "khayaresidence": "khaya-bangsar",
+  "phoenizsuitesklcitycentre": "phoeniz-suites",
+  "branniganz": "branniganz-exsim",
+  "aloraresidence": "alora-subang",
+  "loopcitypuchong": "loop-city",
+  "thealdenz": "aldenz",
+  "parkside": "parkside",
+  "foresthillresidence": "foresthill",
+  "amayaresidence": "amaya",
+  "granddamansara": "grand-damansara",
+  "stellardamansara": "stellar-damansara",
+  "seresta": "seresta",
+  "livista": "livista",
+  "thelines": "the-lines",
+  "pinnacleara": "pinnacle-ara",
+  "hamptondamansara": "hampton",
+  "amararesidence": "amara-res",
+  "linarikwasadamansara": "linari-kwasa",
+  "mahoganyresidences": "mahogany",
+  "panoramaresidenceskelanajaya": "panorama-kelana",
+  "arra": "arra-res",
+  "paradigmmall": "paradigm-mall",
+  "kwasadamansaracitycenter": "kwasa-cc",
+  "thekingswoodzbukitjalil": "kingswoodz",
+  "queenswoodz": "queenswoodz",
+  "klwellnesscity": "wellness-city",
+  "veladaz": "veladaz",
+  "johorciqcausewayz": "johor-causeway",
+  "rfnewcasasuites": "rf-casa",
+  "gensphere": "gen-sphere",
+  "genrise": "gen-rise",
+  "ciq": "ciq-johor",
+  "caliaresidencesbypgb": "calia-pgb",
+  "bukitchagarrtsstation": "bukit-chagar",
+  "mgrandminori": "m-grand-minori",
+  "theaddressbymaxim": "address-maxim",
+  "thearden": "arden-johor",
+  "skylineonesentosabytslaw": "skyline-tslaw",
+  "paragonsignaturessuite": "paragon-signatures",
+  "theasteriazbyexsim": "asteriaz-exsim",
+  "nadiresidencesbysouthkeycity": "nadi-southkey",
+  "mbworldbay": "mb-world-bay",
+  "paragongateway": "paragon-gateway"
+};
+
 async function fetchSeoProjects(): Promise<SeoProject[]> {
   if (seoProjectsCache && Date.now() - seoProjectsCache.time < SEO_CACHE_TTL) return seoProjectsCache.projects;
   const base = `https://docs.google.com/spreadsheets/d/${SEO_SPREADSHEET_ID}/export?format=csv`;
@@ -278,9 +356,7 @@ async function fetchSeoProjects(): Promise<SeoProject[]> {
     };
     // Use the same id the app uses for this project (from the built-in project list, matched by name),
     // so the address in the browser, the canonical tag and the sitemap are one and the same.
-    const nameKey = seoAlnum(name);
-    const appMatch = MOCK_PROJECTS.find(m => seoAlnum(m.name) === nameKey);
-    const baseSlug = (appMatch && appMatch.id) || seoSlugify(name) || 'project';
+    const baseSlug = APP_PROJECT_IDS[seoAlnum(name)] || seoSlugify(name) || 'project';
     let slug = baseSlug;
     let n = 2;
     while (seen.has(slug)) slug = `${baseSlug}-${n++}`;
