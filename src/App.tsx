@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { 
   Search, Sparkles, Filter, ArrowUpRight, HelpCircle, Briefcase, Grid, 
@@ -14,6 +14,23 @@ import {
 import { Project, Lead, MalaysianState, PropertyType, CurrencyCode } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { MOCK_PROJECTS, STATE_AREAS } from './constants/mockData';
+
+// Area helpers shared with the server's /area/<slug> pages: a sheet value like "KLCC / Bukit Bintang"
+// counts for both areas; a bare state name is not an area.
+const ALL_AREA_NAMES: string[] = Object.values(STATE_AREAS).flat();
+const areaSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const areaTokens = (areaStr: string): string[] => {
+  const out: string[] = [];
+  for (const raw of (areaStr || '').split(/\s*(?:\/|,|&|\band\b)\s*/i)) {
+    const t = raw.trim();
+    if (!t || ['kuala lumpur', 'selangor', 'johor', 'penang', 'malaysia', 'kl'].includes(t.toLowerCase())) continue;
+    const canon = ALL_AREA_NAMES.find(c => c.toLowerCase() === t.toLowerCase() || c.toLowerCase().replace(/[^a-z0-9]/g, '') === t.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    const name = canon || t;
+    if (!out.includes(name)) out.push(name);
+  }
+  return out;
+};
+const stateOfArea = (name: string): string => Object.keys(STATE_AREAS).find(st => STATE_AREAS[st].includes(name)) || '';
 import { fetchSpreadsheetData } from './utils/googleSheets';
 
 // Sub components
@@ -169,6 +186,8 @@ export default function App() {
   // Dynamic filter state bounds (8+ filters total!)
   const [filterState, setFilterState] = useState<string>('All');
   const [filterArea, setFilterArea] = useState<string>('All');
+  const prevFilterStateRef = useRef<string>('All');
+  const urlEffectMountedRef = useRef(false);
   const [filterPriceRange, setFilterPriceRange] = useState<string>('All');
   const [filterPropType, setFilterPropType] = useState<string>('All'); // All, High-Rise, Landed
   const [filterTenure, setFilterTenure] = useState<string>('All'); // All, Freehold, Leasehold
@@ -262,6 +281,9 @@ export default function App() {
     if (currentProject) {
       return `/project/${currentProject.id}`;
     }
+    if (currentTab === 'residences' && filterArea && filterArea !== 'All') {
+      return `/area/${areaSlug(filterArea)}`;
+    }
     if (currentTab && currentTab !== 'home') {
       return `/${currentTab}`;
     }
@@ -276,6 +298,7 @@ export default function App() {
       
       let matchedTab = 'home';
       let matchedProject: Project | null = null;
+      let matchedArea = '';
 
       // 1. Path-based check
       const projectMatch = pathname.match(/^\/(?:project|projects|property|properties)\/([^\/]+)$/i);
@@ -285,6 +308,14 @@ export default function App() {
         if (found) {
           matchedProject = found;
           matchedTab = 'residences';
+        }
+      } else if (pathname.match(/^\/area\/([^\/]+)$/i)) {
+        const slug = decodeURIComponent(pathname.split('/')[2] || '').toLowerCase();
+        const areaName = ALL_AREA_NAMES.find(a => areaSlug(a) === slug)
+          || projects.flatMap(pr => areaTokens(pr.area)).find(a => areaSlug(a) === slug);
+        if (areaName) {
+          matchedTab = 'residences';
+          matchedArea = areaName;
         }
       } else if (pathname === '/residences' || pathname === '/properties') {
         matchedTab = 'residences';
@@ -317,12 +348,17 @@ export default function App() {
         matchedTab = urlTab;
       }
 
-      return { matchedTab, matchedProject };
+      return { matchedTab, matchedProject, matchedArea };
     };
 
-    const { matchedTab, matchedProject } = parseRouteFromLocation();
+    const { matchedTab, matchedProject, matchedArea } = parseRouteFromLocation();
     if (matchedTab) setTab(matchedTab);
     if (matchedProject) setSelectedProject(matchedProject);
+    if (matchedArea) {
+      const st = stateOfArea(matchedArea) || projects.find(pr => areaTokens(pr.area).includes(matchedArea))?.state || 'All';
+      if (st !== 'All') setFilterState(st);
+      setFilterArea(matchedArea);
+    }
 
     // Replace URL if it was using legacy query parameters to elevate to clean pretty path
     const expectedPath = getCleanPath(matchedTab, matchedProject);
@@ -348,6 +384,14 @@ export default function App() {
       }
       
       setSelectedProject(null);
+      const areaHit = pathname.match(/^\/area\/([^\/]+)$/i);
+      if (areaHit) {
+        const slug = decodeURIComponent(areaHit[1]).toLowerCase();
+        const areaName = ALL_AREA_NAMES.find(a => areaSlug(a) === slug) || projects.flatMap(pr => areaTokens(pr.area)).find(a => areaSlug(a) === slug);
+        setTab('residences');
+        if (areaName) { const st = stateOfArea(areaName); if (st) setFilterState(st); setFilterArea(areaName); }
+        return;
+      }
       if (pathname === '/residences' || pathname === '/properties') setTab('residences');
       else if (pathname === '/compare') setTab('compare');
       else if (pathname === '/guide') setTab('guide');
@@ -364,12 +408,13 @@ export default function App() {
 
   // Sync state to URL bar on tab or project change
   useEffect(() => {
+    if (!urlEffectMountedRef.current) { urlEffectMountedRef.current = true; return; }
     const cleanPath = getCleanPath(tab, selectedProject);
     const currentFull = window.location.pathname + window.location.search;
     if (currentFull !== cleanPath) {
       window.history.pushState(null, '', cleanPath);
     }
-  }, [tab, selectedProject]);
+  }, [tab, selectedProject, filterArea]);
 
   // Contextual Area choices mapping helper
   const areaOptions = useMemo(() => {
@@ -388,7 +433,10 @@ export default function App() {
 
   // Handle reset area when state changes
   useEffect(() => {
-    setFilterArea('All');
+    // Skip the mount run (the URL parser may have just queued an area) and only react to real state changes.
+    if (prevFilterStateRef.current === filterState) return;
+    prevFilterStateRef.current = filterState;
+    setFilterArea(prev => (prev !== 'All' && (STATE_AREAS[filterState] || []).includes(prev)) ? prev : 'All');
   }, [filterState]);
 
   // Master Filter matching function logic
@@ -398,7 +446,7 @@ export default function App() {
       const stateMatch = filterState === 'All' || proj.state === filterState;
 
       // 2. Area Filter
-      const areaMatch = filterArea === 'All' || proj.area === filterArea;
+      const areaMatch = filterArea === 'All' || proj.area === filterArea || areaTokens(proj.area).includes(filterArea);
 
       // 3. Text/Search query match (matches Name, Developer, Area, or Highlights)
       const query = searchText.toLowerCase();
@@ -591,7 +639,7 @@ export default function App() {
     <div className="min-h-screen bg-[#FDFBF7] text-stone-900 transition-colors duration-500 font-sans" id="malaysianhomes-landing-root">
       
       {/* Dynamic SEO, Meta Tags, OpenGraph, Site Verification, and Schema.org structured data */}
-      <SEOMeta project={selectedProject} tab={tab} lang={lang} projects={projects} />
+      <SEOMeta project={selectedProject} tab={tab} lang={lang} projects={projects} area={filterArea} />
       
       {/* 1. COMPREHENSIVE HEADER STICKY BAR */}
       <Header 

@@ -28,9 +28,13 @@ interface SEOMetaProps {
   tab: string;
   lang: 'en' | 'zh';
   projects?: Project[];
+  area?: string; // selected area on the residences tab (matches the server's /area/<slug> pages)
 }
 
-export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaProps) {
+export default function SEOMeta({ project, tab, lang, projects = [], area = '' }: SEOMetaProps) {
+  const areaActive = !project && tab === 'residences' && !!area && area !== 'All';
+  const areaSlug = area.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const areaState = (() => { const hit = projects.find(p => (p.area || '').toLowerCase().includes(area.toLowerCase())); return hit?.state || 'Malaysia'; })();
   useEffect(() => {
     // 1. DYNAMIC TITLE GENERATION WITH GLOBAL APPEAL
     let title = 'Malaysia Homes | New Launch Condo & Landed Property Portal | propertyportal.my';
@@ -78,6 +82,10 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
       description = lang === 'en'
         ? 'The ultimate guide to buying residential property in Malaysia. Learn about RPGT, progressive billing, stamp duty exemptions, and critical investment strategies.'
         : '在马来西亚购买住宅房产的终极指南。全面解析房产增值税 (RPGT)、渐进式付款、印花税减免及核心投资策略。';
+    } else if (areaActive) {
+      const n = projects.filter(p => (p.area || '').toLowerCase().includes(area.toLowerCase())).length;
+      title = `New Launch Projects in ${area}, ${areaState} | Developer Price, Floor Plans | propertyportal.my`;
+      description = `${n} new launch project${n === 1 ? '' : 's'} in ${area}, ${areaState}. Developer prices, layouts, completion dates and sales gallery appointments on propertyportal.my.`;
     } else if (tab === 'residences') {
       title = lang === 'en'
         ? 'All Residences & New Property Launches in Malaysia | propertyportal.my'
@@ -159,6 +167,8 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     let canonicalUrl = domain + '/';
     if (project) {
       canonicalUrl = `${domain}/project/${project.id}`;
+    } else if (areaActive) {
+      canonicalUrl = `${domain}/area/${areaSlug}`;
     } else if (tab && tab !== 'home') {
       canonicalUrl = `${domain}/${tab}`;
     }
@@ -442,7 +452,7 @@ export default function SEOMeta({ project, tab, lang, projects = [] }: SEOMetaPr
     scriptTag.textContent = JSON.stringify(fullSchemaMarkup, null, 2);
 
     return () => {};
-  }, [project, tab, lang, projects]);
+  }, [project, tab, lang, projects, area]);
 
   return null;
 }

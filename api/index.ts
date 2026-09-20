@@ -532,7 +532,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
       '@type': 'BreadcrumbList',
       'itemListElement': [
         { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
-        { '@type': 'ListItem', 'position': 2, 'name': 'Residences', 'item': `${SITE_URL}/residences` },
+        { '@type': 'ListItem', 'position': 2, 'name': primaryArea(p) ? `New launches in ${primaryArea(p)}` : 'Residences', 'item': primaryArea(p) ? `${SITE_URL}/area/${seoSlugify(primaryArea(p))}` : `${SITE_URL}/residences` },
         { '@type': 'ListItem', 'position': 3, 'name': p.name, 'item': canonical }
       ]
     },
@@ -583,17 +583,18 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
     `<script id="seo-jsonld-schema" type="application/ld+json">${jsonLd}</script>`
   ].join('\n    ');
 
-  const others = ALL_PROJECTS_FOR_LINKS.filter(o => o.slug !== p.slug && o.area && o.area === p.area).slice(0, 8);
+  const pArea = primaryArea(p);
+  const others = ALL_PROJECTS_FOR_LINKS.filter(o => o.slug !== p.slug && pArea && areaTokens(o.area).includes(pArea)).slice(0, 8);
   const table = `<table style="border-collapse:collapse;width:100%;margin:16px 0"><tbody>` +
     factRows.map(([k, v]) => `<tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e7e5e4;width:40%">${escHtml(k)}</th><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(v)}</td></tr>`).join('') +
     `</tbody></table>`;
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
-    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/residences">Residences</a> › ${escHtml(p.name)}</nav>` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › ${pArea ? `<a href="/area/${escHtml(seoSlugify(pArea))}">${escHtml(pArea)}</a>` : `<a href="/residences">Residences</a>`} › ${escHtml(p.name)}</nav>` +
     `<article><h1>${escHtml(p.name)} ${escHtml(p.area)}</h1><p>${escHtml(description)}</p>` +
     `<h2>${escHtml(p.name)} project information</h2>${table}` +
     (p.notes ? `<p>${escHtml(p.notes)}</p>` : '') +
     `<p>Enquiries and sales gallery appointments: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
-    (others.length ? `<h2>Other projects in ${escHtml(p.area)}</h2><ul>${others.map(projectLine).join('')}</ul>` : '') +
+    (others.length ? `<h2>Other projects in ${escHtml(pArea)}</h2><ul>${others.map(projectLine).join('')}</ul><p><a href="/area/${escHtml(seoSlugify(pArea))}">All new launches in ${escHtml(pArea)}</a></p>` : '') +
     `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Loan calculator</a></p>` +
     `</article></div>`;
 
@@ -720,8 +721,9 @@ function renderRouteHtml(indexHtml: string, route: string, projects: SeoProject[
     const intro = route === '/'
       ? `<p>Welcome to <strong>propertyportal.my</strong>, a comparison portal and interactive map directory for new launch projects, luxury condominiums, serviced apartments and landed parkhomes across Kuala Lumpur, Selangor, Johor and Penang. Each project page lists the developer price, tenure, built-up sizes, bedrooms, completion date and how to book a sales gallery visit.</p>`
       : `<p>${escHtml(meta.description)}</p>`;
+    const areaLinks = (route === '/' || route === '/residences') ? areaLinksHtml(buildAreas(projects)) : '';
     body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">${nav}<h1>${escHtml(meta.h1)}</h1>${intro}` +
-      (projects.length ? `<p>${projects.length} projects listed. Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}, WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>${lists}` : '') +
+      (projects.length ? `<p>${projects.length} projects listed. Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}, WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>${areaLinks}${lists}` : '') +
       `</div>`;
   }
   let html = applyHead(indexHtml, meta.title, meta.description, canonical, graph, meta.index);
@@ -734,6 +736,145 @@ function renderNotFoundHtml(indexHtml: string): string {
   let html = applyHead(indexHtml, 'Page not found | propertyportal.my', 'This page does not exist on propertyportal.my.', `${SITE_URL}/`, graph, false);
   html = html.replace(/<div id="root"><\/div>/i, `<div id="root"><div id="seo-prerender" style="${SEO_BODY_STYLE}"><h1>Page not found</h1><p>The page you asked for does not exist. <a href="/">Go to the home page</a> or <a href="/residences">browse all residences</a>.</p></div></div>`);
   return html;
+}
+
+
+// ---------------------------------------------------------------------------
+// Area pages (/area/<slug>): one page per area that has at least one project, built
+// entirely from the live sheet (counts, prices, tenure mix, developers, completion).
+// ---------------------------------------------------------------------------
+interface SeoArea { slug: string; name: string; state: string; projects: SeoProject[] }
+
+// Canonical area names (same list as the app's area filter). A sheet value like
+// "KLCC / Bukit Bintang" belongs to both KLCC and Bukit Bintang; a bare state name is not an area.
+const CANONICAL_AREAS = ['Bangsar', 'Bukit Bintang', 'Bukit Jalil', 'Chan Sow Lin', 'Cheras', 'KLCC', 'Kuchai Lama', 'Old Klang Road', 'OUG', 'Sentul', 'Seputeh', 'Sri Petaling', 'Sungai Besi', 'Taman Desa', 'TRX',
+  'Damansara', 'Kwasa Damansara', 'Petaling Jaya', 'Puchong', 'Shah Alam', 'Subang Jaya', 'USJ',
+  'Johor Bahru', 'Iskandar Puteri', 'Mount Austin', 'Puteri Harbour', 'Tebrau',
+  'Bayan Lepas', 'Batu Ferringhi', 'Georgetown', 'Gurney Drive', 'Tanjung Tokong'];
+const STATE_NAMES = ['kuala lumpur', 'selangor', 'johor', 'penang', 'malaysia', 'kl'];
+function areaTokens(areaStr: string): string[] {
+  const out: string[] = [];
+  for (const raw of (areaStr || '').split(/\s*(?:\/|,|&|\band\b)\s*/i)) {
+    const t = raw.trim();
+    if (!t || STATE_NAMES.includes(t.toLowerCase())) continue;
+    const canon = CANONICAL_AREAS.find(c => c.toLowerCase() === t.toLowerCase() || seoAlnum(c) === seoAlnum(t));
+    const name = canon || t;
+    if (!out.includes(name)) out.push(name);
+  }
+  return out;
+}
+const primaryArea = (p: SeoProject) => areaTokens(p.area)[0] || '';
+
+function buildAreas(projects: SeoProject[]): SeoArea[] {
+  const map = new Map<string, SeoArea>();
+  for (const p of projects) {
+    for (const name of areaTokens(p.area)) {
+      const slug = seoSlugify(name);
+      if (!slug) continue;
+      let a = map.get(slug);
+      if (!a) { a = { slug, name, state: '', projects: [] }; map.set(slug, a); }
+      if (!a.projects.includes(p)) a.projects.push(p);
+    }
+  }
+  for (const a of map.values()) {
+    const counts: Record<string, number> = {};
+    for (const p of a.projects) if (p.state && p.state !== 'Malaysia') counts[p.state] = (counts[p.state] || 0) + 1;
+    a.state = Object.keys(counts).sort((x, y) => counts[y] - counts[x])[0] || 'Malaysia';
+  }
+  return [...map.values()].sort((x, y) => x.state.localeCompare(y.state) || x.name.localeCompare(y.name));
+}
+
+const fmtRM = (n: number) => `RM ${fmtNum(n)}`;
+const joinNames = (xs: string[]) => xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
+
+function areaFacts(a: SeoArea) {
+  const ps = a.projects;
+  const priced = ps.filter(p => p.priceMin >= 50000).sort((x, y) => x.priceMin - y.priceMin);
+  const tenures: Record<string, number> = {};
+  for (const p of ps) { const t = (p.tenure || '').trim(); if (t) tenures[t] = (tenures[t] || 0) + 1; }
+  const types: Record<string, number> = {};
+  for (const p of ps) { const t = (p.propertyType || '').trim(); if (t) types[t] = (types[t] || 0) + 1; }
+  const developers = [...new Set(ps.map(p => p.developer).filter(Boolean))];
+  const years = ps.map(p => parseInt(p.completionYear, 10)).filter(y => y > 2000);
+  const psf = ps.map(p => seoInt(p.pricePsf)).filter(v => v > 100);
+  return {
+    count: ps.length,
+    cheapest: priced[0], priciest: priced[priced.length - 1],
+    tenureText: Object.keys(tenures).map(k => `${tenures[k]} ${k.toLowerCase()}`).join(', '),
+    typeText: Object.keys(types).sort((x, y) => types[y] - types[x]).map(k => `${types[k]} ${k.toLowerCase()}`).join(', '),
+    developers,
+    yearMin: years.length ? Math.min(...years) : 0, yearMax: years.length ? Math.max(...years) : 0,
+    psfMin: psf.length ? Math.min(...psf) : 0, psfMax: psf.length ? Math.max(...psf) : 0
+  };
+}
+
+function areaFaqs(a: SeoArea): { q: string; a: string }[] {
+  const f = areaFacts(a);
+  const out: { q: string; a: string }[] = [];
+  out.push({ q: `How many new launch projects are there in ${a.name}?`,
+    a: `propertyportal.my currently lists ${f.count} new launch project${f.count === 1 ? '' : 's'} in ${a.name}, ${a.state}: ${joinNames(a.projects.map(p => p.name))}.` });
+  if (f.cheapest) out.push({ q: `What is the starting price for a new launch in ${a.name}?`,
+    a: `Developer list prices in ${a.name} start from ${fmtRM(f.cheapest.priceMin)} at ${f.cheapest.name}${f.priciest && f.priciest !== f.cheapest ? `, and go up to ${fmtRM(f.priciest.priceMax || f.priciest.priceMin)} at ${f.priciest.name}` : ''}.${f.psfMin ? ` Per square foot prices range from about RM ${fmtNum(f.psfMin)} to RM ${fmtNum(f.psfMax)}.` : ''} Prices change with each developer release; ask for the current price list.` });
+  if (f.tenureText) out.push({ q: `Are the new projects in ${a.name} freehold or leasehold?`,
+    a: `Of the ${f.count} listed project${f.count === 1 ? '' : 's'}, ${f.tenureText}.${f.typeText ? ` By type: ${f.typeText}.` : ''}` });
+  if (f.developers.length) out.push({ q: `Which developers are launching in ${a.name}?`,
+    a: `${joinNames(f.developers)}.` });
+  if (f.yearMin) out.push({ q: `When will the ${a.name} projects be completed?`,
+    a: f.yearMin === f.yearMax ? `The listed projects are scheduled for completion in ${f.yearMin}.` : `Scheduled completion ranges from ${f.yearMin} to ${f.yearMax}, depending on the project.` });
+  out.push({ q: `How do I book a sales gallery visit in ${a.name}?`,
+    a: `WhatsApp ${AGENT.name} (${AGENT.ren}, ${AGENT.company}) at ${AGENT.telephoneDisplay} with the project name, or use the enquiry form on the project page.` });
+  return out;
+}
+
+function renderAreaHtml(indexHtml: string, a: SeoArea, allAreas: SeoArea[]): string {
+  const canonical = `${SITE_URL}/area/${a.slug}`;
+  const f = areaFacts(a);
+  const title = `New Launch Projects in ${a.name}, ${a.state} | Developer Price, Floor Plans | propertyportal.my`;
+  const description = `${f.count} new launch project${f.count === 1 ? '' : 's'} in ${a.name}, ${a.state}${f.cheapest ? `, from ${fmtRM(f.cheapest.priceMin)}` : ''}${f.tenureText ? ` (${f.tenureText})` : ''}. Developer prices, layouts, completion dates and sales gallery appointments on propertyportal.my.`;
+  const faqs = areaFaqs(a);
+  const graph = baseGraph();
+  graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Residences', 'item': `${SITE_URL}/residences` },
+    { '@type': 'ListItem', 'position': 3, 'name': a.name, 'item': canonical }
+  ] });
+  graph.push({ '@type': 'CollectionPage', '@id': `${canonical}#page`, 'url': canonical, 'name': title, 'description': description, 'isPartOf': { '@id': `${SITE_URL}/#website` },
+    'about': { '@type': 'Place', 'name': `${a.name}, ${a.state}, Malaysia` },
+    'mainEntity': { '@type': 'ItemList', 'numberOfItems': f.count, 'itemListElement': a.projects.map((p, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': p.name, 'url': `${SITE_URL}/project/${p.slug}` })) } });
+  graph.push({ '@type': 'FAQPage', '@id': `${canonical}#faq`, 'mainEntity': faqs.map(x => ({ '@type': 'Question', 'name': x.q, 'acceptedAnswer': { '@type': 'Answer', 'text': x.a } })) });
+
+  const neighbours = allAreas.filter(o => o.slug !== a.slug && o.state === a.state);
+  const intro = [
+    `${a.name} is in ${a.state}, Malaysia. propertyportal.my lists ${f.count} new launch project${f.count === 1 ? '' : 's'} here${f.typeText ? ` (${f.typeText})` : ''}${f.tenureText ? `; tenure: ${f.tenureText}` : ''}.`,
+    f.cheapest ? `Developer list prices start from ${fmtRM(f.cheapest.priceMin)} at ${f.cheapest.name}${f.priciest && f.priciest !== f.cheapest ? ` and reach ${fmtRM(f.priciest.priceMax || f.priciest.priceMin)} at ${f.priciest.name}` : ''}.${f.psfMin ? ` Quoted prices per square foot run from about RM ${fmtNum(f.psfMin)} to RM ${fmtNum(f.psfMax)}.` : ''}` : '',
+    f.developers.length ? `Developers active in ${a.name}: ${joinNames(f.developers)}.` : '',
+    f.yearMin ? (f.yearMin === f.yearMax ? `Scheduled completion: ${f.yearMin}.` : `Scheduled completion runs from ${f.yearMin} to ${f.yearMax}.`) : ''
+  ].filter(Boolean).map(t => `<p>${escHtml(t)}</p>`).join('');
+
+  const cards = a.projects.map(p => {
+    const bits = [p.developer, [p.tenure, p.propertyType].filter(Boolean).join(' '), p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '', p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''} bedrooms` : '', p.priceMin ? `from ${fmtRM(p.priceMin)}` : '', p.completionYear ? `completion ${p.estCompletionDate || p.completionYear}` : ''].filter(Boolean);
+    return `<li style="margin:0 0 10px"><a href="/project/${escHtml(p.slug)}"><strong>${escHtml(p.name)}</strong></a> — ${escHtml(bits.join(' · '))}</li>`;
+  }).join('');
+
+  const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/residences">Residences</a> › ${escHtml(a.name)}</nav>` +
+    `<h1>New Launch Projects in ${escHtml(a.name)}, ${escHtml(a.state)}</h1>${intro}` +
+    `<h2>${f.count} new launch project${f.count === 1 ? '' : 's'} in ${escHtml(a.name)}</h2><ul>${cards}</ul>` +
+    `<h2>Frequently asked questions about buying in ${escHtml(a.name)}</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
+    (neighbours.length ? `<h2>Other areas in ${escHtml(a.state)}</h2><ul>${neighbours.map(o => `<li><a href="/area/${escHtml(o.slug)}">New launches in ${escHtml(o.name)}</a> (${o.projects.length})</li>`).join('')}</ul>` : '') +
+    `<p>Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Loan calculator</a></p>` +
+    `</div>`;
+  let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+  return html;
+}
+
+function areaLinksHtml(areas: SeoArea[]): string {
+  if (!areas.length) return '';
+  const byState: Record<string, SeoArea[]> = {};
+  for (const a of areas) (byState[a.state] ||= []).push(a);
+  return `<h2>Browse by area</h2>` + Object.keys(byState).sort().map(st => `<h3>${escHtml(st)}</h3><ul>${byState[st].map(a => `<li><a href="/area/${escHtml(a.slug)}">New launches in ${escHtml(a.name)}</a> (${a.projects.length})</li>`).join('')}</ul>`).join('');
 }
 
 function buildLlmsTxt(projects: SeoProject[]): string {
@@ -757,6 +898,15 @@ function buildLlmsTxt(projects: SeoProject[]): string {
   lines.push(`- [Calculators](${SITE_URL}/calculators): loan instalment, stamp duty and legal fee estimates`);
   lines.push(`- [Map](${SITE_URL}/map): all projects on a map`);
   lines.push('');
+  const areas = buildAreas(projects);
+  if (areas.length) {
+    lines.push(`## Areas (${areas.length})`);
+    for (const a of areas) {
+      const f = areaFacts(a);
+      lines.push(`- [${a.name}, ${a.state}](${SITE_URL}/area/${a.slug}): ${f.count} project${f.count === 1 ? '' : 's'}${f.cheapest ? `, from RM ${fmtNum(f.cheapest.priceMin)}` : ''}${f.tenureText ? `; ${f.tenureText}` : ''}`);
+    }
+    lines.push('');
+  }
   lines.push(`## Projects (${projects.length}, generated from the live database on ${today})`);
   for (const p of projects) {
     const bits: string[] = [];
@@ -801,6 +951,7 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[]): strin
   xml += url(`${SITE_URL}/calculators`, today, 'monthly', '0.6');
   xml += url(`${SITE_URL}/map`, today, 'weekly', '0.6');
   if (projects.length) {
+    for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/area/${a.slug}`, today, 'weekly', '0.8');
     for (const p of projects) xml += url(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8');
   } else {
     for (const slug of fallbackSlugs) xml += url(`${SITE_URL}/project/${slug}`, today, 'weekly', '0.8');
@@ -835,6 +986,8 @@ app.use((req, res, next) => {
     if (m) { projectMatch = m; break; }
   }
 
+  let areaMatch: RegExpMatchArray | null = null;
+  for (const c of candidates) { const m = String(c || '').match(/\/area\/([^/?#]+)/i); if (m) { areaMatch = m; break; } }
   let routeMatch = '';
   for (const c of candidates) {
     const pth = normalizeRoute(String(c || '').replace(/^https?:\/\/[^/]+/, ''));
@@ -854,6 +1007,8 @@ app.use((req, res, next) => {
     req.url = '/llms.txt';
   } else if (projectMatch && !has(/\/api\/(drive-images|sheets-|image-proxy)/i)) {
     req.url = `/project/${projectMatch[1]}`;
+  } else if (areaMatch && !has(/\/api\/(drive-images|sheets-|image-proxy)/i)) {
+    req.url = `/area/${areaMatch[1]}`;
   } else if (routeMatch && !has(/\/api\/(drive-images|sheets-|image-proxy)/i)) {
     req.url = routeMatch;
   }
@@ -1049,6 +1204,26 @@ app.get(['/project/:slug', '/projects/:slug', '/property/:slug', '/properties/:s
 app.get(['/robots.txt', '/robots'], (req, res) => {
   res.header('Content-Type', 'text/plain');
   res.send(`User-agent: *\nAllow: /\n\nSitemap: https://www.propertyportal.my/sitemap.xml\n`);
+});
+
+// Area pages: one per area with projects
+app.get('/area/:slug', async (req, res) => {
+  const slug = seoSlugify(String(req.params.slug || ''));
+  try {
+    const [projects, indexHtml] = await Promise.all([
+      fetchSeoProjects().catch((e) => { console.warn('Area prerender: sheet unavailable', e); return [] as SeoProject[]; }),
+      loadIndexHtml(req)
+    ]);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
+    const areas = buildAreas(projects);
+    const area = areas.find(a => a.slug === slug);
+    if (!area) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
+    res.send(renderAreaHtml(indexHtml, area, areas));
+  } catch (err) {
+    console.error('Area prerender failed:', err);
+    res.redirect(302, '/residences');
+  }
 });
 
 // Home and the app's section pages: the shell with that page's own head tags and a crawlable body.
