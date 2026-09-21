@@ -5,7 +5,7 @@
  * sees stay identical (the FAQ schema on the page must match visible questions).
  */
 import React, { useEffect, useState } from 'react';
-import { HelpCircle, ChevronDown, Layers, Sparkles, Waves, MapPin } from 'lucide-react';
+import { HelpCircle, ChevronDown, Layers, Sparkles, Waves, MapPin, PlayCircle } from 'lucide-react';
 
 interface Amenity { category: string; name: string; distance?: string }
 interface Layout { type: string; sqft?: number; beds?: string; baths?: string }
@@ -17,6 +17,7 @@ export interface ProjectSeoPayload {
     landSize?: string; unitsPerFloor?: string; lifts?: string; constructionPeriod?: string;
   };
   faqs: { q: string; a: string }[];
+  review?: null | { url: string; zhUrl: string; video: boolean };
 }
 
 const cache = new Map<string, ProjectSeoPayload>();
@@ -117,6 +118,19 @@ export function ProjectFactsExtra({ projectId, lang }: { projectId: string; lang
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {data.review && (
+        <section id="sec-review" className="scroll-mt-24">
+          <a href={lang === 'zh' ? data.review.zhUrl : data.review.url} target="_blank" rel="noopener" className="flex items-center gap-4 rounded-2xl border border-brand-gold/40 bg-amber-50/60 p-4 sm:p-5 transition hover:border-brand-gold dark:bg-amber-950/20">
+            <PlayCircle className="h-9 w-9 shrink-0 text-brand-gold" />
+            <span>
+              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-brand-gold">{t('Agent insights', '经纪评测')}</span>
+              <span className="block text-sm sm:text-base font-black text-slate-900 dark:text-white">{t(`Read the ${data.name} review: ${data.review.video ? 'video walkthrough, ' : ''}pros and cons`, `看 ${data.name} 评测：${data.review.video ? '看房视频、' : ''}优缺点与推荐户型`)}</span>
+              <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400">{t('By Yee Woei Shyan, REN 46305, on shyanyee.com', 'Yee Woei Shyan（REN 46305）撰写，shyanyee.com')}</span>
+            </span>
+          </a>
         </section>
       )}
 

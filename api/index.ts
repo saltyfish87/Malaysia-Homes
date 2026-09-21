@@ -246,6 +246,16 @@ let seoProjectsCache: { projects: SeoProject[]; time: number } | null = null;
 
 // Project ids the app has always used (from src/constants/mockData.ts, keyed by the project name with
 // everything but letters and digits removed). Kept inline: the serverless function must not import app files.
+// Agent reviews on shyanyee.com, keyed by project slug. Only projects with a published review get
+// the "Agent insights" card (no site-wide cross links). Kept inline: the function cannot import from src/.
+const AGENT_REVIEWS: Record<string, { url: string; zhUrl: string; video: boolean }> = {
+  'clouthaus-res': { url: 'https://shyanyee.com/blog/clouthaus-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/clouthaus-klcc-review', video: true },
+  'orion-bid': { url: 'https://shyanyee.com/blog/orion-residence-bukit-bintang-review', zhUrl: 'https://shyanyee.com/zh/blog/orion-residence-bukit-bintang-review', video: true },
+  'pavilion-square-residences': { url: 'https://shyanyee.com/blog/pavilion-square-kl-review', zhUrl: 'https://shyanyee.com/zh/blog/pavilion-square-kl-review', video: true },
+  'khaya-bangsar': { url: 'https://shyanyee.com/blog/khaya-residence-bangsar-review', zhUrl: 'https://shyanyee.com/zh/blog/khaya-residence-bangsar-review', video: true },
+  'ren-bukit-jalil': { url: 'https://shyanyee.com/blog/ren-residence-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/ren-residence-bukit-jalil-review', video: false }
+};
+
 const APP_PROJECT_IDS: Record<string, string> = {
   "amika": "amika",
   "anya": "anya",
@@ -675,6 +685,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
     (rec && rec.facilities.length ? `<h2>Facilities</h2><p>${rec.facilities.map(escHtml).join(' · ')}</p>` : '') +
     (rec && rec.amenities.length ? `<h2>Location and nearby</h2><ul>${rec.amenities.map(a => `<li><strong>${escHtml(a.category)}:</strong> ${escHtml(a.name)}${a.distance ? ` (${escHtml(a.distance)})` : ''}</li>`).join('')}</ul>` : '') +
     (faqs.length ? `<h2>Frequently asked questions about ${escHtml(p.name)}</h2>${faqs.map(f => `<h3>${escHtml(f.q)}</h3><p>${escHtml(f.a)}</p>`).join('')}` : '') +
+    (AGENT_REVIEWS[p.slug] ? `<h2>Agent insights: ${escHtml(p.name)} review</h2><p><a href="${AGENT_REVIEWS[p.slug].url}">Read the ${escHtml(p.name)} review by ${escHtml(AGENT.name)} (${escHtml(AGENT.ren)})${AGENT_REVIEWS[p.slug].video ? ': video walkthrough, pros and cons' : ': pros and cons and recommended layouts'}</a> on shyanyee.com. <a href="${AGENT_REVIEWS[p.slug].zhUrl}" hreflang="zh">中文评测</a></p>` : '') +
     `<p>Enquiries and sales gallery appointments: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
     (others.length ? `<h2>Other projects in ${escHtml(pArea)}</h2><ul>${others.map(projectLine).join('')}</ul><p><a href="/area/${escHtml(seoSlugify(pArea))}">All new launches in ${escHtml(pArea)}</a></p>` : '') +
     `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Loan calculator</a></p>` +
@@ -1268,7 +1279,7 @@ app.get(['/api/project-seo/:slug', '/project-seo/:slug'], async (req, res) => {
     const project = findSeoProject(String(req.params.slug || ''), projects);
     if (!project) { res.status(404).json({ error: 'unknown project' }); return; }
     const rec = findProjectSeo(project, records);
-    res.json({ slug: project.slug, name: project.name, record: rec || null, faqs: projectFaqs(project, rec) });
+    res.json({ slug: project.slug, name: project.name, record: rec || null, faqs: projectFaqs(project, rec), review: AGENT_REVIEWS[project.slug] || null });
   } catch (e) {
     res.status(503).json({ error: 'unavailable' });
   }
