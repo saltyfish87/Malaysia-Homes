@@ -253,7 +253,17 @@ const AGENT_REVIEWS: Record<string, { url: string; zhUrl: string; video: boolean
   'orion-bid': { url: 'https://shyanyee.com/blog/orion-residence-bukit-bintang-review', zhUrl: 'https://shyanyee.com/zh/blog/orion-residence-bukit-bintang-review', video: true },
   'pavilion-square-residences': { url: 'https://shyanyee.com/blog/pavilion-square-kl-review', zhUrl: 'https://shyanyee.com/zh/blog/pavilion-square-kl-review', video: true },
   'khaya-bangsar': { url: 'https://shyanyee.com/blog/khaya-residence-bangsar-review', zhUrl: 'https://shyanyee.com/zh/blog/khaya-residence-bangsar-review', video: true },
-  'ren-bukit-jalil': { url: 'https://shyanyee.com/blog/ren-residence-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/ren-residence-bukit-jalil-review', video: false }
+  'ren-bukit-jalil': { url: 'https://shyanyee.com/blog/ren-residence-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/ren-residence-bukit-jalil-review', video: false },
+  'centrix': { url: 'https://shyanyee.com/blog/centrix-the-station-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/centrix-the-station-klcc-review', video: true },
+  'golden-crown': { url: 'https://shyanyee.com/blog/golden-crown-trx-review', zhUrl: 'https://shyanyee.com/zh/blog/golden-crown-trx-review', video: false },
+  'core-trx': { url: 'https://shyanyee.com/blog/core-residence-trx-review', zhUrl: 'https://shyanyee.com/zh/blog/core-residence-trx-review', video: false },
+  'phoeniz-suites': { url: 'https://shyanyee.com/blog/phoeniz-suites-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/phoeniz-suites-klcc-review', video: false },
+  'branniganz-exsim': { url: 'https://shyanyee.com/blog/branniganz-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/branniganz-klcc-review', video: false },
+  'park-green': { url: 'https://shyanyee.com/blog/park-green-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/park-green-bukit-jalil-review', video: true },
+  'oaka-res': { url: 'https://shyanyee.com/blog/oaka-residences-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/oaka-residences-bukit-jalil-review', video: false },
+  'ayanna-res': { url: 'https://shyanyee.com/blog/ayanna-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/ayanna-bukit-jalil-review', video: false },
+  'queenswoodz': { url: 'https://shyanyee.com/blog/queenswoodz-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/queenswoodz-bukit-jalil-review', video: false },
+  'kingswoodz': { url: 'https://shyanyee.com/blog/kingswoodz-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/kingswoodz-bukit-jalil-review', video: false }
 };
 
 const APP_PROJECT_IDS: Record<string, string> = {
