@@ -25,34 +25,36 @@ interface InteractiveMapProps {
 }
 
 // Beautiful open-access map layers that render perfectly on Leaflet with ZERO tokens required
+// Tile sources that need no API key. CARTO began stamping "API KEY REQUIRED" across its free
+// basemaps, which showed through on the live map, so every style here comes from a keyless provider.
 const MAP_THEMES = [
   {
-    id: 'google-standard',
-    name: 'Google Map Style',
-    nameZh: '谷歌色彩街区',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    id: 'osm-standard',
+    name: 'Classic Full Street',
+    nameZh: '经典全景街区',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '© OpenStreetMap contributors'
   },
   {
-    id: 'carto-voyager',
-    name: 'Classic Full Street',
-    nameZh: '经典全景街区',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    attribution: '© OpenStreetMap contributors © CARTO'
+    id: 'osm-hot',
+    name: 'High Contrast',
+    nameZh: '高对比街区',
+    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap contributors, Humanitarian OSM Team'
   },
   {
-    id: 'carto-light',
+    id: 'esri-light',
     name: 'Warm Minimalist Light',
     nameZh: '高雅极简浅白',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: '© OpenStreetMap contributors © CARTO'
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, © OpenStreetMap contributors'
   },
   {
-    id: 'carto-dark',
-    name: 'Branded Luxury Dark',
-    nameZh: '奢华极黑风格',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '© OpenStreetMap contributors © CARTO'
+    id: 'esri-imagery',
+    name: 'Satellite View',
+    nameZh: '卫星实景',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, Maxar, Earthstar Geographics'
   }
 ];
 
