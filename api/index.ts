@@ -248,6 +248,48 @@ let seoProjectsCache: { projects: SeoProject[]; time: number } | null = null;
 // everything but letters and digits removed). Kept inline: the serverless function must not import app files.
 // Agent reviews on shyanyee.com, keyed by project slug. Only projects with a published review get
 // the "Agent insights" card (no site-wide cross links). Kept inline: the function cannot import from src/.
+/**
+ * The agent's own walkthrough video for a project, by project slug.
+ *
+ * A viewing video is the one thing on a project page that cannot be copied from a brochure, so where
+ * one exists it goes on the page with VideoObject schema. Add a line here when a new video is filmed.
+ */
+const PROJECT_VIDEOS: Record<string, { id: string; name: string; date: string }> = {
+  'khaya-bangsar': { id: 'QHD2awCy3a4', name: 'Khaya Residences Bangsar: full walkthrough, layouts and investment view', date: '2026-09-01' },
+  'parkside-residence': { id: 'fZzT_sV0VKU', name: 'Parkside Residences Bangsar: the 5-acre park downstairs', date: '2026-08-01' },
+  'park-green': { id: '_EelMcIcXaI', name: 'Park Green Bukit Jalil by Malton: link bridge to the mall and the park view', date: '2026-07-01' },
+  'centrix': { id: 'KyYFl2cz4Vw', name: 'Centrix The Station: a TOD tower straight onto the LRT', date: '2026-06-01' },
+  'orion-bid': { id: 'US1SR88AwhQ', name: 'Orion Residence: show units, services and the Bukit Bintang walk', date: '2026-03-01' },
+  'clouthaus-res': { id: 'Xya5mG87R-Q', name: 'CloutHaus: facing the Petronas Twin Towers, dual-key show unit', date: '2026-02-01' },
+  'pavilion-square-residences': { id: 'Ip9wDev_pF4', name: 'Pavilion Square: the private bridge into Pavilion Kuala Lumpur', date: '2026-02-01' },
+  'conlay': { id: 'C0EZN_aLaKQ', name: 'The Conlay Residence by E&O and Mitsui Fudosan', date: '2026-01-01' }
+};
+
+/** Thumbnail, watch link and VideoObject: crawlers get the markup, readers get a real link. */
+function projectVideoHtml(slug: string, projectName: string): string {
+  const v = PROJECT_VIDEOS[slug];
+  if (!v) return '';
+  return `<h2>Video walkthrough of ${escHtml(projectName)}</h2>` +
+    `<p><a href="https://www.youtube.com/watch?v=${escHtml(v.id)}" rel="noopener">` +
+    `<img src="https://i.ytimg.com/vi/${escHtml(v.id)}/hqdefault.jpg" alt="${escHtml(v.name)}" width="480" height="360" loading="lazy" /></a></p>` +
+    `<p><a href="https://www.youtube.com/watch?v=${escHtml(v.id)}" rel="noopener">Watch: ${escHtml(v.name)}</a> — filmed on site by ${escHtml(AGENT.name)} (${escHtml(AGENT.ren)}).</p>`;
+}
+
+function projectVideoSchema(slug: string, projectName: string) {
+  const v = PROJECT_VIDEOS[slug];
+  if (!v) return null;
+  return {
+    '@type': 'VideoObject',
+    'name': v.name,
+    'description': `On-site walkthrough of ${projectName} by ${AGENT.name}, ${AGENT.ren}, ${AGENT.company}.`,
+    'thumbnailUrl': `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`,
+    'uploadDate': v.date,
+    'contentUrl': `https://www.youtube.com/watch?v=${v.id}`,
+    'embedUrl': `https://www.youtube-nocookie.com/embed/${v.id}`,
+    'publisher': { '@type': 'Organization', 'name': AGENT.company }
+  };
+}
+
 const AGENT_REVIEWS: Record<string, { url: string; zhUrl: string; video: boolean }> = {
   'clouthaus-res': { url: 'https://shyanyee.com/blog/clouthaus-kl-city-centre-review', zhUrl: 'https://shyanyee.com/zh/blog/clouthaus-kl-city-centre-review', video: true },
   'orion-bid': { url: 'https://shyanyee.com/blog/orion-residence-bukit-bintang-review', zhUrl: 'https://shyanyee.com/zh/blog/orion-residence-bukit-bintang-review', video: true },
@@ -664,6 +706,8 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
       'additionalProperty': factRows.map(([name, value]) => ({ '@type': 'PropertyValue', 'name': name, 'value': value }))
     }
   ];
+  const vid = projectVideoSchema(p.slug, p.name);
+  if (vid) graph.push(vid);
   if (faqs.length) graph.push({ '@type': 'FAQPage', '@id': `${canonical}#faq`, 'mainEntity': faqs.map(f => ({ '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a } })) });
   const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 2).replace(/<\//g, '<\\/');
 
@@ -688,6 +732,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
     `<nav aria-label="Breadcrumb"><a href="/">Home</a> › ${pArea ? `<a href="/area/${escHtml(seoSlugify(pArea))}">${escHtml(pArea)}</a>` : `<a href="/residences">Residences</a>`} › ${escHtml(p.name)}</nav>` +
     `<article><h1>${escHtml(p.name)} ${escHtml(p.area)}</h1><p>${escHtml(description)}</p>` +
     (rec && rec.description ? `<p>${escHtml(rec.description)}</p>` : '') +
+    projectVideoHtml(p.slug, p.name) +
     `<h2>${escHtml(p.name)} project information</h2>${table}` +
     (p.notes ? `<p>${escHtml(p.notes)}</p>` : '') +
     (rec && rec.layouts.length ? `<h2>Unit types and floor plans</h2><table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Type</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Built-up</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Bedrooms</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Bathrooms</th></tr></thead><tbody>${rec.layouts.map(l => `<tr><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.type)}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${l.sqft ? `${fmtNum(l.sqft)} sq ft` : '–'}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.beds || '–')}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.baths || '–')}</td></tr>`).join('')}</tbody></table>` : '') +
