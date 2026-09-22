@@ -973,6 +973,169 @@ function renderAreaHtml(indexHtml: string, a: SeoArea, allAreas: SeoArea[]): str
   return html;
 }
 
+/**
+ * Comparison pages: /compare/<a>-vs-<b>.
+ *
+ * Buyers at the end of their search are choosing between two named projects, and that is what they
+ * type. Pairs are built from the live sheet — same area, and close enough in price that the choice is
+ * real — so the set grows by itself as projects are added. Every figure on the page comes from the
+ * same rows the project pages use; nothing is written by hand.
+ */
+interface ComparePair { slug: string; a: SeoProject; b: SeoProject; area: string }
+
+/** Same area, overlapping budget, both priced: the pairs a buyer would actually weigh against each other. */
+function buildComparePairs(projects: SeoProject[]): ComparePair[] {
+  // Group by EVERY area a project sits in, not just the first one: "Bukit Bintang / KL City Centre"
+  // and "KL City Centre" are the same neighbourhood to a buyer, and taking only the first token put
+  // them in different buckets.
+  const byArea: Record<string, SeoProject[]> = {};
+  for (const p of projects) {
+    if (!p.priceMin || !p.area) continue;
+    for (const name of areaTokens(p.area)) (byArea[name] ||= []).push(p);
+  }
+  const pairs: ComparePair[] = [];
+  const seen = new Set<string>();
+  for (const [area, list] of Object.entries(byArea)) {
+    const sorted = [...list].sort((x, y) => x.priceMin - y.priceMin);
+    for (let i = 0; i < sorted.length; i++) {
+      for (let j = i + 1; j < sorted.length; j++) {
+        const a = sorted[i], b = sorted[j];
+        // Within 60% of each other: past that the buyer is not really choosing between them.
+        if (b.priceMin > a.priceMin * 1.6) break;
+        const slug = `${a.slug}-vs-${b.slug}`;
+        const flipped = `${b.slug}-vs-${a.slug}`;
+        if (seen.has(slug) || seen.has(flipped)) continue;
+        seen.add(slug);
+        pairs.push({ slug, a, b, area });
+      }
+    }
+  }
+  return pairs;
+}
+
+function findComparePair(slug: string, projects: SeoProject[]): ComparePair | null {
+  const want = String(slug || '').toLowerCase().replace(/\/$/, '');
+  const pairs = buildComparePairs(projects);
+  const hit = pairs.find(p => p.slug === want);
+  if (hit) return hit;
+  // Also answer the reversed order rather than 404 on it.
+  const flipped = pairs.find(p => `${p.b.slug}-vs-${p.a.slug}` === want);
+  return flipped ? { slug: want, a: flipped.b, b: flipped.a, area: flipped.area } : null;
+}
+
+/** The rows a buyer actually weighs, in the order they ask about them. */
+function compareRows(a: SeoProject, b: SeoProject): { label: string; a: string; b: string }[] {
+  const price = (p: SeoProject) => p.priceMin ? `from ${fmtRM(p.priceMin)}${p.priceMax > p.priceMin ? ` to ${fmtRM(p.priceMax)}` : ''}` : '';
+  const size = (p: SeoProject) => p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '';
+  const beds = (p: SeoProject) => p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''}` : '';
+  const done = (p: SeoProject) => [p.completionStatus, p.estCompletionDate || p.completionYear].filter(Boolean).join(' ');
+  return [
+    { label: 'Developer', a: a.developer, b: b.developer },
+    { label: 'Address', a: a.address || a.location, b: b.address || b.location },
+    { label: 'Tenure', a: a.tenure, b: b.tenure },
+    { label: 'Land title', a: a.landTitle, b: b.landTitle },
+    { label: 'Property type', a: a.propertyType, b: b.propertyType },
+    { label: 'Price', a: price(a), b: price(b) },
+    { label: 'Price psf', a: a.pricePsf, b: b.pricePsf },
+    { label: 'Built-up', a: size(a), b: size(b) },
+    { label: 'Bedrooms', a: beds(a), b: beds(b) },
+    { label: 'Total units', a: a.totalUnits, b: b.totalUnits },
+    { label: 'Blocks / floors', a: [a.blocks, a.floors].filter(Boolean).join(' / '), b: [b.blocks, b.floors].filter(Boolean).join(' / ') },
+    { label: 'Car parks', a: [a.carparkMin, a.carparkMax].filter(Boolean).join('-'), b: [b.carparkMin, b.carparkMax].filter(Boolean).join('-') },
+    { label: 'Maintenance fee', a: a.maintenanceFee, b: b.maintenanceFee },
+    { label: 'Completion', a: done(a), b: done(b) }
+  ].filter(r => r.a || r.b);
+}
+
+/** Differences worth a sentence, stated as facts only — the reader decides which matters to them. */
+function compareVerdict(a: SeoProject, b: SeoProject): string[] {
+  const out: string[] = [];
+  if (a.priceMin && b.priceMin && a.priceMin !== b.priceMin) {
+    const lo = a.priceMin < b.priceMin ? a : b, hi = lo === a ? b : a;
+    out.push(`${lo.name} starts lower, at ${fmtRM(lo.priceMin)} against ${fmtRM(hi.priceMin)}.`);
+  }
+  if (a.tenure && b.tenure && a.tenure !== b.tenure) out.push(`${a.name} is ${a.tenure.toLowerCase()}; ${b.name} is ${b.tenure.toLowerCase()}.`);
+  if (a.landTitle && b.landTitle && a.landTitle !== b.landTitle) out.push(`Land title differs: ${a.name} is ${a.landTitle.toLowerCase()}, ${b.name} is ${b.landTitle.toLowerCase()}. Residential title is billed at domestic utility rates.`);
+  const fa = parseFloat(String(a.maintenanceFee).replace(/[^0-9.]/g, '')), fb = parseFloat(String(b.maintenanceFee).replace(/[^0-9.]/g, ''));
+  if (isFinite(fa) && isFinite(fb) && fa !== fb) {
+    const lo = fa < fb ? a : b;
+    out.push(`${lo.name} has the lower monthly charge, at ${lo.maintenanceFee}.`);
+  }
+  if (a.builtUpMax && b.builtUpMax && a.builtUpMax !== b.builtUpMax) {
+    const big = a.builtUpMax > b.builtUpMax ? a : b;
+    out.push(`${big.name} goes larger, up to ${fmtNum(big.builtUpMax)} sq ft.`);
+  }
+  const ua = parseInt(String(a.totalUnits).replace(/[^0-9]/g, ''), 10), ub = parseInt(String(b.totalUnits).replace(/[^0-9]/g, ''), 10);
+  if (isFinite(ua) && isFinite(ub) && ua !== ub) {
+    const small = ua < ub ? a : b;
+    out.push(`${small.name} is the smaller community, at ${fmtNum(small === a ? ua : ub)} units.`);
+  }
+  const ya = parseInt(String(a.completionYear).replace(/[^0-9]/g, '').slice(0, 4), 10), yb = parseInt(String(b.completionYear).replace(/[^0-9]/g, '').slice(0, 4), 10);
+  if (isFinite(ya) && isFinite(yb) && ya !== yb) {
+    const early = ya < yb ? a : b;
+    out.push(`${early.name} completes earlier, in ${early.completionYear}.`);
+  }
+  return out;
+}
+
+function compareFaqs(a: SeoProject, b: SeoProject): { q: string; a: string }[] {
+  const faqs: { q: string; a: string }[] = [];
+  if (a.priceMin && b.priceMin) faqs.push({ q: `Which is cheaper, ${a.name} or ${b.name}?`, a: `${a.priceMin <= b.priceMin ? a.name : b.name} has the lower developer list price, from ${fmtRM(Math.min(a.priceMin, b.priceMin))}. ${a.priceMin <= b.priceMin ? b.name : a.name} starts from ${fmtRM(Math.max(a.priceMin, b.priceMin))}. Price lists change with each release, so confirm the current one.` });
+  if (a.tenure || b.tenure) faqs.push({ q: `Is ${a.name} or ${b.name} freehold?`, a: `${a.name} is ${a.tenure || 'not stated'}; ${b.name} is ${b.tenure || 'not stated'}.` });
+  if (a.maintenanceFee || b.maintenanceFee) faqs.push({ q: `How do the maintenance fees compare?`, a: `${a.name}: ${a.maintenanceFee || 'not stated'}. ${b.name}: ${b.maintenanceFee || 'not stated'}. The sale and purchase agreement governs the final rate.` });
+  if (a.completionYear || b.completionYear) faqs.push({ q: `Which one is ready first?`, a: `${a.name}: ${[a.completionStatus, a.estCompletionDate || a.completionYear].filter(Boolean).join(' ') || 'not stated'}. ${b.name}: ${[b.completionStatus, b.estCompletionDate || b.completionYear].filter(Boolean).join(' ') || 'not stated'}.` });
+  faqs.push({ q: `Can I view both ${a.name} and ${b.name} on the same day?`, a: `Yes. Both are in the same area. WhatsApp ${AGENT.name} (${AGENT.ren}, ${AGENT.company}) on ${AGENT.telephoneDisplay} to arrange back-to-back viewings.` });
+  return faqs;
+}
+
+function renderCompareHtml(indexHtml: string, pair: ComparePair, projects: SeoProject[]): string {
+  const { a, b } = pair;
+  const canonical = `${SITE_URL}/compare/${a.slug}-vs-${b.slug}`;
+  const area = pair.area || primaryArea(a);
+  const title = `${a.name} vs ${b.name} | Price, Size, Tenure Compared | propertyportal.my`;
+  const description = `Side-by-side comparison of ${a.name} and ${b.name} in ${area}: developer list price, built-up, tenure, total units, maintenance fee and completion, from the developer data.`;
+  const rows = compareRows(a, b);
+  const verdict = compareVerdict(a, b);
+  const faqs = compareFaqs(a, b);
+
+  const graph = baseGraph();
+  graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Compare', 'item': `${SITE_URL}/compare` },
+    { '@type': 'ListItem', 'position': 3, 'name': `${a.name} vs ${b.name}`, 'item': canonical }
+  ] });
+  graph.push({ '@type': 'WebPage', '@id': `${canonical}#page`, 'url': canonical, 'name': title, 'description': description, 'isPartOf': { '@id': `${SITE_URL}/#website` },
+    'mainEntity': { '@type': 'ItemList', 'numberOfItems': 2, 'itemListElement': [a, b].map((p, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': p.name, 'url': `${SITE_URL}/project/${p.slug}` })) } });
+  graph.push({ '@type': 'FAQPage', '@id': `${canonical}#faq`, 'mainEntity': faqs.map(x => ({ '@type': 'Question', 'name': x.q, 'acceptedAnswer': { '@type': 'Answer', 'text': x.a } })) });
+
+  const table = `<table style="border-collapse:collapse;width:100%;margin:12px 0">` +
+    `<thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4"></th>` +
+    `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${escHtml(a.name)}</th>` +
+    `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${escHtml(b.name)}</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(r.label)}</th>` +
+      `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(r.a || '—')}</td>` +
+      `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(r.b || '—')}</td></tr>`).join('') +
+    `</tbody></table>`;
+
+  const others = buildComparePairs(projects).filter(p => p.slug !== pair.slug && p.area === area).slice(0, 8);
+
+  const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/compare">Compare</a> › ${escHtml(a.name)} vs ${escHtml(b.name)}</nav>` +
+    `<h1>${escHtml(a.name)} vs ${escHtml(b.name)}</h1>` +
+    `<p>Both are in ${escHtml(area)}. The table below is the developer data for each, side by side.</p>` +
+    `<h2>Side-by-side comparison</h2>${table}` +
+    (verdict.length ? `<h2>What actually differs</h2><ul>${verdict.map(v => `<li>${escHtml(v)}</li>`).join('')}</ul>` : '') +
+    `<h2>Full details</h2><p><a href="/project/${escHtml(a.slug)}">${escHtml(a.name)} floor plans, facilities and nearby places</a> · <a href="/project/${escHtml(b.slug)}">${escHtml(b.name)} floor plans, facilities and nearby places</a></p>` +
+    `<h2>Frequently asked questions</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
+    (others.length ? `<h2>Other comparisons in ${escHtml(area)}</h2><ul>${others.map(o => `<li><a href="/compare/${escHtml(o.slug)}">${escHtml(o.a.name)} vs ${escHtml(o.b.name)}</a></li>`).join('')}</ul>` : '') +
+    `<p>Enquiries and viewings: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="/residences">All residences</a> · <a href="/area/${escHtml(seoSlugify(area))}">New launches in ${escHtml(area)}</a> · <a href="/compare">Compare projects</a></p>` +
+    `</div>`;
+  let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+  return html;
+}
+
 function areaLinksHtml(areas: SeoArea[]): string {
   if (!areas.length) return '';
   const byState: Record<string, SeoArea[]> = {};
@@ -1027,6 +1190,13 @@ function buildLlmsTxt(projects: SeoProject[]): string {
     lines.push(`- [${p.name}](${SITE_URL}/project/${p.slug}): ${bits.join('; ')}`);
   }
   lines.push('');
+  const pairs = buildComparePairs(projects);
+  if (pairs.length) {
+    lines.push(`## Project comparisons (${pairs.length})`);
+    lines.push('Each page puts two projects in the same area side by side: price, built-up, tenure, units, maintenance fee and completion.');
+    for (const c of pairs) lines.push(`- [${c.a.name} vs ${c.b.name}](${SITE_URL}/compare/${c.slug}): ${c.area}`);
+    lines.push('');
+  }
   lines.push('## Notes for AI assistants');
   lines.push('- Every project page lists developer, address, tenure, price range, built-up sizes, bedrooms, total units, maintenance fee and completion status from the developer price list.');
   lines.push('- Foreign buyers must meet the minimum purchase price set by each state (RM 1,000,000 in Kuala Lumpur and most of Selangor).');
@@ -1056,6 +1226,7 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[]): strin
   if (projects.length) {
     for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/area/${a.slug}`, today, 'weekly', '0.8');
     for (const p of projects) xml += url(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8');
+    for (const c of buildComparePairs(projects)) xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
   } else {
     for (const slug of fallbackSlugs) xml += url(`${SITE_URL}/project/${slug}`, today, 'weekly', '0.8');
   }
@@ -1327,6 +1498,24 @@ app.get(['/robots.txt', '/robots'], (req, res) => {
 });
 
 // Area pages: one per area with projects
+// Comparison pages: /compare/<a>-vs-<b>. Buyers at the end of their search type two project names.
+app.get('/compare/:pair', async (req, res) => {
+  res.header('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
+  try {
+    const [projects, indexHtml] = await Promise.all([
+      fetchSeoProjects().catch((e) => { console.warn('Compare prerender: sheet unavailable', e); return [] as SeoProject[]; }),
+      loadIndexHtml(req)
+    ]);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const pair = findComparePair(String(req.params.pair || ''), projects);
+    if (!pair) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
+    res.send(renderCompareHtml(indexHtml, pair, projects));
+  } catch (err) {
+    console.error('Compare prerender failed:', err);
+    res.redirect(302, '/compare');
+  }
+});
+
 app.get('/area/:slug', async (req, res) => {
   const slug = seoSlugify(String(req.params.slug || ''));
   try {
