@@ -249,16 +249,16 @@ let seoProjectsCache: { projects: SeoProject[]; time: number } | null = null;
 // Agent reviews on shyanyee.com, keyed by project slug. Only projects with a published review get
 // the "Agent insights" card (no site-wide cross links). Kept inline: the function cannot import from src/.
 const AGENT_REVIEWS: Record<string, { url: string; zhUrl: string; video: boolean }> = {
-  'clouthaus-res': { url: 'https://shyanyee.com/blog/clouthaus-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/clouthaus-klcc-review', video: true },
+  'clouthaus-res': { url: 'https://shyanyee.com/blog/clouthaus-kl-city-centre-review', zhUrl: 'https://shyanyee.com/zh/blog/clouthaus-kl-city-centre-review', video: true },
   'orion-bid': { url: 'https://shyanyee.com/blog/orion-residence-bukit-bintang-review', zhUrl: 'https://shyanyee.com/zh/blog/orion-residence-bukit-bintang-review', video: true },
   'pavilion-square-residences': { url: 'https://shyanyee.com/blog/pavilion-square-kl-review', zhUrl: 'https://shyanyee.com/zh/blog/pavilion-square-kl-review', video: true },
   'khaya-bangsar': { url: 'https://shyanyee.com/blog/khaya-residence-bangsar-review', zhUrl: 'https://shyanyee.com/zh/blog/khaya-residence-bangsar-review', video: true },
   'ren-bukit-jalil': { url: 'https://shyanyee.com/blog/ren-residence-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/ren-residence-bukit-jalil-review', video: false },
-  'centrix': { url: 'https://shyanyee.com/blog/centrix-the-station-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/centrix-the-station-klcc-review', video: true },
+  'centrix': { url: 'https://shyanyee.com/blog/centrix-the-station-kl-city-centre-review', zhUrl: 'https://shyanyee.com/zh/blog/centrix-the-station-kl-city-centre-review', video: true },
   'golden-crown': { url: 'https://shyanyee.com/blog/golden-crown-trx-review', zhUrl: 'https://shyanyee.com/zh/blog/golden-crown-trx-review', video: false },
   'core-trx': { url: 'https://shyanyee.com/blog/core-residence-trx-review', zhUrl: 'https://shyanyee.com/zh/blog/core-residence-trx-review', video: false },
-  'phoeniz-suites': { url: 'https://shyanyee.com/blog/phoeniz-suites-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/phoeniz-suites-klcc-review', video: false },
-  'branniganz-exsim': { url: 'https://shyanyee.com/blog/branniganz-klcc-review', zhUrl: 'https://shyanyee.com/zh/blog/branniganz-klcc-review', video: false },
+  'phoeniz-suites': { url: 'https://shyanyee.com/blog/phoeniz-suites-kl-city-centre-review', zhUrl: 'https://shyanyee.com/zh/blog/phoeniz-suites-kl-city-centre-review', video: false },
+  'branniganz-exsim': { url: 'https://shyanyee.com/blog/branniganz-kl-city-centre-review', zhUrl: 'https://shyanyee.com/zh/blog/branniganz-kl-city-centre-review', video: false },
   'park-green': { url: 'https://shyanyee.com/blog/park-green-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/park-green-bukit-jalil-review', video: true },
   'oaka-res': { url: 'https://shyanyee.com/blog/oaka-residences-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/oaka-residences-bukit-jalil-review', video: false },
   'ayanna-res': { url: 'https://shyanyee.com/blog/ayanna-bukit-jalil-review', zhUrl: 'https://shyanyee.com/zh/blog/ayanna-bukit-jalil-review', video: false },
@@ -745,7 +745,7 @@ const STATIC_ROUTES: Record<string, { title: string; description: string; crumb:
   },
   '/map': {
     title: 'Interactive Property Map Directory | Kuala Lumpur & Selangor Real Estate',
-    description: 'Explore properties on an interactive geographic map across Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, KLCC, and Johor.',
+    description: 'Explore properties on an interactive geographic map across Kwasa Damansara, Petaling Jaya, Subang Jaya, Puchong, Bukit Jalil, KL City Centre, and Johor.',
     crumb: 'Map', h1: 'New Launch Property Map: Kuala Lumpur, Selangor & Johor', index: true
   },
   '/favorites': { title: 'Saved Properties | propertyportal.my', description: 'Your shortlisted projects on propertyportal.my.', crumb: 'Favorites', h1: 'Saved Properties', index: false },
@@ -849,8 +849,8 @@ function renderNotFoundHtml(indexHtml: string): string {
 interface SeoArea { slug: string; name: string; state: string; projects: SeoProject[] }
 
 // Canonical area names (same list as the app's area filter). A sheet value like
-// "KLCC / Bukit Bintang" belongs to both KLCC and Bukit Bintang; a bare state name is not an area.
-const CANONICAL_AREAS = ['Bangsar', 'Bukit Bintang', 'Bukit Jalil', 'Chan Sow Lin', 'Cheras', 'KLCC', 'Kuchai Lama', 'Old Klang Road', 'OUG', 'Sentul', 'Seputeh', 'Sri Petaling', 'Sungai Besi', 'Taman Desa', 'TRX',
+// "KL City Centre / Bukit Bintang" belongs to both KL City Centre and Bukit Bintang; a bare state name is not an area.
+const CANONICAL_AREAS = ['Bangsar', 'Bukit Bintang', 'Bukit Jalil', 'Chan Sow Lin', 'Cheras', 'KL City Centre', 'Kuchai Lama', 'Old Klang Road', 'OUG', 'Sentul', 'Seputeh', 'Sri Petaling', 'Sungai Besi', 'Taman Desa', 'TRX',
   'Damansara', 'Kwasa Damansara', 'Petaling Jaya', 'Puchong', 'Shah Alam', 'Subang Jaya', 'USJ',
   'Johor Bahru', 'Iskandar Puteri', 'Mount Austin', 'Puteri Harbour', 'Tebrau',
   'Bayan Lepas', 'Batu Ferringhi', 'Georgetown', 'Gurney Drive', 'Tanjung Tokong'];

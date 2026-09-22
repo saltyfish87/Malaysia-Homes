@@ -150,7 +150,7 @@ export const ALL_PROJECTS_SEO: Record<string, ProjectSEOInfo> = {
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
     highlights: [
       'Prime Freehold transit-oriented residence in Chan Sow Lin, Kuala Lumpur',
-      '1 MRT stop to Tun Razak Exchange (TRX Financial Hub) & 3 stops to KLCC East',
+      '1 MRT stop to Tun Razak Exchange (TRX Financial Hub) & 3 stops to KL City Centre East',
       'Direct dual-line connectivity via Chan Sow Lin MRT & LRT interchange stations',
       'Sky Infinity Pool & Co-working Lounge with panoramic views of TRX and Merdeka 118',
       'Versatile layouts from 550 sqft (1-2 bed) to 1,420 sqft (dual-key 4 bed)'
@@ -173,7 +173,7 @@ export const ALL_PROJECTS_SEO: Record<string, ProjectSEOInfo> = {
       },
       {
         q: 'How close is Aricia Residences to Tun Razak Exchange (TRX) and MRT stations?',
-        a: 'Aricia Residences is located within short walking distance to the Chan Sow Lin MRT & LRT interchange, placing it just 1 MRT stop away from Tun Razak Exchange (TRX) and 3 stops from KLCC East.'
+        a: 'Aricia Residences is located within short walking distance to the Chan Sow Lin MRT & LRT interchange, placing it just 1 MRT stop away from Tun Razak Exchange (TRX) and 3 stops from KL City Centre East.'
       },
       {
         q: 'What layout floor plans are available at Aricia Residences?',
@@ -266,7 +266,7 @@ export const ALL_PROJECTS_SEO: Record<string, ProjectSEOInfo> = {
       'The only Freehold residential address situated inside the TRX Financial Hub',
       'Direct indoor pedestrian link to TRX Mall and The Exchange 106 skyscraper',
       'Dual-line TRX MRT interchange station (Kajang Line & Putrajaya Line) at doorstep',
-      'Sky Infinity Lap Pool on Level 50 offering world-class KLCC skyline vistas',
+      'Sky Infinity Lap Pool on Level 50 offering world-class KL City Centre skyline vistas',
       'High international investor rental yields from multinational banking executives'
     ],
     amenities: [

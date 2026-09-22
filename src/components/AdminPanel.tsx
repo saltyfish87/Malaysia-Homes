@@ -46,7 +46,7 @@ export default function AdminPanel({
   const [formName, setFormName] = useState<string>('');
   const [formDev, setFormDev] = useState<string>('');
   const [formState, setFormState] = useState<MalaysianState>('Kuala Lumpur');
-  const [formArea, setFormArea] = useState<string>('KLCC');
+  const [formArea, setFormArea] = useState<string>('KL City Centre');
   const [formPriceMin, setFormPriceMin] = useState<number>(450000);
   const [formPriceMax, setFormPriceMax] = useState<number>(950000);
   const [formType, setFormType] = useState<PropertyType>('Serviced Apartment');
@@ -115,7 +115,7 @@ export default function AdminPanel({
     setFormName('');
     setFormDev('EcoWorld Development');
     setFormState('Kuala Lumpur');
-    setFormArea('KLCC');
+    setFormArea('KL City Centre');
     setFormPriceMin(450000);
     setFormPriceMax(950000);
     setFormType('Serviced Apartment');

@@ -13,7 +13,7 @@ export const STATE_AREAS: Record<string, string[]> = {
     'Bukit Jalil',
     'Chan Sow Lin',
     'Cheras',
-    'KLCC',
+    'KL City Centre',
     'Kuchai Lama',
     'Old Klang Road',
     'OUG',
@@ -122,7 +122,7 @@ const DETAILED_PROJECT_TUPLES: ProjectTuple[] = [
   ['ayanna-res', 'Ayanna', 'BKSP Autoworld Sdn Bhd', 'Kuala Lumpur', 'Bukit Jalil', 753000, 911000, 2027, 'Condo', 'Freehold', 1155, 2453, 3, 3.0581, 101.6502],
   ['bangsar-hill-bc', 'Bangsar Hill Park – Tower B & C', 'Bangsar Hill Park Development Sdn Bhd', 'Kuala Lumpur', 'Bangsar', 1123000, 1742000, 2028, 'Condo', 'Leasehold', 917, 1478, 2, 3.1252, 101.6749],
   ['bangsar-hill-verdura', 'Bangsar Hill Park – Verdura (Tower D & E)', 'Bangsar Hill Park Development Sdn Bhd', 'Kuala Lumpur', 'Bangsar', 1200000, 1800000, 2029, 'Condo', 'Leasehold', 917, 1478, 2, 3.1260, 101.6760],
-  ['clouthaus-res', 'CloutHaus', 'TA Global', 'Kuala Lumpur', 'KLCC', 1548800, 4694800, 2029, 'Serviced Apartment', 'Freehold', 549, 1216, 1, 3.1580, 101.7140],
+  ['clouthaus-res', 'CloutHaus', 'TA Global', 'Kuala Lumpur', 'KL City Centre', 1548800, 4694800, 2029, 'Serviced Apartment', 'Freehold', 549, 1216, 1, 3.1580, 101.7140],
   ['core-trx', 'Core Residence @ TRX', 'Core Precious Development Sdn Bhd', 'Kuala Lumpur', 'TRX', 1500000, 4660000, 2025, 'Serviced Apartment', 'Freehold', 622, 1572, 1, 3.1415, 101.7185],
   ['genstarz-res', 'GenStarz', 'Majestic Gen Sdn Bhd', 'Kuala Lumpur', 'Old Klang Road', 593000, 867000, 2028, 'Serviced Apartment', 'Freehold', 650, 874, 1, 3.0903, 101.6754],
   ['luminar-subang', 'Luminar Residence (Federal Avenue)', 'BRDB', 'Selangor', 'Subang Jaya', 356000, 1027000, 2029, 'Serviced Apartment', 'Freehold', 549, 1389, 1, 3.0812, 101.5822],
@@ -144,8 +144,8 @@ const DETAILED_PROJECT_TUPLES: ProjectTuple[] = [
   ['aras-wcity', 'Aras (WCity OUG)', 'WCT OUG Development Sdn Bhd', 'Kuala Lumpur', 'OUG', 666000, 950000, 2029, 'Serviced Apartment', 'Freehold', 850, 1062, 2, 3.0645, 101.6631],
   ['vividz-res', 'The Vividz', 'Exsim Bukit Jalil City Sdn Bhd', 'Kuala Lumpur', 'Old Klang Road', 446400, 850000, 2030, 'Serviced Apartment', 'Leasehold', 484, 915, 1, 3.0459, 101.6662],
   ['khaya-bangsar', 'Khaya Residence', 'Bayu Mantap Sdn Bhd', 'Kuala Lumpur', 'Bangsar', 893000, 1694000, 2029, 'Serviced Apartment', 'Leasehold', 630, 1321, 1, 3.1310, 101.6795],
-  ['phoeniz-suites', 'Phoeniz Suites @ KL City Centre', 'Exsim', 'Kuala Lumpur', 'KLCC', 1016400, 1421600, 2031, 'Serviced Apartment', 'Freehold', 484, 678, 1, 3.1610, 101.7126],
-  ['branniganz-exsim', 'Branniganz', 'Exsim (Lembaran Beruntung Sdn Bhd)', 'Kuala Lumpur', 'KLCC', 803500, 1200000, 2028, 'Serviced Apartment', 'Leasehold', 344, 678, 0, 3.1605, 101.7135],
+  ['phoeniz-suites', 'Phoeniz Suites @ KL City Centre', 'Exsim', 'Kuala Lumpur', 'KL City Centre', 1016400, 1421600, 2031, 'Serviced Apartment', 'Freehold', 484, 678, 1, 3.1610, 101.7126],
+  ['branniganz-exsim', 'Branniganz', 'Exsim (Lembaran Beruntung Sdn Bhd)', 'Kuala Lumpur', 'KL City Centre', 803500, 1200000, 2028, 'Serviced Apartment', 'Leasehold', 344, 678, 0, 3.1605, 101.7135],
   ['alora-subang', 'Alora Residence', 'Avaland (USJ Citypoint Sdn Bhd)', 'Selangor', 'Subang Jaya', 470800, 995800, 2027, 'Serviced Apartment', 'Freehold', 568, 1457, 1, 3.0227, 101.5815],
   ['loop-city', 'Loop City @ Puchong', 'Glomac (Glomac Albatha Sdn Bhd)', 'Selangor', 'Puchong', 365610, 612317, 2028, 'Serviced Apartment', 'Leasehold', 450, 750, 0, 3.0312, 101.6167]
 ];
@@ -230,7 +230,7 @@ export const MOCK_PROJECTS: Project[] = [
     if (projId === 'aricia') {
       keyHighlights = [
         "Prime Freehold transit-oriented residence in vibrant Chan Sow Lin, Kuala Lumpur",
-        "Just 1 MRT stop to Tun Razak Exchange (TRX Financial Hub) & 3 stops to KLCC East",
+        "Just 1 MRT stop to Tun Razak Exchange (TRX Financial Hub) & 3 stops to KL City Centre East",
         "Direct dual-line connectivity via Chan Sow Lin MRT & LRT interchange stations",
         "Panoramic city skyline views facing Tun Razak Exchange (TRX) and Merdeka 118",
         "Diverse flexible layouts from 550 sqft (1-2 bed) to 1,420 sqft (dual-key 4 bed)",
@@ -244,7 +244,7 @@ export const MOCK_PROJECTS: Project[] = [
         "Pavilion Kuala Lumpur & Bukit Bintang (3.5km)",
         "Prince Court Medical Centre (3.2km)"
       ];
-      description = "Aricia Residences by Fiamma Properties is an exceptional Freehold luxury residential development situated in Chan Sow Lin, Kuala Lumpur. Engineered for modern urban executives, savvy investors, and multi-generational families, Aricia offers exceptional connectivity to the TRX Financial Hub and downtown KLCC via rapid transit links. Featuring masterfully planned architectural suites, high-ceiling layouts, Sky Infinity Pool overlooking the KL skyline, multi-tier biometric security, and premium developer fittings.";
+      description = "Aricia Residences by Fiamma Properties is an exceptional Freehold luxury residential development situated in Chan Sow Lin, Kuala Lumpur. Engineered for modern urban executives, savvy investors, and multi-generational families, Aricia offers exceptional connectivity to the TRX Financial Hub and downtown KL City Centre via rapid transit links. Featuring masterfully planned architectural suites, high-ceiling layouts, Sky Infinity Pool overlooking the KL skyline, multi-tier biometric security, and premium developer fittings.";
       image = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80';
       gallery = [
         'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
@@ -553,10 +553,10 @@ export const MOCK_ARTICLES: Article[] = [
     readTimeZh: '阅读需要4分钟',
     date: 'June 18, 2026',
     dateZh: '2026年6月18日',
-    summary: 'Discover key micro-locations in Bukit Bintang and KLCC achieving over 7-8% net rental yield with professional hosting operators.',
-    summaryZh: '为您揭秘武吉免登与吉隆坡城中城（KLCC）周边年净收益率超越7%-8%的宝藏民宿商圈。',
+    summary: 'Discover key micro-locations in Bukit Bintang and KL City Centre achieving over 7-8% net rental yield with professional hosting operators.',
+    summaryZh: '为您揭秘武吉免登与吉隆坡城中城（KL City Centre）周边年净收益率超越7%-8%的宝藏民宿商圈。',
     content: 'Airbnb demand in Malaysia has skyrocketed, fueled by high-tech corporate hubs and tourist crowds. The most profitable locations remain within 500 meters of iconic transit nodes or major shopping gallerias. Projects located directly close to TRX or Bukit Bintang are generating double the yields of classic residential suburbs. When acquiring properties for this purpose, ensure the management guidelines explicitly allow commercial short-term let operations, and choose layouts with smart locks and dual-key functionality.',
-    contentZh: '吉隆坡旅游业的蓬勃发展让民宿短租市场收益可观。寻求高租金回报的投资者应锁定距离主要商圈和轻轨站500米以内的黄金地段。武吉免登、城中城（KLCC）以及新金融中心敦拉萨（TRX）周边的短租房源，年净收益率往往可达7%至9%。购买时务必确认大楼管理条例允许商业短租，并优先选择配有智能门锁的双钥匙户型，以便于托管。'
+    contentZh: '吉隆坡旅游业的蓬勃发展让民宿短租市场收益可观。寻求高租金回报的投资者应锁定距离主要商圈和轻轨站500米以内的黄金地段。武吉免登、城中城（KL City Centre）以及新金融中心敦拉萨（TRX）周边的短租房源，年净收益率往往可达7%至9%。购买时务必确认大楼管理条例允许商业短租，并优先选择配有智能门锁的双钥匙户型，以便于托管。'
   },
   {
     id: 'guide-loan-secrets-3',

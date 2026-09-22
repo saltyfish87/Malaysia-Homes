@@ -15,7 +15,7 @@ import { Project, Lead, MalaysianState, PropertyType, CurrencyCode } from './typ
 import { TRANSLATIONS } from './utils/translations';
 import { MOCK_PROJECTS, STATE_AREAS } from './constants/mockData';
 
-// Area helpers shared with the server's /area/<slug> pages: a sheet value like "KLCC / Bukit Bintang"
+// Area helpers shared with the server's /area/<slug> pages: a sheet value like "KL City Centre / Bukit Bintang"
 // counts for both areas; a bare state name is not an area.
 const ALL_AREA_NAMES: string[] = Object.values(STATE_AREAS).flat();
 const areaSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -683,11 +683,11 @@ export default function App() {
             {/* HERO LUXURY WALLPAPER SECTION CAROUSEL BOX */}
             <div className="relative isolate overflow-hidden min-h-[580px] sm:min-h-[720px] lg:min-h-[820px] flex flex-col justify-center py-24 sm:py-36 text-center border-b border-[#ebdcb9]/40" id="homepage-hero-curtain">
               
-              {/* Background Image of KLCC with soft luxury ambient gradient overlay */}
+              {/* Background Image of KL City Centre with soft luxury ambient gradient overlay */}
               <div className="absolute inset-0 -z-10 overflow-hidden bg-gradient-to-br from-[#0c0d1c] via-[#2d1b32] to-[#7c502f]/40">
                 <motion.img 
                   src={klccHeroBg} 
-                  alt="KLCC Kuala Lumpur City View" 
+                  alt="KL City Centre Kuala Lumpur City View" 
                   onLoad={() => {
                     klccImageCached = true;
                     setHeroImageLoaded(true);
