@@ -1136,6 +1136,117 @@ function renderCompareHtml(indexHtml: string, pair: ComparePair, projects: SeoPr
   return html;
 }
 
+/**
+ * Budget and purpose shortlists: /best/<slug>.
+ *
+ * "Condo under RM500k KL", "condo near MRT", "best for own stay" — buyers search by what they can
+ * spend and why they are buying, not by project name. Each list is a filter over the live sheet, so
+ * it re-sorts itself as prices and projects change; nothing here is a hand-written list.
+ */
+interface Shortlist {
+  slug: string; h1: string; title: string; blurb: string;
+  pick: (p: SeoProject) => boolean;
+  sort?: (a: SeoProject, b: SeoProject) => number;
+}
+
+const SHORTLISTS: Shortlist[] = [
+  { slug: 'condo-under-500k-kuala-lumpur', h1: 'New Launch Condominiums Under RM 500,000 in Kuala Lumpur and Selangor',
+    title: 'Condo Under RM 500,000 | New Launch Shortlist',
+    blurb: 'Every project on propertyportal.my with a developer list price starting under RM 500,000.',
+    pick: p => p.priceMin > 0 && p.priceMin < 500000 },
+  { slug: 'condo-under-700k-kuala-lumpur', h1: 'New Launch Condominiums Under RM 700,000 in Kuala Lumpur and Selangor',
+    title: 'Condo Under RM 700,000 | New Launch Shortlist',
+    blurb: 'Projects starting under RM 700,000, the band most first-time upgraders shop in.',
+    pick: p => p.priceMin > 0 && p.priceMin < 700000 },
+  { slug: 'condo-under-1-million-kuala-lumpur', h1: 'New Launch Condominiums Under RM 1 Million in Kuala Lumpur and Selangor',
+    title: 'Condo Under RM 1 Million | New Launch Shortlist',
+    blurb: 'Projects starting under RM 1,000,000. Foreign buyers should note the state minimum purchase price is RM 1,000,000 in Kuala Lumpur and most of Selangor.',
+    pick: p => p.priceMin > 0 && p.priceMin < 1000000 },
+  { slug: 'freehold-new-launch', h1: 'Freehold New Launch Projects in Kuala Lumpur, Selangor and Johor',
+    title: 'Freehold New Launch Projects | Shortlist',
+    blurb: 'Freehold title only. The land is held without an expiry date, so there is no lease to renew and no state consent needed on a later sale.',
+    pick: p => /freehold/i.test(p.tenure) },
+  { slug: 'residential-title-projects', h1: 'New Launch Projects with a Residential Title',
+    title: 'Residential Title New Launches | Shortlist',
+    blurb: 'Residential title means utilities and assessment are billed at domestic rates rather than commercial ones, which lowers the monthly cost of living there.',
+    pick: p => /residential/i.test(p.landTitle) },
+  { slug: 'family-size-3-bedroom-new-launch', h1: 'Three-Bedroom and Larger New Launch Projects',
+    title: '3-Bedroom New Launch Projects | Family Shortlist',
+    blurb: 'Projects where the layouts start at three bedrooms, for households that need the rooms rather than the address.',
+    pick: p => p.bedroomsMin >= 3 },
+  { slug: 'low-density-new-launch', h1: 'Low-Density New Launch Projects Under 500 Units',
+    title: 'Low-Density New Launch Projects | Shortlist',
+    blurb: 'Fewer homes sharing the lifts, the pool and the car park. Under 500 units in total.',
+    pick: p => { const n = parseInt(String(p.totalUnits).replace(/[^0-9]/g, ''), 10); return isFinite(n) && n > 0 && n < 500; } },
+  { slug: 'ready-to-move-in', h1: 'Completed and Ready-to-Move-In Projects',
+    title: 'Ready to Move In | Completed Project Shortlist',
+    blurb: 'Buildings you can walk through and move into, rather than buy off a plan.',
+    pick: p => /ready|completed/i.test(p.completionStatus) }
+];
+
+/** Cheapest first for the budget lists; everything else by starting price too, so the table reads consistently. */
+function shortlistProjects(sl: Shortlist, projects: SeoProject[]): SeoProject[] {
+  return projects.filter(sl.pick).sort(sl.sort || ((a, b) => (a.priceMin || Infinity) - (b.priceMin || Infinity)));
+}
+
+function shortlistFaqs(sl: Shortlist, picks: SeoProject[]): { q: string; a: string }[] {
+  const out: { q: string; a: string }[] = [];
+  const cheapest = picks.find(p => p.priceMin);
+  if (cheapest) out.push({ q: `What is the cheapest project on this list?`, a: `${cheapest.name} in ${primaryArea(cheapest)}, from ${fmtRM(cheapest.priceMin)}. Developer price lists change with each release, so confirm the current one before deciding.` });
+  const areas = [...new Set(picks.map(primaryArea).filter(Boolean))];
+  if (areas.length) out.push({ q: `Which areas are covered?`, a: `${joinNames(areas)}.` });
+  const fh = picks.filter(p => /freehold/i.test(p.tenure)).length;
+  if (picks.length) out.push({ q: `How many of these are freehold?`, a: `${fh} of ${picks.length}. The rest are leasehold. Tenure is listed on each project page.` });
+  out.push({ q: `How often is this list updated?`, a: `It is generated from the project database each time the page is served, so a price change or a new project appears here straight away.` });
+  out.push({ q: `Can I view several of these on one day?`, a: `Yes, where they are in the same area. WhatsApp ${AGENT.name} (${AGENT.ren}, ${AGENT.company}) on ${AGENT.telephoneDisplay} with your budget and preferred area.` });
+  return out;
+}
+
+function renderShortlistHtml(indexHtml: string, sl: Shortlist, projects: SeoProject[]): string {
+  const canonical = `${SITE_URL}/best/${sl.slug}`;
+  const picks = shortlistProjects(sl, projects);
+  const title = `${sl.title} | propertyportal.my`;
+  const description = `${picks.length} project${picks.length === 1 ? '' : 's'}: ${sl.blurb}`.slice(0, 300);
+  const faqs = shortlistFaqs(sl, picks);
+
+  const graph = baseGraph();
+  graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+    { '@type': 'ListItem', 'position': 2, 'name': 'Residences', 'item': `${SITE_URL}/residences` },
+    { '@type': 'ListItem', 'position': 3, 'name': sl.title, 'item': canonical }
+  ] });
+  graph.push({ '@type': 'CollectionPage', '@id': `${canonical}#page`, 'url': canonical, 'name': title, 'description': description, 'isPartOf': { '@id': `${SITE_URL}/#website` },
+    'mainEntity': { '@type': 'ItemList', 'numberOfItems': picks.length, 'itemListElement': picks.map((p, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': p.name, 'url': `${SITE_URL}/project/${p.slug}` })) } });
+  graph.push({ '@type': 'FAQPage', '@id': `${canonical}#faq`, 'mainEntity': faqs.map(x => ({ '@type': 'Question', 'name': x.q, 'acceptedAnswer': { '@type': 'Answer', 'text': x.a } })) });
+
+  const th = (t: string) => `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${t}</th>`;
+  const td = (t: string) => `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(t || '—')}</td>`;
+  const table = picks.length ? `<table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr>` +
+    [th('Project'), th('Area'), th('Tenure'), th('From'), th('Built-up'), th('Beds'), th('Completion')].join('') +
+    `</tr></thead><tbody>` + picks.map(p => `<tr>` +
+      `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><a href="/project/${escHtml(p.slug)}">${escHtml(p.name)}</a></td>` +
+      td(primaryArea(p)) + td(p.tenure) + td(p.priceMin ? fmtRM(p.priceMin) : '') +
+      td(p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '') +
+      td(p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''}` : '') +
+      td([p.completionStatus, p.estCompletionDate || p.completionYear].filter(Boolean).join(' ')) +
+    `</tr>`).join('') + `</tbody></table>` : '<p>No project currently matches. Ask for the latest list.</p>';
+
+  const others = SHORTLISTS.filter(o => o.slug !== sl.slug);
+  const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/residences">Residences</a> › ${escHtml(sl.title)}</nav>` +
+    `<h1>${escHtml(sl.h1)}</h1><p>${escHtml(sl.blurb)}</p>` +
+    `<h2>${picks.length} project${picks.length === 1 ? '' : 's'}, cheapest first</h2>${table}` +
+    `<p>Prices are developer list prices from the project database and change with each release. Confirm the current price list before deciding.</p>` +
+    `<h2>Frequently asked questions</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
+    `<h2>Other shortlists</h2><ul>${others.map(o => `<li><a href="/best/${escHtml(o.slug)}">${escHtml(o.title)}</a></li>`).join('')}</ul>` +
+    `<p>Enquiries and viewings: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/calculators">Loan calculator</a></p>` +
+    `</div>`;
+  let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+  return html;
+}
+
 function areaLinksHtml(areas: SeoArea[]): string {
   if (!areas.length) return '';
   const byState: Record<string, SeoArea[]> = {};
@@ -1190,6 +1301,9 @@ function buildLlmsTxt(projects: SeoProject[]): string {
     lines.push(`- [${p.name}](${SITE_URL}/project/${p.slug}): ${bits.join('; ')}`);
   }
   lines.push('');
+  lines.push(`## Shortlists (${SHORTLISTS.length})`);
+  for (const sl of SHORTLISTS) lines.push(`- [${sl.title}](${SITE_URL}/best/${sl.slug}): ${shortlistProjects(sl, projects).length} projects — ${sl.blurb}`);
+  lines.push('');
   const pairs = buildComparePairs(projects);
   if (pairs.length) {
     lines.push(`## Project comparisons (${pairs.length})`);
@@ -1227,6 +1341,7 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[]): strin
     for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/area/${a.slug}`, today, 'weekly', '0.8');
     for (const p of projects) xml += url(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8');
     for (const c of buildComparePairs(projects)) xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
+    for (const sl of SHORTLISTS) xml += url(`${SITE_URL}/best/${sl.slug}`, today, 'weekly', '0.8');
   } else {
     for (const slug of fallbackSlugs) xml += url(`${SITE_URL}/project/${slug}`, today, 'weekly', '0.8');
   }
@@ -1498,6 +1613,24 @@ app.get(['/robots.txt', '/robots'], (req, res) => {
 });
 
 // Area pages: one per area with projects
+// Budget and purpose shortlists: /best/<slug>. Buyers search by what they can spend, not by name.
+app.get('/best/:slug', async (req, res) => {
+  res.header('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
+  try {
+    const [projects, indexHtml] = await Promise.all([
+      fetchSeoProjects().catch((e) => { console.warn('Shortlist prerender: sheet unavailable', e); return [] as SeoProject[]; }),
+      loadIndexHtml(req)
+    ]);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const sl = SHORTLISTS.find(x => x.slug === String(req.params.slug || '').toLowerCase());
+    if (!sl) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
+    res.send(renderShortlistHtml(indexHtml, sl, projects));
+  } catch (err) {
+    console.error('Shortlist prerender failed:', err);
+    res.redirect(302, '/residences');
+  }
+});
+
 // Comparison pages: /compare/<a>-vs-<b>. Buyers at the end of their search type two project names.
 app.get('/compare/:pair', async (req, res) => {
   res.header('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
