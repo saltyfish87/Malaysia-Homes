@@ -1110,7 +1110,8 @@ function compareVerdict(a: SeoProject, b: SeoProject): string[] {
     const big = a.builtUpMax > b.builtUpMax ? a : b;
     out.push(`${big.name} goes larger, up to ${fmtNum(big.builtUpMax)} sq ft.`);
   }
-  const ua = parseInt(String(a.totalUnits).replace(/[^0-9]/g, ''), 10), ub = parseInt(String(b.totalUnits).replace(/[^0-9]/g, ''), 10);
+  const firstNum = (v: string) => { const m = String(v || '').match(/[\d,]+/); return m ? parseInt(m[0].replace(/,/g, ''), 10) : NaN; };
+  const ua = firstNum(a.totalUnits), ub = firstNum(b.totalUnits);
   if (isFinite(ua) && isFinite(ub) && ua !== ub) {
     const small = ua < ub ? a : b;
     out.push(`${small.name} is the smaller community, at ${fmtNum(small === a ? ua : ub)} units.`);
@@ -1121,6 +1122,59 @@ function compareVerdict(a: SeoProject, b: SeoProject): string[] {
     out.push(`${early.name} completes earlier, in ${early.completionYear}.`);
   }
   return out;
+}
+
+/**
+ * The agent's verdict in the first person: who each one suits and who it does not.
+ *
+ * The shape follows a draft Gemini wrote from one real pair, rewritten here as rules so all pairs get
+ * it: lead with the one that is ready or cheaper to hold, name its cost, then the other and its cost.
+ * Every clause is driven by a figure already in the table — nothing is asserted that the data does
+ * not support, and no claim is made about future prices.
+ */
+function compareOpinion(a: SeoProject, b: SeoProject): string {
+  const fee = (p: SeoProject) => parseFloat(String(p.maintenanceFee).replace(/[^0-9.]/g, ''));
+  // "1,260 (630 per tower)" must read as 1260, not 1260630 — take the first number only.
+  const units = (p: SeoProject) => {
+    const m = String(p.totalUnits || '').match(/[\d,]+/);
+    return m ? parseInt(m[0].replace(/,/g, ''), 10) : NaN;
+  };
+  const ready = (p: SeoProject) => /ready|completed/i.test(p.completionStatus);
+  const parts: string[] = [];
+
+  // Waiting versus moving in is the first question a buyer asks when one of the two is finished.
+  if (ready(a) !== ready(b)) {
+    const done = ready(a) ? a : b, waiting = done === a ? b : a;
+    const when = waiting.estCompletionDate || waiting.completionYear;
+    parts.push(`If you want to move in now, ${done.name} is the one to see: it is finished, so you can walk the actual unit rather than judge it from a plan.`);
+    parts.push(`${waiting.name} is still under construction${when ? `, completing ${when}` : ''}, which only suits you if the wait is not a problem.`);
+  }
+
+  // Monthly cost separates two otherwise similar buildings more than the purchase price does.
+  const fa = fee(a), fb = fee(b);
+  if (isFinite(fa) && isFinite(fb) && fa !== fb) {
+    const cheap = fa < fb ? a : b, dear = cheap === a ? b : a;
+    parts.push(`On holding cost, ${cheap.name} is the lighter one at ${cheap.maintenanceFee} against ${dear.maintenanceFee}; on a 1,000 sq ft unit that difference runs to a few hundred ringgit a month, every month.`);
+  }
+
+  const ua = units(a), ub = units(b);
+  if (isFinite(ua) && isFinite(ub) && Math.abs(ua - ub) > 100) {
+    const small = ua < ub ? a : b, big = small === a ? b : a;
+    parts.push(`${small.name} is the quieter building at ${fmtNum(small === a ? ua : ub)} units against ${fmtNum(big === a ? ua : ub)}, which shows up in lift waits and how busy the facilities feel.`);
+  }
+
+  if (a.priceMin && b.priceMin && a.priceMin !== b.priceMin) {
+    const lo = a.priceMin < b.priceMin ? a : b;
+    parts.push(`${lo.name} has the lower entry price at ${fmtRM(lo.priceMin)}, though the layout you end up choosing matters more than the headline figure.`);
+  }
+
+  if (a.tenure && b.tenure && a.tenure !== b.tenure) {
+    const fh = /freehold/i.test(a.tenure) ? a : b;
+    parts.push(`${fh.name} is freehold, so there is no lease to renew and no state consent to wait for on a later sale.`);
+  }
+
+  if (!parts.length) return '';
+  return parts.slice(0, 4).join(' ') + ` Either way, ask for the current price list and walk both before you decide — I can arrange that.`;
 }
 
 function compareFaqs(a: SeoProject, b: SeoProject): { q: string; a: string }[] {
@@ -1170,6 +1224,7 @@ function renderCompareHtml(indexHtml: string, pair: ComparePair, projects: SeoPr
     `<p>Both are in ${escHtml(area)}. The table below is the developer data for each, side by side.</p>` +
     `<h2>Side-by-side comparison</h2>${table}` +
     (verdict.length ? `<h2>What actually differs</h2><ul>${verdict.map(v => `<li>${escHtml(v)}</li>`).join('')}</ul>` : '') +
+    ((): string => { const op = compareOpinion(a, b); return op ? `<h2>Which one I would point you to</h2><p>${escHtml(op)}</p><p><em>${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}</em></p>` : ''; })() +
     `<h2>Full details</h2><p><a href="/project/${escHtml(a.slug)}">${escHtml(a.name)} floor plans, facilities and nearby places</a> · <a href="/project/${escHtml(b.slug)}">${escHtml(b.name)} floor plans, facilities and nearby places</a></p>` +
     `<h2>Frequently asked questions</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
     (others.length ? `<h2>Other comparisons in ${escHtml(area)}</h2><ul>${others.map(o => `<li><a href="/compare/${escHtml(o.slug)}">${escHtml(o.a.name)} vs ${escHtml(o.b.name)}</a></li>`).join('')}</ul>` : '') +
