@@ -1171,26 +1171,27 @@ function findComparePair(slug: string, projects: SeoProject[]): ComparePair | nu
 }
 
 /** The rows a buyer actually weighs, in the order they ask about them. */
-function compareRows(a: SeoProject, b: SeoProject): { label: string; a: string; b: string }[] {
-  const price = (p: SeoProject) => p.priceMin ? `from ${fmtRM(p.priceMin)}${p.priceMax > p.priceMin ? ` to ${fmtRM(p.priceMax)}` : ''}` : '';
-  const size = (p: SeoProject) => p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '';
+function compareRows(a: SeoProject, b: SeoProject, lang: Lang = 'en'): { label: string; a: string; b: string }[] {
+  const zh = lang === 'zh';
+  const price = (p: SeoProject) => p.priceMin ? (zh ? `${fmtRM(p.priceMin)} 起${p.priceMax > p.priceMin ? `，最高 ${fmtRM(p.priceMax)}` : ''}` : `from ${fmtRM(p.priceMin)}${p.priceMax > p.priceMin ? ` to ${fmtRM(p.priceMax)}` : ''}`) : '';
+  const size = (p: SeoProject) => p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} ${zh ? '平方尺' : 'sq ft'}` : '';
   const beds = (p: SeoProject) => p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''}` : '';
   const done = (p: SeoProject) => [p.completionStatus, p.estCompletionDate || p.completionYear].filter(Boolean).join(' ');
   return [
-    { label: 'Developer', a: a.developer, b: b.developer },
-    { label: 'Address', a: a.address || a.location, b: b.address || b.location },
-    { label: 'Tenure', a: a.tenure, b: b.tenure },
-    { label: 'Land title', a: a.landTitle, b: b.landTitle },
-    { label: 'Property type', a: a.propertyType, b: b.propertyType },
-    { label: 'Price', a: price(a), b: price(b) },
-    { label: 'Price psf', a: a.pricePsf, b: b.pricePsf },
-    { label: 'Built-up', a: size(a), b: size(b) },
-    { label: 'Bedrooms', a: beds(a), b: beds(b) },
-    { label: 'Total units', a: a.totalUnits, b: b.totalUnits },
-    { label: 'Blocks / floors', a: [a.blocks, a.floors].filter(Boolean).join(' / '), b: [b.blocks, b.floors].filter(Boolean).join(' / ') },
-    { label: 'Car parks', a: [a.carparkMin, a.carparkMax].filter(Boolean).join('-'), b: [b.carparkMin, b.carparkMax].filter(Boolean).join('-') },
-    { label: 'Maintenance fee', a: a.maintenanceFee, b: b.maintenanceFee },
-    { label: 'Completion', a: done(a), b: done(b) }
+    { label: zh ? '发展商' : 'Developer', a: a.developer, b: b.developer },
+    { label: zh ? '地址' : 'Address', a: a.address || a.location, b: b.address || b.location },
+    { label: zh ? '地契' : 'Tenure', a: a.tenure, b: b.tenure },
+    { label: zh ? '土地用途' : 'Land title', a: a.landTitle, b: b.landTitle },
+    { label: zh ? '产业类型' : 'Property type', a: a.propertyType, b: b.propertyType },
+    { label: zh ? '价格' : 'Price', a: price(a), b: price(b) },
+    { label: zh ? '每平方尺' : 'Price psf', a: a.pricePsf, b: b.pricePsf },
+    { label: zh ? '建筑面积' : 'Built-up', a: size(a), b: size(b) },
+    { label: zh ? '房间' : 'Bedrooms', a: beds(a), b: beds(b) },
+    { label: zh ? '总单位' : 'Total units', a: a.totalUnits, b: b.totalUnits },
+    { label: zh ? '栋数 / 楼层' : 'Blocks / floors', a: [a.blocks, a.floors].filter(Boolean).join(' / '), b: [b.blocks, b.floors].filter(Boolean).join(' / ') },
+    { label: zh ? '车位' : 'Car parks', a: [a.carparkMin, a.carparkMax].filter(Boolean).join('-'), b: [b.carparkMin, b.carparkMax].filter(Boolean).join('-') },
+    { label: zh ? '管理费' : 'Maintenance fee', a: a.maintenanceFee, b: b.maintenanceFee },
+    { label: zh ? '完工' : 'Completion', a: done(a), b: done(b) }
   ].filter(r => r.a || r.b);
 }
 
@@ -1289,20 +1290,90 @@ function compareFaqs(a: SeoProject, b: SeoProject): { q: string; a: string }[] {
   return faqs;
 }
 
-function renderCompareHtml(indexHtml: string, pair: ComparePair, projects: SeoProject[]): string {
+/** The Chinese half of the head-to-head page. Same rules, written for a Chinese reader. */
+function compareVerdictZh(a: SeoProject, b: SeoProject): string[] {
+  const out: string[] = [];
+  if (a.priceMin && b.priceMin && a.priceMin !== b.priceMin) {
+    const lo = a.priceMin < b.priceMin ? a : b, hi = lo === a ? b : a;
+    out.push(`${lo.name} 起价较低，${fmtRM(lo.priceMin)} 对 ${fmtRM(hi.priceMin)}。`);
+  }
+  if (a.tenure && b.tenure && a.tenure !== b.tenure) out.push(`${a.name} 是${zhTenureLabel(a.tenure)}，${b.name} 是${zhTenureLabel(b.tenure)}。`);
+  if (a.landTitle && b.landTitle && a.landTitle !== b.landTitle) out.push(`土地用途不同：${a.name} 是 ${a.landTitle}，${b.name} 是 ${b.landTitle}。住宅地契的水电费按住宅价计算。`);
+  const fa = parseFloat(String(a.maintenanceFee).replace(/[^0-9.]/g, '')), fb = parseFloat(String(b.maintenanceFee).replace(/[^0-9.]/g, ''));
+  if (isFinite(fa) && isFinite(fb) && fa !== fb) {
+    const lo = fa < fb ? a : b;
+    out.push(`${lo.name} 的月费比较低，${lo.maintenanceFee}。`);
+  }
+  if (a.builtUpMax && b.builtUpMax && a.builtUpMax !== b.builtUpMax) {
+    const big = a.builtUpMax > b.builtUpMax ? a : b;
+    out.push(`${big.name} 有更大的户型，最大 ${fmtNum(big.builtUpMax)} 平方尺。`);
+  }
+  return out;
+}
+
+function compareOpinionZh(a: SeoProject, b: SeoProject): string {
+  const fee = (p: SeoProject) => parseFloat(String(p.maintenanceFee).replace(/[^0-9.]/g, ''));
+  const units = (p: SeoProject) => { const m = String(p.totalUnits || '').match(/[\d,]+/); return m ? parseInt(m[0].replace(/,/g, ''), 10) : NaN; };
+  const ready = (p: SeoProject) => /ready|completed/i.test(p.completionStatus);
+  const parts: string[] = [];
+  if (ready(a) !== ready(b)) {
+    const done = ready(a) ? a : b, waiting = done === a ? b : a;
+    const when = waiting.estCompletionDate || waiting.completionYear;
+    parts.push(`想现在就搬进去，看 ${done.name}：它已经完工，你走进去看到的就是实体单位，不是图纸。`);
+    parts.push(`${waiting.name} 还在建${when ? `，预计 ${when} 完工` : ''}，等得起才适合。`);
+  }
+  const fa = fee(a), fb = fee(b);
+  if (isFinite(fa) && isFinite(fb) && fa !== fb) {
+    const cheap = fa < fb ? a : b, dear = cheap === a ? b : a;
+    parts.push(`持有成本上 ${cheap.name} 比较轻，${cheap.maintenanceFee} 对 ${dear.maintenanceFee}；一间 1,000 平方尺的单位，每个月差几百令吉，月月都差。`);
+  }
+  const ua = units(a), ub = units(b);
+  if (isFinite(ua) && isFinite(ub) && Math.abs(ua - ub) > 100) {
+    const small = ua < ub ? a : b, big = small === a ? b : a;
+    parts.push(`${small.name} 比较安静，${fmtNum(small === a ? ua : ub)} 个单位对 ${fmtNum(big === a ? ua : ub)} 个，等电梯和设施挤不挤，差别就在这里。`);
+  }
+  if (a.priceMin && b.priceMin && a.priceMin !== b.priceMin) {
+    const lo = a.priceMin < b.priceMin ? a : b;
+    parts.push(`${lo.name} 入场价较低，${fmtRM(lo.priceMin)}，不过最后选哪个户型，比这个数字更重要。`);
+  }
+  if (a.tenure && b.tenure && a.tenure !== b.tenure) {
+    const fh = /freehold/i.test(a.tenure) ? a : b;
+    parts.push(`${fh.name} 是永久地契，没有地契年限要续，日后转售也不用等州政府批准。`);
+  }
+  if (!parts.length) return '';
+  return parts.slice(0, 4).join('') + `无论选哪一个，先拿最新价目表、两个都走一趟再决定 —— 我可以安排。`;
+}
+
+function compareFaqsZh(a: SeoProject, b: SeoProject): { q: string; a: string }[] {
+  const out: { q: string; a: string }[] = [];
+  if (a.priceMin && b.priceMin) out.push({ q: `${a.name} 和 ${b.name} 哪个比较便宜？`, a: `${a.priceMin <= b.priceMin ? a.name : b.name} 的发展商开价较低，${fmtRM(Math.min(a.priceMin, b.priceMin))} 起；${a.priceMin <= b.priceMin ? b.name : a.name} 是 ${fmtRM(Math.max(a.priceMin, b.priceMin))} 起。价目表每一期都会变，请以最新的为准。` });
+  if (a.tenure || b.tenure) out.push({ q: `${a.name} 和 ${b.name} 是永久地契吗？`, a: `${a.name}：${zhTenureLabel(a.tenure) || '资料未列明'}。${b.name}：${zhTenureLabel(b.tenure) || '资料未列明'}。` });
+  if (a.maintenanceFee || b.maintenanceFee) out.push({ q: `两个的管理费差多少？`, a: `${a.name}：${a.maintenanceFee || '资料未列明'}。${b.name}：${b.maintenanceFee || '资料未列明'}。最终收费以买卖合约为准。` });
+  if (a.completionYear || b.completionYear) out.push({ q: `哪一个先完工？`, a: `${a.name}：${[a.completionStatus, a.estCompletionDate || a.completionYear].filter(Boolean).join(' ') || '资料未列明'}。${b.name}：${[b.completionStatus, b.estCompletionDate || b.completionYear].filter(Boolean).join(' ') || '资料未列明'}。` });
+  out.push({ q: `可以同一天看 ${a.name} 和 ${b.name} 吗？`, a: `可以，两个在同一区。WhatsApp ${AGENT.name}（${AGENT.ren}，${AGENT.company}）${AGENT.telephoneDisplay}，我帮你排在一起。` });
+  return out;
+}
+
+function renderCompareHtml(indexHtml: string, pair: ComparePair, projects: SeoProject[], lang: Lang = 'en'): string {
+  const zh = lang === 'zh';
   const { a, b } = pair;
-  const canonical = `${SITE_URL}/compare/${a.slug}-vs-${b.slug}`;
+  const pathAfter = `/compare/${a.slug}-vs-${b.slug}`;
+  const canonical = `${SITE_URL}${langPrefix(lang)}${pathAfter}`;
   const area = pair.area || primaryArea(a);
-  const title = `${a.name} vs ${b.name} | Price, Size, Tenure Compared | propertyportal.my`;
-  const description = `Side-by-side comparison of ${a.name} and ${b.name} in ${area}: developer list price, built-up, tenure, total units, maintenance fee and completion, from the developer data.`;
-  const rows = compareRows(a, b);
-  const verdict = compareVerdict(a, b);
-  const faqs = compareFaqs(a, b);
+  const title = zh
+    ? `${a.name} 对比 ${b.name} | 价格、面积、地契一次看清 | propertyportal.my`
+    : `${a.name} vs ${b.name} | Price, Size, Tenure Compared | propertyportal.my`;
+  const description = zh
+    ? `${a.name} 与 ${b.name} 同在${area}，并排比较发展商开价、建筑面积、地契、总单位、管理费与完工年份，资料取自发展商。`
+    : `Side-by-side comparison of ${a.name} and ${b.name} in ${area}: developer list price, built-up, tenure, total units, maintenance fee and completion, from the developer data.`;
+  const rows = compareRows(a, b, lang);
+  const verdict = zh ? compareVerdictZh(a, b) : compareVerdict(a, b);
+  const faqs = zh ? compareFaqsZh(a, b) : compareFaqs(a, b);
 
   const graph = baseGraph();
   graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
-    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
-    { '@type': 'ListItem', 'position': 2, 'name': 'Compare', 'item': `${SITE_URL}/compare` },
+    { '@type': 'ListItem', 'position': 1, 'name': zh ? '首页' : 'Home', 'item': `${SITE_URL}${langPrefix(lang)}/` },
+    { '@type': 'ListItem', 'position': 2, 'name': zh ? '楼盘对比' : 'Compare', 'item': `${SITE_URL}${langPrefix(lang)}/compare` },
     { '@type': 'ListItem', 'position': 3, 'name': `${a.name} vs ${b.name}`, 'item': canonical }
   ] });
   graph.push({ '@type': 'WebPage', '@id': `${canonical}#page`, 'url': canonical, 'name': title, 'description': description, 'isPartOf': { '@id': `${SITE_URL}/#website` },
@@ -1321,19 +1392,21 @@ function renderCompareHtml(indexHtml: string, pair: ComparePair, projects: SeoPr
   const others = buildComparePairs(projects).filter(p => p.slug !== pair.slug && p.area === area).slice(0, 8);
 
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
-    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/compare">Compare</a> › ${escHtml(a.name)} vs ${escHtml(b.name)}</nav>` +
-    `<h1>${escHtml(a.name)} vs ${escHtml(b.name)}</h1>` +
-    `<p>Both are in ${escHtml(area)}. The table below is the developer data for each, side by side.</p>` +
-    `<h2>Side-by-side comparison</h2>${table}` +
-    (verdict.length ? `<h2>What actually differs</h2><ul>${verdict.map(v => `<li>${escHtml(v)}</li>`).join('')}</ul>` : '') +
-    ((): string => { const op = compareOpinion(a, b); return op ? `<h2>Which one I would point you to</h2><p>${escHtml(op)}</p><p><em>${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}</em></p>` : ''; })() +
-    `<h2>Full details</h2><p><a href="/project/${escHtml(a.slug)}">${escHtml(a.name)} floor plans, facilities and nearby places</a> · <a href="/project/${escHtml(b.slug)}">${escHtml(b.name)} floor plans, facilities and nearby places</a></p>` +
-    `<h2>Frequently asked questions</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
-    (others.length ? `<h2>Other comparisons in ${escHtml(area)}</h2><ul>${others.map(o => `<li><a href="/compare/${escHtml(o.slug)}">${escHtml(o.a.name)} vs ${escHtml(o.b.name)}</a></li>`).join('')}</ul>` : '') +
-    `<p>Enquiries and viewings: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
-    `<p><a href="/residences">All residences</a> · <a href="/area/${escHtml(seoSlugify(area))}">New launches in ${escHtml(area)}</a> · <a href="/compare">Compare projects</a></p>` +
+    `<nav aria-label="Breadcrumb"><a href="${langPrefix(lang)}/">${zh ? '首页' : 'Home'}</a> › <a href="${langPrefix(lang)}/compare">${zh ? '楼盘对比' : 'Compare'}</a> › ${escHtml(a.name)} vs ${escHtml(b.name)}</nav>` +
+    `<h1>${escHtml(a.name)} ${zh ? '对比' : 'vs'} ${escHtml(b.name)}</h1>` +
+    `<p>${zh ? `两个都在${escHtml(area)}。下面这张表是两边的发展商资料，并排放。` : `Both are in ${escHtml(area)}. The table below is the developer data for each, side by side.`}</p>` +
+    `<h2>${zh ? '并排比较' : 'Side-by-side comparison'}</h2>${table}` +
+    (verdict.length ? `<h2>${zh ? '实际差在哪里' : 'What actually differs'}</h2><ul>${verdict.map(v => `<li>${escHtml(v)}</li>`).join('')}</ul>` : '') +
+    ((): string => { const op = zh ? compareOpinionZh(a, b) : compareOpinion(a, b); return op ? `<h2>${zh ? '我会推荐哪一个' : 'Which one I would point you to'}</h2><p>${escHtml(op)}</p><p><em>${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}</em></p>` : ''; })() +
+    `<h2>${zh ? '完整资料' : 'Full details'}</h2><p><a href="${langPrefix(lang)}/project/${escHtml(a.slug)}">${escHtml(a.name)}${zh ? ' 户型、设施与周边' : ' floor plans, facilities and nearby places'}</a> · <a href="${langPrefix(lang)}/project/${escHtml(b.slug)}">${escHtml(b.name)}${zh ? ' 户型、设施与周边' : ' floor plans, facilities and nearby places'}</a></p>` +
+    `<h2>${zh ? '常见问题' : 'Frequently asked questions'}</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
+    (others.length ? `<h2>${zh ? `${escHtml(area)} 的其他对比` : `Other comparisons in ${escHtml(area)}`}</h2><ul>${others.map(o => `<li><a href="${langPrefix(lang)}/compare/${escHtml(o.slug)}">${escHtml(o.a.name)} vs ${escHtml(o.b.name)}</a></li>`).join('')}</ul>` : '') +
+    `<p>${zh ? '咨询与看房' : 'Enquiries and viewings'}: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'All residences'}</a> · <a href="${langPrefix(lang)}/area/${escHtml(seoSlugify(area))}">${zh ? `${escHtml(area)}新楼盘` : `New launches in ${escHtml(area)}`}</a> · <a href="${langPrefix(lang)}/compare">${zh ? '楼盘对比' : 'Compare projects'}</a></p>` +
     `</div>`;
   let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<\/head>/i, `    ${hreflangTags(pathAfter)}\n  </head>`);
+  if (zh) html = html.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="zh-Hans"');
   html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   return html;
 }
@@ -1715,7 +1788,10 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers
   if (projects.length) {
     for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/area/${a.slug}`, today, 'weekly', '0.8');
     for (const p of projects) xml += imageUrl(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8', covers[p.slug]);
-    for (const c of buildComparePairs(projects)) xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
+    for (const c of buildComparePairs(projects)) {
+      xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
+      xml += url(`${SITE_URL}/zh/compare/${c.slug}`, today, 'weekly', '0.65');
+    }
     for (const sl of SHORTLISTS) xml += url(`${SITE_URL}/best/${sl.slug}`, today, 'weekly', '0.8');
     for (const g of indexGroups) {
       xml += url(`${SITE_URL}/${g.kind}/${g.slug}`, today, 'weekly', '0.75');
@@ -1760,6 +1836,8 @@ app.use((req, res, next) => {
     if (m) { projectMatch = m; break; }
   }
 
+  let compareMatch: RegExpMatchArray | null = null;
+  for (const c of candidates) { const m = String(c || '').match(/\/compare\/([^/?#]+)/i); if (m) { compareMatch = m; break; } }
   let indexMatch: RegExpMatchArray | null = null;
   for (const c of candidates) { const m = String(c || '').match(/\/(near|developer|completion)\/([^/?#]+)/i); if (m) { indexMatch = m; break; } }
   let bestMatch: RegExpMatchArray | null = null;
@@ -1789,6 +1867,8 @@ app.use((req, res, next) => {
     req.url = '/llms.txt';
   } else if (projectMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = `${zhPrefix}/project/${projectMatch[1]}`;
+  } else if (compareMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
+    req.url = `${zhPrefix}/compare/${compareMatch[1]}`;
   } else if (indexMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = `${zhPrefix}/${indexMatch[1].toLowerCase()}/${indexMatch[2]}`;
   } else if (bestMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
@@ -2044,7 +2124,8 @@ app.get(['/best/:slug', '/zh/best/:slug'], async (req, res) => {
 });
 
 // Comparison pages: /compare/<a>-vs-<b>. Buyers at the end of their search type two project names.
-app.get('/compare/:pair', async (req, res) => {
+app.get(['/compare/:pair', '/zh/compare/:pair'], async (req, res) => {
+  const lang: Lang = req.path.startsWith('/zh/') ? 'zh' : 'en';
   res.header('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
   try {
     const [projects, indexHtml] = await Promise.all([
@@ -2054,7 +2135,7 @@ app.get('/compare/:pair', async (req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     const pair = findComparePair(String(req.params.pair || ''), projects);
     if (!pair) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
-    res.send(renderCompareHtml(indexHtml, pair, projects));
+    res.send(renderCompareHtml(indexHtml, pair, projects, lang));
   } catch (err) {
     console.error('Compare prerender failed:', err);
     res.redirect(302, '/compare');
