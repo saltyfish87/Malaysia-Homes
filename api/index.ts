@@ -609,11 +609,41 @@ function projectFaqs(p: SeoProject, rec?: ProjectSeoRecord): { q: string; a: str
 let ALL_PROJECTS_FOR_LINKS: SeoProject[] = [];
 let PROJECT_SEO_RECORDS: ProjectSeoRecord[] = [];
 
-function renderProjectHtml(indexHtml: string, p: SeoProject): string {
-  const canonical = `${SITE_URL}/project/${p.slug}`;
+/**
+ * Chinese twins. None of the six sites competing for these searches serves a Chinese page, and a
+ * large share of the buyers for these projects read Chinese first. The data is the same; only the
+ * labels and the sentence around them change, so the two languages cannot drift apart.
+ */
+type Lang = 'en' | 'zh';
+const ZH_FACT_LABELS: Record<string, string> = {
+  'Developer': '发展商', 'Location': '地址', 'Property type': '产业类型', 'Tenure': '地契',
+  'Land title': '土地用途', 'Starting price': '起价', 'Price range': '价格范围',
+  'Price per sq ft': '每平方尺', 'Built-up': '建筑面积', 'Bedrooms': '房间',
+  'Total units': '总单位', 'Blocks / floors': '栋数 / 楼层', 'Car park': '车位',
+  'Maintenance fee': '管理费', 'Completion': '完工', 'Launch date': '推介日期',
+  'Land size': '地段面积', 'Units per floor': '每层单位', 'Lifts': '电梯',
+  'Construction period': '建筑期'
+};
+const zhTenureLabel = (t: string) => /freehold/i.test(t) ? '永久地契' : /leasehold/i.test(t) ? '租赁地契' : (t || '');
+const langPrefix = (lang: Lang) => (lang === 'zh' ? '/zh' : '');
+const hreflangTags = (pathAfterPrefix: string) =>
+  `<link rel="alternate" hreflang="en" href="${SITE_URL}${pathAfterPrefix}" />\n    ` +
+  `<link rel="alternate" hreflang="zh-Hans" href="${SITE_URL}/zh${pathAfterPrefix}" />\n    ` +
+  `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${pathAfterPrefix}" />`;
+
+function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'): string {
+  const zh = lang === 'zh';
+  const canonical = `${SITE_URL}${langPrefix(lang)}/project/${p.slug}`;
   const rec = findProjectSeo(p, PROJECT_SEO_RECORDS);
   const faqs = projectFaqs(p, rec);
-  const { title, description, price, sizes, beds } = projectSummary(p);
+  const summary = projectSummary(p);
+  const { price, sizes, beds } = summary;
+  const title = zh
+    ? `${p.name} ${p.area} | 价格、户型图、地契与发展商资料 | propertyportal.my`
+    : summary.title;
+  const description = zh
+    ? `${p.name}位于${p.area}${p.state ? `，${p.state}` : ''}，${zhTenureLabel(p.tenure)}${p.propertyType ? `${p.propertyType}` : ''}。${price ? `起价 ${price}。` : ''}${sizes ? `建筑面积 ${sizes}。` : ''}${beds ? `${beds} 房。` : ''}户型、设施、周边配套与完工年份，资料来自发展商。`
+    : summary.description;
   const isLanded = /landed|terrace|bungalow|semi-d|semi d|villa|parkhome|townhouse/i.test(p.propertyType);
   const units = seoInt(p.totalUnits);
   const facts: [string, string][] = [
@@ -726,10 +756,10 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
   const pArea = primaryArea(p);
   const others = ALL_PROJECTS_FOR_LINKS.filter(o => o.slug !== p.slug && pArea && areaTokens(o.area).includes(pArea)).slice(0, 8);
   const table = `<table style="border-collapse:collapse;width:100%;margin:16px 0"><tbody>` +
-    factRows.map(([k, v]) => `<tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e7e5e4;width:40%">${escHtml(k)}</th><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(v)}</td></tr>`).join('') +
+    factRows.map(([k, v]) => `<tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e7e5e4;width:40%">${escHtml(zh ? (ZH_FACT_LABELS[k] || k) : k)}</th><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(v)}</td></tr>`).join('') +
     `</tbody></table>`;
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
-    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › ${pArea ? `<a href="/area/${escHtml(seoSlugify(pArea))}">${escHtml(pArea)}</a>` : `<a href="/residences">Residences</a>`} › ${escHtml(p.name)}</nav>` +
+    `<nav aria-label="Breadcrumb"><a href="${langPrefix(lang)}/">${zh ? '首页' : 'Home'}</a> › ${pArea ? `<a href="${langPrefix(lang)}/area/${escHtml(seoSlugify(pArea))}">${escHtml(pArea)}</a>` : `<a href="/residences">${zh ? '全部楼盘' : 'Residences'}</a>`} › ${escHtml(p.name)}</nav>` +
     `<article><h1>${escHtml(p.name)} ${escHtml(p.area)}</h1><p>${escHtml(description)}</p>` +
     // The served HTML carried no <img> at all: every photo arrived through JavaScript, so image
     // search had nothing to index and the page looked empty to a crawler that does not run JS.
@@ -738,17 +768,17 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
       : '') +
     (rec && rec.description ? `<p>${escHtml(rec.description)}</p>` : '') +
     projectVideoHtml(p.slug, p.name) +
-    `<h2>${escHtml(p.name)} project information</h2>${table}` +
+    `<h2>${zh ? `${escHtml(p.name)} 项目资料` : `${escHtml(p.name)} project information`}</h2>${table}` +
     (p.notes ? `<p>${escHtml(p.notes)}</p>` : '') +
-    (rec && rec.layouts.length ? `<h2>Unit types and floor plans</h2><table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Type</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Built-up</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Bedrooms</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">Bathrooms</th></tr></thead><tbody>${rec.layouts.map(l => `<tr><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.type)}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${l.sqft ? `${fmtNum(l.sqft)} sq ft` : '–'}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.beds || '–')}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.baths || '–')}</td></tr>`).join('')}</tbody></table>` : '') +
-    (rec && rec.keyFeatures.length ? `<h2>Why choose ${escHtml(p.name)}</h2><ul>${rec.keyFeatures.map(f => `<li>${escHtml(f)}</li>`).join('')}</ul>` : '') +
-    (rec && rec.facilities.length ? `<h2>Facilities</h2><p>${rec.facilities.map(escHtml).join(' · ')}</p>` : '') +
-    (rec && rec.amenities.length ? `<h2>Location and nearby</h2><ul>${rec.amenities.map(a => `<li><strong>${escHtml(a.category)}:</strong> ${escHtml(a.name)}${a.distance ? ` (${escHtml(a.distance)})` : ''}</li>`).join('')}</ul>` : '') +
-    (faqs.length ? `<h2>Frequently asked questions about ${escHtml(p.name)}</h2>${faqs.map(f => `<h3>${escHtml(f.q)}</h3><p>${escHtml(f.a)}</p>`).join('')}` : '') +
+    (rec && rec.layouts.length ? `<h2>${zh ? '户型与平面图' : 'Unit types and floor plans'}</h2><table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '户型' : 'Type'}</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '建筑面积' : 'Built-up'}</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '房间' : 'Bedrooms'}</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '浴室' : 'Bathrooms'}</th></tr></thead><tbody>${rec.layouts.map(l => `<tr><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.type)}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${l.sqft ? `${fmtNum(l.sqft)} sq ft` : '–'}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.beds || '–')}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.baths || '–')}</td></tr>`).join('')}</tbody></table>` : '') +
+    (rec && rec.keyFeatures.length ? `<h2>${zh ? `为什么选 ${escHtml(p.name)}` : `Why choose ${escHtml(p.name)}`}</h2><ul>${rec.keyFeatures.map(f => `<li>${escHtml(f)}</li>`).join('')}</ul>` : '') +
+    (rec && rec.facilities.length ? `<h2>${zh ? '项目设施' : 'Facilities'}</h2><p>${rec.facilities.map(escHtml).join(' · ')}</p>` : '') +
+    (rec && rec.amenities.length ? `<h2>${zh ? '位置与周边' : 'Location and nearby'}</h2><ul>${rec.amenities.map(a => `<li><strong>${escHtml(a.category)}:</strong> ${escHtml(a.name)}${a.distance ? ` (${escHtml(a.distance)})` : ''}</li>`).join('')}</ul>` : '') +
+    (faqs.length ? `<h2>${zh ? `关于 ${escHtml(p.name)} 的常见问题` : `Frequently asked questions about ${escHtml(p.name)}`}</h2>${faqs.map(f => `<h3>${escHtml(f.q)}</h3><p>${escHtml(f.a)}</p>`).join('')}` : '') +
     (AGENT_REVIEWS[p.slug] ? `<h2>Agent insights: ${escHtml(p.name)} review</h2><p><a href="${AGENT_REVIEWS[p.slug].url}">Read the ${escHtml(p.name)} review by ${escHtml(AGENT.name)} (${escHtml(AGENT.ren)})${AGENT_REVIEWS[p.slug].video ? ': video walkthrough, pros and cons' : ': pros and cons and recommended layouts'}</a> on shyanyee.com. <a href="${AGENT_REVIEWS[p.slug].zhUrl}" hreflang="zh">中文评测</a></p>` : '') +
-    `<p>Enquiries and sales gallery appointments: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
-    (others.length ? `<h2>Other projects in ${escHtml(pArea)}</h2><ul>${others.map(projectLine).join('')}</ul><p><a href="/area/${escHtml(seoSlugify(pArea))}">All new launches in ${escHtml(pArea)}</a></p>` : '') +
-    `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Loan calculator</a></p>` +
+    `<p>${zh ? '咨询与看房预约' : 'Enquiries and sales gallery appointments'}: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    (others.length ? `<h2>${zh ? `${escHtml(pArea)} 的其他楼盘` : `Other projects in ${escHtml(pArea)}`}</h2><ul>${others.map(projectLine).join('')}</ul><p><a href="/area/${escHtml(seoSlugify(pArea))}">All new launches in ${escHtml(pArea)}</a></p>` : '') +
+    `<p><a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'All residences'}</a> · <a href="/compare">${zh ? '楼盘对比' : 'Compare projects'}</a> · <a href="/guide">${zh ? '买房指南' : 'Buying guide'}</a> · <a href="/calculators">${zh ? '贷款计算' : 'Loan calculator'}</a></p>` +
     `</article></div>`;
 
   let html = indexHtml;
@@ -761,7 +791,8 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
     html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${escHtml(rec.coverImage)}" />`);
     html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${escHtml(rec.coverImage)}" />`);
   }
-  html = html.replace(/<\/head>/i, `    ${headExtra}\n  </head>`);
+  html = html.replace(/<\/head>/i, `    ${headExtra}\n    ${hreflangTags(`/project/${p.slug}`)}\n  </head>`);
+  if (zh) html = html.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="zh-Hans"');
   html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   return html;
 }
@@ -985,11 +1016,16 @@ function areaFaqs(a: SeoArea): { q: string; a: string }[] {
   return out;
 }
 
-function renderAreaHtml(indexHtml: string, a: SeoArea, allAreas: SeoArea[]): string {
-  const canonical = `${SITE_URL}/area/${a.slug}`;
+function renderAreaHtml(indexHtml: string, a: SeoArea, allAreas: SeoArea[], lang: Lang = 'en'): string {
+  const zh = lang === 'zh';
+  const canonical = `${SITE_URL}${langPrefix(lang)}/area/${a.slug}`;
   const f = areaFacts(a);
-  const title = `New Launch Projects in ${a.name}, ${a.state} | Developer Price, Floor Plans | propertyportal.my`;
-  const description = `${f.count} new launch project${f.count === 1 ? '' : 's'} in ${a.name}, ${a.state}${f.cheapest ? `, from ${fmtRM(f.cheapest.priceMin)}` : ''}${f.tenureText ? ` (${f.tenureText})` : ''}. Developer prices, layouts, completion dates and sales gallery appointments on propertyportal.my.`;
+  const title = zh
+    ? `${a.name}新楼盘 | 发展商价格、户型图、完工年份 | propertyportal.my`
+    : `New Launch Projects in ${a.name}, ${a.state} | Developer Price, Floor Plans | propertyportal.my`;
+  const description = zh
+    ? `${a.name}（${a.state}）共 ${f.count} 个新楼盘${f.cheapest ? `，起价 ${fmtRM(f.cheapest.priceMin)}` : ''}。发展商价格、户型、地契与完工年份，看房预约。`
+    : `${f.count} new launch project${f.count === 1 ? '' : 's'} in ${a.name}, ${a.state}${f.cheapest ? `, from ${fmtRM(f.cheapest.priceMin)}` : ''}${f.tenureText ? ` (${f.tenureText})` : ''}. Developer prices, layouts, completion dates and sales gallery appointments on propertyportal.my.`;
   const faqs = areaFaqs(a);
   const graph = baseGraph();
   graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
@@ -1012,19 +1048,23 @@ function renderAreaHtml(indexHtml: string, a: SeoArea, allAreas: SeoArea[]): str
 
   const cards = a.projects.map(p => {
     const bits = [p.developer, [p.tenure, p.propertyType].filter(Boolean).join(' '), p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '', p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''} bedrooms` : '', p.priceMin ? `from ${fmtRM(p.priceMin)}` : '', p.completionYear ? `completion ${p.estCompletionDate || p.completionYear}` : ''].filter(Boolean);
-    return `<li style="margin:0 0 10px"><a href="/project/${escHtml(p.slug)}"><strong>${escHtml(p.name)}</strong></a> — ${escHtml(bits.join(' · '))}</li>`;
+    return `<li style="margin:0 0 10px"><a href="${langPrefix(lang)}/project/${escHtml(p.slug)}"><strong>${escHtml(p.name)}</strong></a> — ${escHtml(bits.join(' · '))}</li>`;
   }).join('');
 
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
-    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/residences">Residences</a> › ${escHtml(a.name)}</nav>` +
-    `<h1>New Launch Projects in ${escHtml(a.name)}, ${escHtml(a.state)}</h1>${intro}` +
-    `<h2>${f.count} new launch project${f.count === 1 ? '' : 's'} in ${escHtml(a.name)}</h2><ul>${cards}</ul>` +
-    `<h2>Frequently asked questions about buying in ${escHtml(a.name)}</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
-    (neighbours.length ? `<h2>Other areas in ${escHtml(a.state)}</h2><ul>${neighbours.map(o => `<li><a href="/area/${escHtml(o.slug)}">New launches in ${escHtml(o.name)}</a> (${o.projects.length})</li>`).join('')}</ul>` : '') +
-    `<p>Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
-    `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Loan calculator</a></p>` +
+    `<nav aria-label="Breadcrumb"><a href="${langPrefix(lang)}/">${zh ? '首页' : 'Home'}</a> › <a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'Residences'}</a> › ${escHtml(a.name)}</nav>` +
+    (zh
+      ? `<h1>${escHtml(a.name)}新楼盘（${escHtml(a.state)}）</h1>${intro}`
+      : `<h1>New Launch Projects in ${escHtml(a.name)}, ${escHtml(a.state)}</h1>${intro}`) +
+    `<h2>${zh ? `${escHtml(a.name)} 共 ${f.count} 个新楼盘` : `${f.count} new launch project${f.count === 1 ? '' : 's'} in ${escHtml(a.name)}`}</h2><ul>${cards}</ul>` +
+    `<h2>${zh ? `在 ${escHtml(a.name)} 买房的常见问题` : `Frequently asked questions about buying in ${escHtml(a.name)}`}</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
+    (neighbours.length ? `<h2>${zh ? `${escHtml(a.state)} 的其他地区` : `Other areas in ${escHtml(a.state)}`}</h2><ul>${neighbours.map(o => `<li><a href="${langPrefix(lang)}/area/${escHtml(o.slug)}">${zh ? `${escHtml(o.name)}新楼盘` : `New launches in ${escHtml(o.name)}`}</a> (${o.projects.length})</li>`).join('')}</ul>` : '') +
+    `<p>${zh ? '咨询' : 'Enquiries'}: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'All residences'}</a> · <a href="/compare">${zh ? '楼盘对比' : 'Compare projects'}</a> · <a href="/guide">${zh ? '买房指南' : 'Buying guide'}</a> · <a href="/calculators">${zh ? '贷款计算' : 'Loan calculator'}</a></p>` +
     `</div>`;
   let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<\/head>/i, `    ${hreflangTags(`/area/${a.slug}`)}\n  </head>`);
+  if (zh) html = html.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="zh-Hans"');
   html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   return html;
 }
@@ -1458,6 +1498,9 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers
     for (const p of projects) xml += imageUrl(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8', covers[p.slug]);
     for (const c of buildComparePairs(projects)) xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
     for (const sl of SHORTLISTS) xml += url(`${SITE_URL}/best/${sl.slug}`, today, 'weekly', '0.8');
+    // Chinese twins of the two page types that carry the project data.
+    for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/zh/area/${a.slug}`, today, 'weekly', '0.7');
+    for (const p of projects) xml += url(`${SITE_URL}/zh/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.7');
   } else {
     for (const slug of fallbackSlugs) xml += url(`${SITE_URL}/project/${slug}`, today, 'weekly', '0.8');
   }
@@ -1505,6 +1548,9 @@ app.use((req, res, next) => {
     if (named.length === 0) routeMatch = '/';
   }
 
+  // Rebuilding the path here dropped the /zh prefix, so every Chinese URL was served in English.
+  const zhPrefix = has(/(^|https?:\/\/[^/]+)?\/zh(\/|$)/i) ? '/zh' : '';
+
   if (has(/sitemap/i)) {
     req.url = '/sitemap.xml';
   } else if (has(/robots/i)) {
@@ -1512,9 +1558,9 @@ app.use((req, res, next) => {
   } else if (has(/llms\.txt/i)) {
     req.url = '/llms.txt';
   } else if (projectMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
-    req.url = `/project/${projectMatch[1]}`;
+    req.url = `${zhPrefix}/project/${projectMatch[1]}`;
   } else if (areaMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
-    req.url = `/area/${areaMatch[1]}`;
+    req.url = `${zhPrefix}/area/${areaMatch[1]}`;
   } else if (routeMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = routeMatch;
   }
@@ -1708,8 +1754,10 @@ app.get(['/api/project-seo/:slug', '/project-seo/:slug'], async (req, res) => {
 });
 
 // Project pages: same app, but with this project's own title, description, canonical, Open Graph and JSON-LD
-app.get(['/project/:slug', '/projects/:slug', '/property/:slug', '/properties/:slug'], async (req, res) => {
+app.get(['/project/:slug', '/projects/:slug', '/property/:slug', '/properties/:slug',
+         '/zh/project/:slug', '/zh/projects/:slug'], async (req, res) => {
   const slug = String(req.params.slug || '');
+  const lang: Lang = req.path.startsWith('/zh/') ? 'zh' : 'en';
   try {
     const [projects, indexHtml] = await Promise.all([
       fetchSeoProjects().catch((e) => { console.warn('Project prerender: sheet unavailable', e); return [] as SeoProject[]; }),
@@ -1725,7 +1773,7 @@ app.get(['/project/:slug', '/projects/:slug', '/property/:slug', '/properties/:s
       res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml);
       return;
     }
-    res.send(renderProjectHtml(indexHtml, project));
+    res.send(renderProjectHtml(indexHtml, project, lang));
   } catch (err) {
     console.error('Project prerender failed, falling back to client-side routing:', err);
     res.redirect(302, `/?project=${encodeURIComponent(slug)}`);
@@ -1775,8 +1823,9 @@ app.get('/compare/:pair', async (req, res) => {
   }
 });
 
-app.get('/area/:slug', async (req, res) => {
+app.get(['/area/:slug', '/zh/area/:slug'], async (req, res) => {
   const slug = seoSlugify(String(req.params.slug || ''));
+  const lang: Lang = req.path.startsWith('/zh/') ? 'zh' : 'en';
   try {
     const [projects, indexHtml] = await Promise.all([
       fetchSeoProjects().catch((e) => { console.warn('Area prerender: sheet unavailable', e); return [] as SeoProject[]; }),
@@ -1787,7 +1836,7 @@ app.get('/area/:slug', async (req, res) => {
     const areas = buildAreas(projects);
     const area = areas.find(a => a.slug === slug);
     if (!area) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
-    res.send(renderAreaHtml(indexHtml, area, areas));
+    res.send(renderAreaHtml(indexHtml, area, areas, lang));
   } catch (err) {
     console.error('Area prerender failed:', err);
     res.redirect(302, '/residences');

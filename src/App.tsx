@@ -293,7 +293,9 @@ export default function App() {
   // Sync tab and selectedProject state from and to URL parameters/paths for pretty URLs and deep-linking
   useEffect(() => {
     const parseRouteFromLocation = () => {
-      const pathname = window.location.pathname.replace(/\/$/, '') || '/';
+      // /zh/... serves the Chinese twin of the same page. The app is one app: strip the prefix so
+      // every route below matches, and the language switch stays a client concern.
+      const pathname = window.location.pathname.replace(/^\/zh(?=\/|$)/, '').replace(/\/$/, '') || '/';
       const params = new URLSearchParams(window.location.search);
       
       let matchedTab = 'home';
