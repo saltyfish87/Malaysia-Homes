@@ -888,13 +888,50 @@ function applyHead(html: string, title: string, description: string, canonical: 
 
 const SEO_BODY_STYLE = 'padding:24px 20px;font-family:system-ui,-apple-system,sans-serif;max-width:960px;margin:0 auto;color:#1c1917;line-height:1.6';
 
-function renderRouteHtml(indexHtml: string, route: string, projects: SeoProject[]): string {
-  const meta = STATIC_ROUTES[route];
-  const canonical = route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}`;
+/** Chinese metadata for the static routes. Same pages, written for a Chinese reader. */
+const ZH_STATIC_ROUTES: Record<string, { title: string; description: string; crumb: string; h1: string }> = {
+  '/': {
+    title: '马来西亚新楼盘门户 | 公寓、有地房产、地图查询 | propertyportal.my',
+    description: '吉隆坡、雪兰莪、槟城、新山的新楼盘一站查询：发展商价格、户型图、地契、完工年份、周边交通，还有互动地图和对比工具。',
+    crumb: '首页', h1: '马来西亚新楼盘 | 公寓、服务式公寓与有地房产'
+  },
+  '/residences': {
+    title: '全部楼盘与新推介 | propertyportal.my',
+    description: '吉隆坡、雪兰莪、槟城、新山的豪华公寓、服务式公寓与有地房产完整目录。',
+    crumb: '全部楼盘', h1: '马来西亚全部楼盘与新推介'
+  },
+  '/compare': {
+    title: '楼盘对比工具 | 价格、户型、地契一次看清 | propertyportal.my',
+    description: '把几个楼盘并排比较：价格、尺价、户型面积、地契、发展商、完工年份与车位。',
+    crumb: '楼盘对比', h1: '马来西亚新楼盘对比'
+  },
+  '/guide': {
+    title: '马来西亚买房指南 | 印花税、产业盈利税、进度付款 | propertyportal.my',
+    description: '买房前要弄清楚的事：印花税、律师费、产业盈利税（RPGT）、进度付款、外国人购房门槛与州政府批准。',
+    crumb: '买房指南', h1: '马来西亚买房指南'
+  },
+  '/calculators': {
+    title: '房贷计算器 | 月供、印花税、产业盈利税 | propertyportal.my',
+    description: '计算月供、首付、进度付款利息、律师费、印花税与产业盈利税。',
+    crumb: '计算器', h1: '马来西亚房贷、印花税与产业盈利税计算器'
+  },
+  '/map': {
+    title: '楼盘地图 | 看清每个项目实际位置 | propertyportal.my',
+    description: '在地图上看吉隆坡、雪兰莪、槟城、新山每个新楼盘的实际位置、价格与户型。',
+    crumb: '地图', h1: '马来西亚新楼盘地图'
+  }
+};
+
+function renderRouteHtml(indexHtml: string, route: string, projects: SeoProject[], lang: Lang = 'en'): string {
+  const zh = lang === 'zh';
+  const en = STATIC_ROUTES[route];
+  const zhMeta = ZH_STATIC_ROUTES[route];
+  const meta = zh && zhMeta ? { ...en, ...zhMeta } : en;
+  const canonical = route === '/' ? `${SITE_URL}${langPrefix(lang)}/` : `${SITE_URL}${langPrefix(lang)}${route}`;
   const graph = baseGraph();
   if (route !== '/') {
     graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
-      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 1, 'name': zh ? '首页' : 'Home', 'item': `${SITE_URL}${langPrefix(lang)}/` },
       { '@type': 'ListItem', 'position': 2, 'name': meta.crumb, 'item': canonical }
     ] });
   }
@@ -906,17 +943,26 @@ function renderRouteHtml(indexHtml: string, route: string, projects: SeoProject[
       graph.push({ '@type': 'ItemList', '@id': `${canonical}#projects`, 'name': 'New launch projects on propertyportal.my', 'numberOfItems': projects.length,
         'itemListElement': projects.map((p, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': p.name, 'url': `${SITE_URL}/project/${p.slug}` })) });
     }
-    const nav = `<nav aria-label="Site sections"><a href="/residences">All residences</a> · <a href="/compare">Compare</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Calculators</a> · <a href="/map">Map</a></nav>`;
+    const lp = langPrefix(lang);
+    const nav = zh
+      ? `<nav aria-label="Site sections"><a href="${lp}/residences">全部楼盘</a> · <a href="${lp}/compare">楼盘对比</a> · <a href="${lp}/guide">买房指南</a> · <a href="${lp}/calculators">计算器</a> · <a href="${lp}/map">地图</a></nav>`
+      : `<nav aria-label="Site sections"><a href="/residences">All residences</a> · <a href="/compare">Compare</a> · <a href="/guide">Buying guide</a> · <a href="/calculators">Calculators</a> · <a href="/map">Map</a></nav>`;
     const lists = Object.keys(byState).sort().map(state => `<h2>${escHtml(state)} (${byState[state].length})</h2><ul>${byState[state].map(projectLine).join('')}</ul>`).join('');
-    const intro = route === '/'
+    const intro = zh
+      ? `<p>${escHtml(meta.description)}</p>`
+      : route === '/'
       ? `<p>Welcome to <strong>propertyportal.my</strong>, a comparison portal and interactive map directory for new launch projects, luxury condominiums, serviced apartments and landed parkhomes across Kuala Lumpur, Selangor, Johor and Penang. Each project page lists the developer price, tenure, built-up sizes, bedrooms, completion date and how to book a sales gallery visit.</p>`
       : `<p>${escHtml(meta.description)}</p>`;
     const areaLinks = (route === '/' || route === '/residences') ? areaLinksHtml(buildAreas(projects)) : '';
     body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">${nav}<h1>${escHtml(meta.h1)}</h1>${intro}` +
-      (projects.length ? `<p>${projects.length} projects listed. Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}, WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>${areaLinks}${lists}` : '') +
+      (projects.length ? (zh
+        ? `<p>目前收录 ${projects.length} 个楼盘。咨询：${escHtml(AGENT.name)}，${escHtml(AGENT.ren)}，${escHtml(AGENT.company)}，WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>。</p>${areaLinks}${lists}`
+        : `<p>${projects.length} projects listed. Enquiries: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}, WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>${areaLinks}${lists}`) : '') +
       `</div>`;
   }
   let html = applyHead(indexHtml, meta.title, meta.description, canonical, graph, meta.index);
+  html = html.replace(/<\/head>/i, `    ${hreflangTags(route === '/' ? '/' : route)}\n  </head>`);
+  if (zh) html = html.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="zh-Hans"');
   if (body) html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   return html;
 }
@@ -1353,11 +1399,29 @@ function shortlistFaqs(sl: Shortlist, picks: SeoProject[]): { q: string; a: stri
   return out;
 }
 
-function renderShortlistHtml(indexHtml: string, sl: Shortlist, projects: SeoProject[]): string {
-  const canonical = `${SITE_URL}/best/${sl.slug}`;
+/** Chinese titles and one-liners for the eight shortlists; the rows come from the same data. */
+const ZH_SHORTLISTS: Record<string, { h1: string; title: string; blurb: string }> = {
+  'condo-under-500k-kuala-lumpur': { h1: '吉隆坡与雪兰莪 50 万以下新楼盘', title: '50 万以下公寓 | 新楼盘清单', blurb: '发展商开价 50 万令吉以下的全部楼盘。' },
+  'condo-under-700k-kuala-lumpur': { h1: '吉隆坡与雪兰莪 70 万以下新楼盘', title: '70 万以下公寓 | 新楼盘清单', blurb: '发展商开价 70 万令吉以下的全部楼盘。' },
+  'condo-under-1-million-kuala-lumpur': { h1: '吉隆坡与雪兰莪 100 万以下新楼盘', title: '100 万以下公寓 | 新楼盘清单', blurb: '发展商开价 100 万令吉以下的全部楼盘。外国人在吉隆坡与雪兰莪大部分地区的最低购房门槛是 100 万令吉。' },
+  'freehold-new-launch': { h1: '永久地契新楼盘', title: '永久地契楼盘清单', blurb: '只列永久地契：土地没有年限，日后转售也不需要州政府批准续期。' },
+  'residential-title-projects': { h1: '住宅地契楼盘（非商业地契）', title: '住宅地契楼盘清单', blurb: '住宅地契的水电费与门牌税按住宅计算，通常比商业地契便宜。' },
+  'family-size-3-bedroom-new-launch': { h1: '三房或以上楼盘', title: '三房以上楼盘清单', blurb: '给需要房间数而不是地址的家庭。' },
+  'low-density-new-launch': { h1: '低密度楼盘', title: '低密度楼盘清单', blurb: '单位数少，电梯与设施不用抢。' },
+  'ready-to-move-in': { h1: '现楼 / 可即刻入住', title: '现楼清单', blurb: '已经完工、可以走进去看实体的楼盘，不是看图纸买。' }
+};
+
+function renderShortlistHtml(indexHtml: string, sl: Shortlist, projects: SeoProject[], lang: Lang = 'en'): string {
+  const zh = lang === 'zh';
+  const z = ZH_SHORTLISTS[sl.slug];
+  const canonical = `${SITE_URL}${langPrefix(lang)}/best/${sl.slug}`;
   const picks = shortlistProjects(sl, projects);
-  const title = `${sl.title} | propertyportal.my`;
-  const description = `${picks.length} project${picks.length === 1 ? '' : 's'}: ${sl.blurb}`.slice(0, 300);
+  const h1 = zh && z ? z.h1 : sl.h1;
+  const blurb = zh && z ? z.blurb : sl.blurb;
+  const title = zh && z ? `${z.title} | propertyportal.my` : `${sl.title} | propertyportal.my`;
+  const description = zh
+    ? `共 ${picks.length} 个楼盘：${blurb}`.slice(0, 300)
+    : `${picks.length} project${picks.length === 1 ? '' : 's'}: ${sl.blurb}`.slice(0, 300);
   const faqs = shortlistFaqs(sl, picks);
 
   const graph = baseGraph();
@@ -1373,27 +1437,29 @@ function renderShortlistHtml(indexHtml: string, sl: Shortlist, projects: SeoProj
   const th = (t: string) => `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${t}</th>`;
   const td = (t: string) => `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(t || '—')}</td>`;
   const table = picks.length ? `<table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr>` +
-    [th('Project'), th('Area'), th('Tenure'), th('From'), th('Built-up'), th('Beds'), th('Completion')].join('') +
+    (zh ? [th('楼盘'), th('地区'), th('地契'), th('起价'), th('建筑面积'), th('房间'), th('完工')] : [th('Project'), th('Area'), th('Tenure'), th('From'), th('Built-up'), th('Beds'), th('Completion')]).join('') +
     `</tr></thead><tbody>` + picks.map(p => `<tr>` +
-      `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><a href="/project/${escHtml(p.slug)}">${escHtml(p.name)}</a></td>` +
+      `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><a href="${langPrefix(lang)}/project/${escHtml(p.slug)}">${escHtml(p.name)}</a></td>` +
       td(primaryArea(p)) + td(p.tenure) + td(p.priceMin ? fmtRM(p.priceMin) : '') +
       td(p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '') +
       td(p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''}` : '') +
       td([p.completionStatus, p.estCompletionDate || p.completionYear].filter(Boolean).join(' ')) +
-    `</tr>`).join('') + `</tbody></table>` : '<p>No project currently matches. Ask for the latest list.</p>';
+    `</tr>`).join('') + `</tbody></table>` : (zh ? '<p>目前没有符合的楼盘，向我索取最新清单。</p>' : '<p>No project currently matches. Ask for the latest list.</p>');
 
   const others = SHORTLISTS.filter(o => o.slug !== sl.slug);
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
-    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/residences">Residences</a> › ${escHtml(sl.title)}</nav>` +
-    `<h1>${escHtml(sl.h1)}</h1><p>${escHtml(sl.blurb)}</p>` +
-    `<h2>${picks.length} project${picks.length === 1 ? '' : 's'}, cheapest first</h2>${table}` +
-    `<p>Prices are developer list prices from the project database and change with each release. Confirm the current price list before deciding.</p>` +
-    `<h2>Frequently asked questions</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
-    `<h2>Other shortlists</h2><ul>${others.map(o => `<li><a href="/best/${escHtml(o.slug)}">${escHtml(o.title)}</a></li>`).join('')}</ul>` +
-    `<p>Enquiries and viewings: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
-    `<p><a href="/residences">All residences</a> · <a href="/compare">Compare projects</a> · <a href="/calculators">Loan calculator</a></p>` +
+    `<nav aria-label="Breadcrumb"><a href="${langPrefix(lang)}/">${zh ? '首页' : 'Home'}</a> › <a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'Residences'}</a> › ${escHtml(zh && z ? z.title : sl.title)}</nav>` +
+    `<h1>${escHtml(h1)}</h1><p>${escHtml(blurb)}</p>` +
+    `<h2>${zh ? `共 ${picks.length} 个楼盘，由低价排起` : `${picks.length} project${picks.length === 1 ? '' : 's'}, cheapest first`}</h2>${table}` +
+    `<p>${zh ? '价格为发展商开价，每一期都会变动，决定前请索取最新价目表。' : 'Prices are developer list prices from the project database and change with each release. Confirm the current price list before deciding.'}</p>` +
+    `<h2>${zh ? '常见问题' : 'Frequently asked questions'}</h2>` + faqs.map(x => `<h3>${escHtml(x.q)}</h3><p>${escHtml(x.a)}</p>`).join('') +
+    `<h2>${zh ? '其他清单' : 'Other shortlists'}</h2><ul>${others.map(o => `<li><a href="${langPrefix(lang)}/best/${escHtml(o.slug)}">${escHtml(zh && ZH_SHORTLISTS[o.slug] ? ZH_SHORTLISTS[o.slug].title : o.title)}</a></li>`).join('')}</ul>` +
+    `<p>${zh ? '咨询与看房' : 'Enquiries and viewings'}: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'All residences'}</a> · <a href="${langPrefix(lang)}/compare">${zh ? '楼盘对比' : 'Compare projects'}</a> · <a href="${langPrefix(lang)}/calculators">${zh ? '贷款计算' : 'Loan calculator'}</a></p>` +
     `</div>`;
   let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<\/head>/i, `    ${hreflangTags(`/best/${sl.slug}`)}\n  </head>`);
+  if (zh) html = html.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="zh-Hans"');
   html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   return html;
 }
@@ -1501,6 +1567,9 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers
     // Chinese twins of the two page types that carry the project data.
     for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/zh/area/${a.slug}`, today, 'weekly', '0.7');
     for (const p of projects) xml += url(`${SITE_URL}/zh/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.7');
+    xml += url(`${SITE_URL}/zh/`, today, 'daily', '0.9');
+    for (const r of ['/residences', '/compare', '/guide', '/calculators', '/map']) xml += url(`${SITE_URL}/zh${r}`, today, 'weekly', '0.6');
+    for (const sl of SHORTLISTS) xml += url(`${SITE_URL}/zh/best/${sl.slug}`, today, 'weekly', '0.7');
   } else {
     for (const slug of fallbackSlugs) xml += url(`${SITE_URL}/project/${slug}`, today, 'weekly', '0.8');
   }
@@ -1534,6 +1603,8 @@ app.use((req, res, next) => {
     if (m) { projectMatch = m; break; }
   }
 
+  let bestMatch: RegExpMatchArray | null = null;
+  for (const c of candidates) { const m = String(c || '').match(/\/best\/([^/?#]+)/i); if (m) { bestMatch = m; break; } }
   let areaMatch: RegExpMatchArray | null = null;
   for (const c of candidates) { const m = String(c || '').match(/\/area\/([^/?#]+)/i); if (m) { areaMatch = m; break; } }
   let routeMatch = '';
@@ -1559,9 +1630,12 @@ app.use((req, res, next) => {
     req.url = '/llms.txt';
   } else if (projectMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = `${zhPrefix}/project/${projectMatch[1]}`;
+  } else if (bestMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
+    req.url = `${zhPrefix}/best/${bestMatch[1]}`;
   } else if (areaMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = `${zhPrefix}/area/${areaMatch[1]}`;
   } else if (routeMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
+    if (zhPrefix) { req.url = `${zhPrefix}${routeMatch}`; return next(); }
     req.url = routeMatch;
   }
   next();
@@ -1788,7 +1862,8 @@ app.get(['/robots.txt', '/robots'], (req, res) => {
 
 // Area pages: one per area with projects
 // Budget and purpose shortlists: /best/<slug>. Buyers search by what they can spend, not by name.
-app.get('/best/:slug', async (req, res) => {
+app.get(['/best/:slug', '/zh/best/:slug'], async (req, res) => {
+  const lang: Lang = req.path.startsWith('/zh/') ? 'zh' : 'en';
   res.header('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
   try {
     const [projects, indexHtml] = await Promise.all([
@@ -1798,7 +1873,7 @@ app.get('/best/:slug', async (req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     const sl = SHORTLISTS.find(x => x.slug === String(req.params.slug || '').toLowerCase());
     if (!sl) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
-    res.send(renderShortlistHtml(indexHtml, sl, projects));
+    res.send(renderShortlistHtml(indexHtml, sl, projects, lang));
   } catch (err) {
     console.error('Shortlist prerender failed:', err);
     res.redirect(302, '/residences');
@@ -1844,8 +1919,10 @@ app.get(['/area/:slug', '/zh/area/:slug'], async (req, res) => {
 });
 
 // Home and the app's section pages: the shell with that page's own head tags and a crawlable body.
-app.get(['/', ...Object.keys(STATIC_ROUTES).filter(r => r !== '/'), ...Object.keys(ROUTE_ALIASES)], async (req, res) => {
-  const route = normalizeRoute(req.path);
+app.get(['/', ...Object.keys(STATIC_ROUTES).filter(r => r !== '/'), ...Object.keys(ROUTE_ALIASES),
+         '/zh', '/zh/', ...Object.keys(STATIC_ROUTES).filter(r => r !== '/').map(r => `/zh${r}`)], async (req, res) => {
+  const lang: Lang = /^\/zh(\/|$)/.test(req.path) ? 'zh' : 'en';
+  const route = normalizeRoute(req.path.replace(/^\/zh(?=\/|$)/, '') || '/');
   try {
     const [projects, indexHtml] = await Promise.all([
       fetchSeoProjects().catch((e) => { console.warn('Route prerender: sheet unavailable', e); return [] as SeoProject[]; }),
@@ -1853,7 +1930,7 @@ app.get(['/', ...Object.keys(STATIC_ROUTES).filter(r => r !== '/'), ...Object.ke
     ]);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
-    res.send(STATIC_ROUTES[route] ? renderRouteHtml(indexHtml, route, projects) : indexHtml);
+    res.send(STATIC_ROUTES[route] ? renderRouteHtml(indexHtml, route, projects, lang) : indexHtml);
   } catch (err) {
     console.error('Route prerender failed, serving plain shell:', err);
     try { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.send(await loadIndexHtml(req)); } catch { res.redirect(302, '/?seo-prerender=1'); }
