@@ -555,6 +555,8 @@ interface ProjectSeoRecord {
   address?: string; lat?: number; lng?: number; priceMin?: number; priceMax?: number; pricePsf?: string;
   builtUpMin?: number; builtUpMax?: number; bedrooms?: string; bathrooms?: string; coverImage?: string; description?: string;
   keyFeatures: string[]; facilities: string[]; amenities: { category: string; name: string; distance?: string }[];
+  /** Nearest named rail stations, straight-line km, measured from the project's own coordinates. */
+  stations?: { name: string; km: number }[];
   layouts: { type: string; sqft?: number; beds?: string; baths?: string }[]; faqs: { q: string; a: string }[];
 }
 let projectSeoCache: { data: ProjectSeoRecord[]; time: number } | null = null;
@@ -773,6 +775,9 @@ function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'):
     (rec && rec.layouts.length ? `<h2>${zh ? '户型与平面图' : 'Unit types and floor plans'}</h2><table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '户型' : 'Type'}</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '建筑面积' : 'Built-up'}</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '房间' : 'Bedrooms'}</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${zh ? '浴室' : 'Bathrooms'}</th></tr></thead><tbody>${rec.layouts.map(l => `<tr><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.type)}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${l.sqft ? `${fmtNum(l.sqft)} sq ft` : '–'}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.beds || '–')}</td><td style="padding:6px 8px;border-bottom:1px solid #e7e5e4">${escHtml(l.baths || '–')}</td></tr>`).join('')}</tbody></table>` : '') +
     (rec && rec.keyFeatures.length ? `<h2>${zh ? `为什么选 ${escHtml(p.name)}` : `Why choose ${escHtml(p.name)}`}</h2><ul>${rec.keyFeatures.map(f => `<li>${escHtml(f)}</li>`).join('')}</ul>` : '') +
     (rec && rec.facilities.length ? `<h2>${zh ? '项目设施' : 'Facilities'}</h2><p>${rec.facilities.map(escHtml).join(' · ')}</p>` : '') +
+    (rec && rec.stations && rec.stations.length
+      ? `<h2>${zh ? '最近的车站（量出来的）' : 'Nearest train stations, measured'}</h2><ul>${rec.stations.map(st => `<li><a href="${langPrefix(lang)}/near/${seoSlugify(st.name)}">${escHtml(st.name)}</a> — ${st.km < 1 ? `${Math.round(st.km * 1000)} ${zh ? '米' : 'm'}` : `${st.km.toFixed(1)} ${zh ? '公里' : 'km'}`}</li>`).join('')}</ul><p style="font-size:13px;color:#78716c">${zh ? '以上为 OpenStreetMap 直线距离，实际步行或车程会更远。' : 'Straight-line distance on OpenStreetMap. Walking or driving is always further.'}</p>`
+      : '') +
     (rec && rec.amenities.length ? `<h2>${zh ? '位置与周边' : 'Location and nearby'}</h2><ul>${rec.amenities.map(a => `<li><strong>${escHtml(a.category)}:</strong> ${escHtml(a.name)}${a.distance ? ` (${escHtml(a.distance)})` : ''}</li>`).join('')}</ul>` : '') +
     (faqs.length ? `<h2>${zh ? `关于 ${escHtml(p.name)} 的常见问题` : `Frequently asked questions about ${escHtml(p.name)}`}</h2>${faqs.map(f => `<h3>${escHtml(f.q)}</h3><p>${escHtml(f.a)}</p>`).join('')}` : '') +
     (AGENT_REVIEWS[p.slug] ? `<h2>Agent insights: ${escHtml(p.name)} review</h2><p><a href="${AGENT_REVIEWS[p.slug].url}">Read the ${escHtml(p.name)} review by ${escHtml(AGENT.name)} (${escHtml(AGENT.ren)})${AGENT_REVIEWS[p.slug].video ? ': video walkthrough, pros and cons' : ': pros and cons and recommended layouts'}</a> on shyanyee.com. <a href="${AGENT_REVIEWS[p.slug].zhUrl}" hreflang="zh">中文评测</a></p>` : '') +
@@ -1464,6 +1469,154 @@ function renderShortlistHtml(indexHtml: string, sl: Shortlist, projects: SeoProj
   return html;
 }
 
+/**
+ * Station, developer and completion-year index pages.
+ *
+ * All three are the same shape — a heading, a sentence of real numbers, a table of projects, links
+ * outwards — so they share one renderer. Stations come from the measurement in projectSeo.json;
+ * developers are folded up to the parent group, because a buyer is choosing a group and the sales
+ * kit names the project's own company.
+ */
+const DEV_BRANDS: [string, string][] = [
+  ['Eastern & Oriental', 'Eastern & Oriental'], ['Chin Hin', 'Chin Hin Group'],
+  ['Mah Sing', 'Mah Sing Group'], ['Paramount Property', 'Paramount Property'],
+  ['Pavilion Group', 'Pavilion Group'], ['Kerjaya', 'Kerjaya Prospek'],
+  ['Crest Builder', 'Crest Builder'], ['Welton', 'Welton Group'], ['OSK Property', 'OSK Property'],
+  ['Berjaya', 'Berjaya'], ['Ayala Land', 'Ayala Land'], ['Land and General', 'Land and General'],
+  ['Sun Suria', 'Sun Suria'], ['SP Setia', 'SP Setia'], ['Radium', 'Radium'], ['Glomac', 'Glomac'],
+  ['Avaland', 'Avaland'], ['Exsim', 'Exsim'], ['Malton', 'Malton'], ['MRCB', 'MRCB'],
+  ['BRDB', 'BRDB'], ['WCT', 'WCT'], ['UOA', 'UOA'], ['IJM', 'IJM'], ['TA Global', 'TA Global'],
+  ['GSH', 'GSH'], ['Park City', 'Park City'], ['Masteron', 'Masteron'], ['Asiapac', 'Asiapac'],
+  ['Puncak Dana', 'Puncak Dana'], ['Majestic Gen', 'Majestic Gen'], ['R&F Development', 'R&F Development'],
+  ['Golden Eagle', 'Golden Eagle'], ['Ehsan Bina', 'Ehsan Bina'], ['OCR', 'OCR'], ['SCP', 'SCP'], ['TSR', 'TSR']
+];
+function devGroupName(p: SeoProject, rec?: ProjectSeoRecord): string {
+  const a = String(rec?.developer || '').trim();
+  const b = String(p.developer || '').trim();
+  for (const [needle, brand] of DEV_BRANDS) {
+    const re = new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (re.test(a) || re.test(b)) return brand;
+  }
+  return (b || a).replace(/\s*\([^)]*\)\s*$/, '')
+    .replace(/\s+Sdn\.?\s*Bhd\.?$/i, '').replace(/\s+Berhad$/i, '').replace(/\s+Bhd\.?$/i, '').trim();
+}
+
+interface IndexGroup { kind: 'near' | 'developer' | 'completion'; slug: string; name: string; items: { p: SeoProject; km?: number }[] }
+
+function buildIndexGroups(projects: SeoProject[], records: ProjectSeoRecord[]): IndexGroup[] {
+  const out: IndexGroup[] = [];
+
+  const byStation = new Map<string, { p: SeoProject; km: number }[]>();
+  for (const p of projects) {
+    const rec = findProjectSeo(p, records);
+    for (const st of rec?.stations || []) {
+      const k = st.name;
+      (byStation.get(k) || byStation.set(k, []).get(k)!).push({ p, km: st.km });
+    }
+  }
+  for (const [name, items] of byStation) {
+    if (items.length < 2) continue;
+    out.push({ kind: 'near', slug: seoSlugify(name), name, items: items.sort((a, b) => a.km - b.km) });
+  }
+
+  const byDev = new Map<string, SeoProject[]>();
+  for (const p of projects) {
+    const n = devGroupName(p, findProjectSeo(p, records));
+    if (!n) continue;
+    (byDev.get(n) || byDev.set(n, []).get(n)!).push(p);
+  }
+  for (const [name, items] of byDev) {
+    if (items.length < 2) continue;
+    out.push({ kind: 'developer', slug: seoSlugify(name), name, items: items.map(p => ({ p })) });
+  }
+
+  const byYear = new Map<string, SeoProject[]>();
+  for (const p of projects) {
+    const y = String(p.completionYear || '').trim();
+    if (!/^20\d{2}$/.test(y)) continue;
+    (byYear.get(y) || byYear.set(y, []).get(y)!).push(p);
+  }
+  for (const [year, items] of byYear) {
+    if (items.length < 3) continue;
+    out.push({ kind: 'completion', slug: year, name: year, items: items.map(p => ({ p })) });
+  }
+
+  return out.sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name));
+}
+
+function renderIndexHtml(indexHtml: string, g: IndexGroup, all: IndexGroup[], lang: Lang = 'en'): string {
+  const zh = lang === 'zh';
+  const pathAfter = `/${g.kind}/${g.slug}`;
+  const canonical = `${SITE_URL}${langPrefix(lang)}${pathAfter}`;
+  const prices = g.items.map(x => x.p.priceMin || 0).filter(n => n > 0);
+  const lo = prices.length ? Math.min(...prices) : 0;
+  const hi = prices.length ? Math.max(...prices) : 0;
+  const freehold = g.items.filter(x => /freehold/i.test(x.p.tenure || '')).length;
+  const areas = [...new Set(g.items.map(x => primaryArea(x.p)).filter(Boolean))];
+  const heading = g.kind === 'near'
+    ? (zh ? `${g.name}站附近的新楼盘` : `New Launch Projects Near ${g.name} Station`)
+    : g.kind === 'developer'
+    ? (zh ? `${g.name} 的楼盘` : `${g.name} Projects in Malaysia`)
+    : (zh ? `${g.name} 年完工的新楼盘` : `New Launch Projects Completing in ${g.name}`);
+  const title = `${heading} | propertyportal.my`;
+  const nearest = g.items[0];
+  const description = g.kind === 'near'
+    ? (zh
+      ? `${g.name}站附近共 ${g.items.length} 个新楼盘，最近的是${nearest.p.name}，直线 ${nearest.km! < 1 ? `${Math.round(nearest.km! * 1000)} 米` : `${nearest.km!.toFixed(1)} 公里`}。距离是量出来的，不是发展商写的。`
+      : `${g.items.length} new launch projects near ${g.name} station. The closest is ${nearest.p.name} at ${nearest.km! < 1 ? `${Math.round(nearest.km! * 1000)} m` : `${nearest.km!.toFixed(1)} km`}, measured on OpenStreetMap rather than claimed by the developer.`)
+    : (zh
+      ? `${heading}：共 ${g.items.length} 个${lo ? `，起价 ${fmtRM(lo)}` : ''}。地契、面积、完工年份与最近车站距离。`
+      : `${g.items.length} projects${lo ? `, from ${fmtRM(lo)}` : ''}. Tenure, built-up sizes, completion year and the measured distance to the nearest station.`);
+
+  const graph = baseGraph();
+  graph.push({ '@type': 'BreadcrumbList', 'itemListElement': [
+    { '@type': 'ListItem', 'position': 1, 'name': zh ? '首页' : 'Home', 'item': `${SITE_URL}${langPrefix(lang)}/` },
+    { '@type': 'ListItem', 'position': 2, 'name': zh ? '全部楼盘' : 'Residences', 'item': `${SITE_URL}${langPrefix(lang)}/residences` },
+    { '@type': 'ListItem', 'position': 3, 'name': heading, 'item': canonical }
+  ] });
+  graph.push({ '@type': 'CollectionPage', '@id': `${canonical}#page`, 'url': canonical, 'name': title, 'description': description,
+    'isPartOf': { '@id': `${SITE_URL}/#website` },
+    ...(g.kind === 'near' ? { 'about': { '@type': 'TrainStation', 'name': `${g.name} station` } } : {}),
+    ...(g.kind === 'developer' ? { 'about': { '@type': 'Organization', 'name': g.name } } : {}),
+    'mainEntity': { '@type': 'ItemList', 'numberOfItems': g.items.length,
+      'itemListElement': g.items.map((x, i) => ({ '@type': 'ListItem', 'position': i + 1, 'name': x.p.name, 'url': `${SITE_URL}${langPrefix(lang)}/project/${x.p.slug}` })) } });
+
+  const th = (t: string) => `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${t}</th>`;
+  const td = (t: string) => `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(t || '—')}</td>`;
+  const heads = g.kind === 'near'
+    ? (zh ? ['距离', '楼盘', '地区', '地契', '起价', '面积', '完工'] : ['Distance', 'Project', 'Area', 'Tenure', 'From', 'Built-up', 'Completion'])
+    : (zh ? ['楼盘', '地区', '地契', '起价', '面积', '完工'] : ['Project', 'Area', 'Tenure', 'From', 'Built-up', 'Completion']);
+  const rows = g.items
+    .slice()
+    .sort((a, b) => g.kind === 'near' ? (a.km! - b.km!) : ((a.p.priceMin || Infinity) - (b.p.priceMin || Infinity)))
+    .map(({ p, km }) => `<tr>`
+      + (g.kind === 'near' ? `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><strong>${km! < 1 ? `${Math.round(km! * 1000)} ${zh ? '米' : 'm'}` : `${km!.toFixed(1)} ${zh ? '公里' : 'km'}`}</strong></td>` : '')
+      + `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><a href="${langPrefix(lang)}/project/${escHtml(p.slug)}">${escHtml(p.name)}</a></td>`
+      + td(primaryArea(p)) + td(zh ? zhTenureLabel(p.tenure) : p.tenure) + td(p.priceMin ? fmtRM(p.priceMin) : '')
+      + td(p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} ${zh ? '平方尺' : 'sq ft'}` : '')
+      + td([p.completionStatus, p.estCompletionDate || p.completionYear].filter(Boolean).join(' '))
+      + `</tr>`).join('');
+
+  const siblings = all.filter(o => o.kind === g.kind && o.slug !== g.slug).slice(0, 12);
+  const siblingLabel = g.kind === 'near' ? (zh ? '其他车站' : 'Other stations') : g.kind === 'developer' ? (zh ? '其他发展商' : 'Other developers') : (zh ? '其他年份' : 'Other years');
+  const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
+    `<nav aria-label="Breadcrumb"><a href="${langPrefix(lang)}/">${zh ? '首页' : 'Home'}</a> › <a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'Residences'}</a> › ${escHtml(heading)}</nav>` +
+    `<h1>${escHtml(heading)}</h1><p>${escHtml(description)}</p>` +
+    `<p>${zh ? `这一页收录 ${g.items.length} 个楼盘。` : `${g.items.length} projects on this page.`}${lo && hi ? (zh ? `发展商开价由 ${fmtRM(lo)} 到 ${fmtRM(hi)}。` : ` Developer list prices run from ${fmtRM(lo)} to ${fmtRM(hi)}.`) : ''}${freehold ? (zh ? `其中 ${freehold} 个是永久地契。` : ` ${freehold} of them ${freehold === 1 ? 'is' : 'are'} freehold.`) : ''}</p>` +
+    `<table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr>${heads.map(th).join('')}</tr></thead><tbody>${rows}</tbody></table>` +
+    `<p style="font-size:13px;color:#78716c">${zh ? '车站距离为 OpenStreetMap 直线距离，实际步行更远。价格为发展商开价，每一期都会变动。' : 'Station distances are straight-line measurements on OpenStreetMap; the walk is longer. Prices are developer list prices and change with each release.'}</p>` +
+    (areas.length ? `<h2>${zh ? '相关地区' : 'Areas'}</h2><ul>${areas.map(a => `<li><a href="${langPrefix(lang)}/area/${escHtml(seoSlugify(a))}">${escHtml(a)}</a></li>`).join('')}</ul>` : '') +
+    (siblings.length ? `<h2>${escHtml(siblingLabel)}</h2><ul>${siblings.map(o => `<li><a href="${langPrefix(lang)}/${o.kind}/${escHtml(o.slug)}">${escHtml(o.name)}</a> (${o.items.length})</li>`).join('')}</ul>` : '') +
+    `<p>${zh ? '咨询与看房' : 'Enquiries and viewings'}: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
+    `<p><a href="${langPrefix(lang)}/residences">${zh ? '全部楼盘' : 'All residences'}</a> · <a href="${langPrefix(lang)}/compare">${zh ? '楼盘对比' : 'Compare'}</a> · <a href="${langPrefix(lang)}/calculators">${zh ? '贷款计算' : 'Calculators'}</a></p>` +
+    `</div>`;
+  let html = applyHead(indexHtml, title, description, canonical, graph, true);
+  html = html.replace(/<\/head>/i, `    ${hreflangTags(pathAfter)}\n  </head>`);
+  if (zh) html = html.replace(/<html([^>]*)\slang="[^"]*"/i, '<html$1 lang="zh-Hans"');
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
+  return html;
+}
+
 function areaLinksHtml(areas: SeoArea[]): string {
   if (!areas.length) return '';
   const byState: Record<string, SeoArea[]> = {};
@@ -1537,7 +1690,7 @@ function buildLlmsTxt(projects: SeoProject[]): string {
   return lines.join('\n');
 }
 
-function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers: Record<string, { image: string; title: string }> = {}): string {
+function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers: Record<string, { image: string; title: string }> = {}, indexGroups: IndexGroup[] = []): string {
   const today = new Date().toISOString().split('T')[0];
   const toIso = (dmy: string) => {
     const m = dmy.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -1564,6 +1717,10 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers
     for (const p of projects) xml += imageUrl(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8', covers[p.slug]);
     for (const c of buildComparePairs(projects)) xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
     for (const sl of SHORTLISTS) xml += url(`${SITE_URL}/best/${sl.slug}`, today, 'weekly', '0.8');
+    for (const g of indexGroups) {
+      xml += url(`${SITE_URL}/${g.kind}/${g.slug}`, today, 'weekly', '0.75');
+      xml += url(`${SITE_URL}/zh/${g.kind}/${g.slug}`, today, 'weekly', '0.70');
+    }
     // Chinese twins of the two page types that carry the project data.
     for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/zh/area/${a.slug}`, today, 'weekly', '0.7');
     for (const p of projects) xml += url(`${SITE_URL}/zh/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.7');
@@ -1603,6 +1760,8 @@ app.use((req, res, next) => {
     if (m) { projectMatch = m; break; }
   }
 
+  let indexMatch: RegExpMatchArray | null = null;
+  for (const c of candidates) { const m = String(c || '').match(/\/(near|developer|completion)\/([^/?#]+)/i); if (m) { indexMatch = m; break; } }
   let bestMatch: RegExpMatchArray | null = null;
   for (const c of candidates) { const m = String(c || '').match(/\/best\/([^/?#]+)/i); if (m) { bestMatch = m; break; } }
   let areaMatch: RegExpMatchArray | null = null;
@@ -1630,6 +1789,8 @@ app.use((req, res, next) => {
     req.url = '/llms.txt';
   } else if (projectMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = `${zhPrefix}/project/${projectMatch[1]}`;
+  } else if (indexMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
+    req.url = `${zhPrefix}/${indexMatch[1].toLowerCase()}/${indexMatch[2]}`;
   } else if (bestMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
     req.url = `${zhPrefix}/best/${bestMatch[1]}`;
   } else if (areaMatch && !has(/\/api\/(drive-images|sheets-|image-proxy|project-seo)/i)) {
@@ -1797,7 +1958,9 @@ app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
   } catch (e) {
     console.warn('Sitemap: no cover images this time:', e);
   }
-  res.send(buildSitemapXml(projects, FALLBACK_PROJECT_SLUGS, covers));
+  let indexGroups: IndexGroup[] = [];
+  try { indexGroups = buildIndexGroups(projects, await loadProjectSeo(req)); } catch { /* keep the rest of the sitemap */ }
+  res.send(buildSitemapXml(projects, FALLBACK_PROJECT_SLUGS, covers, indexGroups));
 });
 
 // llms.txt for AI assistants, generated from the same live data (new projects appear automatically)
@@ -1895,6 +2058,30 @@ app.get('/compare/:pair', async (req, res) => {
   } catch (err) {
     console.error('Compare prerender failed:', err);
     res.redirect(302, '/compare');
+  }
+});
+
+// Station, developer and completion-year index pages, in both languages.
+app.get(['/near/:slug', '/developer/:slug', '/completion/:slug',
+         '/zh/near/:slug', '/zh/developer/:slug', '/zh/completion/:slug'], async (req, res) => {
+  const lang: Lang = req.path.startsWith('/zh/') ? 'zh' : 'en';
+  const kind = (req.path.replace(/^\/zh/, '').split('/')[1] || '') as IndexGroup['kind'];
+  const slug = seoSlugify(String(req.params.slug || ''));
+  try {
+    const [projects, indexHtml] = await Promise.all([
+      fetchSeoProjects().catch((e) => { console.warn('Index prerender: sheet unavailable', e); return [] as SeoProject[]; }),
+      loadIndexHtml(req)
+    ]);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=600, stale-while-revalidate=86400');
+    const records = await loadProjectSeo(req);
+    const groups = buildIndexGroups(projects, records);
+    const g = groups.find(x => x.kind === kind && x.slug === slug);
+    if (!g) { res.status(projects.length ? 404 : 200).send(projects.length ? renderNotFoundHtml(indexHtml) : indexHtml); return; }
+    res.send(renderIndexHtml(indexHtml, g, groups, lang));
+  } catch (err) {
+    console.error('Index prerender failed:', err);
+    res.redirect(302, '/residences');
   }
 });
 

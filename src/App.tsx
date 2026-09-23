@@ -311,6 +311,10 @@ export default function App() {
           matchedProject = found;
           matchedTab = 'residences';
         }
+      } else if (pathname.match(/^\/(?:near|developer|completion)\/([^\/]+)$/i)) {
+        // Station, developer and completion-year pages are pre-rendered for crawlers; a person
+        // gets the full project directory rather than a page the app does not know.
+        matchedTab = 'residences';
       } else if (pathname.match(/^\/area\/([^\/]+)$/i)) {
         const slug = decodeURIComponent(pathname.split('/')[2] || '').toLowerCase();
         const areaName = ALL_AREA_NAMES.find(a => areaSlug(a) === slug)

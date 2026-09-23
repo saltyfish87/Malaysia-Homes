@@ -26,6 +26,8 @@ export interface ProjectSeoRecord {
   totalUnits?: string; totalFloors?: string; unitsPerFloor?: string; lifts?: string;
   maintenanceFee?: string; completionYear?: string; completionStatus?: string; constructionPeriod?: string;
   address?: string; lat?: number; lng?: number;
+  /** Nearest named rail stations, straight-line km, measured from the project's own coordinates. */
+  stations?: { name: string; km: number }[];
   priceMin?: number; priceMax?: number; pricePsf?: string;
   builtUpMin?: number; builtUpMax?: number; bedrooms?: string; bathrooms?: string;
   coverImage?: string;
@@ -37,6 +39,46 @@ export interface ProjectSeoRecord {
   faqs: { q: string; a: string }[];
 }
 
+/**
+ * Straight-line distance to the nearest rail stations.
+ *
+ * public/data/rail-stations.json is an OpenStreetMap extract of every named station in the three
+ * regions these projects sit in. No competitor measures anything — "5 minutes to the MRT" is copied
+ * from a brochure — so this is the one figure on the page that is checkable. Straight line, and the
+ * page says so: a walk is always longer.
+ */
+interface RailStation { name: string; lat: number; lon: number }
+function loadStations(): RailStation[] {
+  try {
+    const f = path.join(process.cwd(), 'public', 'data', 'rail-stations.json');
+    return (JSON.parse(fs.readFileSync(f, 'utf8')).stations || []) as RailStation[];
+  } catch { return []; }
+}
+function haversineKm(aLat: number, aLon: number, bLat: number, bLon: number): number {
+  const R = 6371, rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(bLat - aLat), dLon = rad(bLon - aLon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+/** OSM labels a station with its line code; group by the name so one interchange is one entry. */
+function nearestStations(lat: number, lng: number, all: RailStation[]): { name: string; km: number }[] {
+  const strip = (n: string) => n.replace(/^[A-Z]{2}\d+[A-Z]?\s+/, '').replace(/\s+(LRT|MRT|Monorail|KTM)\s+Station$/i, '').trim();
+  const best = new Map<string, number>();
+  for (const st of all) {
+    if (/bus\s*terminal|bus\s*station|bus\s*hub/i.test(st.name)) continue;
+    const km = haversineKm(lat, lng, st.lat, st.lon);
+    if (km > 4) continue;
+    const key = strip(st.name) || st.name;
+    const prev = best.get(key);
+    if (prev === undefined || km < prev) best.set(key, km);
+  }
+  return [...best.entries()]
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, 3)
+    .map(([name, km]) => ({ name, km: Math.round(km * 100) / 100 }));
+}
+
+const RAIL_STATIONS = loadStations();
 const alnum = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 const clean = (s: any) => (typeof s === 'string' ? s.trim() : s == null ? '' : String(s)).replace(/\s+/g, ' ');
 const num = (v: any): number | undefined => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isFinite(n) && n > 0 ? n : undefined; };
@@ -114,6 +156,7 @@ function readCtg(): ProjectSeoRecord[] {
       completionYear: clean(r.completion_year) || undefined, completionStatus: clean(r.completion_status) || undefined, constructionPeriod: clean(r.construction_period) || undefined,
       address: clean(r.address) || undefined,
       lat: coord.length === 2 && isFinite(coord[0]) ? coord[0] : undefined, lng: coord.length === 2 && isFinite(coord[1]) ? coord[1] : undefined,
+      stations: coord.length === 2 && isFinite(coord[0]) && isFinite(coord[1]) ? nearestStations(coord[0], coord[1], RAIL_STATIONS) : undefined,
       priceMin: num(r.price_min), priceMax: num(r.price_max), pricePsf: clean(r.price_psf) || undefined,
       builtUpMin: num(r.built_up_min), builtUpMax: num(r.built_up_max), bedrooms: clean(r.bedrooms) || undefined, bathrooms: clean(r.bathrooms) || undefined,
       coverImage: driveToLh3(clean(r.cover_image_url)) || undefined,

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-20",
+ "generatedAt": "2026-09-23",
  "count": 73,
  "projects": [
   {
@@ -23,6 +23,20 @@
    "address": "Lot 9667, Jalan Damansara, Bangsar, 59000 Kuala Lumpur",
    "lat": 3.142417,
    "lng": 101.668968,
+   "stations": [
+    {
+     "name": "Pusat Bandar Damansara",
+     "km": 0.74
+    },
+    {
+     "name": "Semantan",
+     "km": 1.03
+    },
+    {
+     "name": "Bangsar",
+     "km": 2
+    }
+   ],
    "priceMin": 1745000,
    "priceMax": 6718000,
    "pricePsf": "1680",
@@ -212,6 +226,20 @@
    "address": "Jalan Makmur, USJ 25, 47650 Subang Jaya, Selangor",
    "lat": 3.0225,
    "lng": 101.5835,
+   "stations": [
+    {
+     "name": "USJ21",
+     "km": 0.83
+    },
+    {
+     "name": "Alam Megah",
+     "km": 1.27
+    },
+    {
+     "name": "Wawasan",
+     "km": 1.49
+    }
+   ],
    "priceMin": 470800,
    "priceMax": 995800,
    "pricePsf": "683",
@@ -389,6 +417,16 @@
    "address": "Lot 13992, Jalan Meranti Permai, Taman Meranti Permai, 47100 Puchong, Selangor",
    "lat": 2.95543,
    "lng": 101.62358,
+   "stations": [
+    {
+     "name": "16 Sierra",
+     "km": 3.64
+    },
+    {
+     "name": "Cyberjaya Utara",
+     "km": 3.83
+    }
+   ],
    "priceMin": 250000,
    "priceMax": 842950,
    "pricePsf": "538",
@@ -655,6 +693,20 @@
    "address": "Jalan Hujan Rintik, Wcity OUG, Taman Overseas Union, 58200 Kuala Lumpur",
    "lat": 3.0805,
    "lng": 101.6675,
+   "stations": [
+    {
+     "name": "Petaling",
+     "km": 0.72
+    },
+    {
+     "name": "Jalan Templer",
+     "km": 1.27
+    },
+    {
+     "name": "Pantai Dalam",
+     "km": 1.71
+    }
+   ],
    "priceMin": 666000,
    "priceMax": 950000,
    "pricePsf": "783",
@@ -852,6 +904,20 @@
    "address": "Jln Sungai Besi, Chan Sow Lin, 57100 Kuala Lumpur, Federal Territory of Kuala Lumpur",
    "lat": 3.1205,
    "lng": 101.7145,
+   "stations": [
+    {
+     "name": "Miharja",
+     "km": 0.37
+    },
+    {
+     "name": "SP11 Chan Sow Lin",
+     "km": 0.82
+    },
+    {
+     "name": "Cheras",
+     "km": 0.87
+    }
+   ],
    "priceMin": 461000,
    "priceMax": 1214000,
    "pricePsf": "779",
@@ -1023,7 +1089,7 @@
     },
     {
      "category": "Recreation",
-     "name": "KL City Centre Park",
+     "name": "KLCC Park",
      "distance": "5.1km"
     }
    ],
@@ -1115,6 +1181,20 @@
    "address": "Jalan Duta Kiara, Solaris, Mont Kiara, 50480 Kuala Lumpur",
    "lat": 3.1715,
    "lng": 101.6663,
+   "stations": [
+    {
+     "name": "Hentian Duta",
+     "km": 0.83
+    },
+    {
+     "name": "Segambut",
+     "km": 1.68
+    },
+    {
+     "name": "Sentul Barat",
+     "km": 2.25
+    }
+   ],
    "priceMin": 580000,
    "priceMax": 1902000,
    "pricePsf": "1150",
@@ -1292,6 +1372,20 @@
    "address": "Residensi Arun Kepong, No 187, Pintasan Segambut, Segambut, 52000 Kuala Lumpur",
    "lat": 3.203472,
    "lng": 101.658,
+   "stations": [
+    {
+     "name": "Jinjang",
+     "km": 0.72
+    },
+    {
+     "name": "Sri Delima",
+     "km": 0.94
+    },
+    {
+     "name": "Kepong Baru",
+     "km": 1.42
+    }
+   ],
    "priceMin": 409800,
    "priceMax": 1274000,
    "pricePsf": "RM 717 - RM 743",
@@ -1491,9 +1585,9 @@
    "bedrooms": "1 - 4+1",
    "bathrooms": "1 - 5",
    "coverImage": "https://lh3.googleusercontent.com/d/1wmpq9LOtN_tk5-x52AW8cP0-SgLXuPHv=w1600",
-   "description": "Ascott Star KL City Centre is an international award-winning luxury mixed development managed by The Ascott Limited, offering 5-star hospitality services, high-end residential towers, and lifestyle retail right in the heart of Kuala Lumpur City Centre.",
+   "description": "Ascott Star KLCC is an international award-winning luxury mixed development managed by The Ascott Limited, offering 5-star hospitality services, high-end residential towers, and lifestyle retail right in the heart of Kuala Lumpur City Centre.",
    "keyFeatures": [
-    "Located next to Petronas Twin Towers in KL City Centre",
+    "Located next to Petronas Twin Towers in KLCC",
     "Branded luxury residence managed by The Ascott Limited",
     "Features Southeast Asia's first Star Walk of Fame",
     "O3 Sky Park on Level 99 with lap pool and city views",
@@ -1544,7 +1638,7 @@
     },
     {
      "category": "Nearby",
-     "name": "Suria Mall"
+     "name": "Suria KLCC"
     },
     {
      "category": "Nearby",
@@ -1580,7 +1674,7 @@
     },
     {
      "category": "Nearby",
-     "name": "KL City Centre LRT Station"
+     "name": "KLCC LRT Station"
     },
     {
      "category": "Nearby",
@@ -1644,7 +1738,7 @@
     },
     {
      "category": "Nearby",
-     "name": "Aquaria KL City Centre"
+     "name": "Aquaria KLCC"
     },
     {
      "category": "Nearby",
@@ -1703,6 +1797,20 @@
    "address": "Seri Gembira Avenue, 6, Jalan Senang Ria, Taman Gembira, 58200 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.0781,
    "lng": 101.6931,
+   "stations": [
+    {
+     "name": "Taman Naga Emas",
+     "km": 0.72
+    },
+    {
+     "name": "Kuchai",
+     "km": 1.28
+    },
+    {
+     "name": "ERL Bandar Tasik Selatan",
+     "km": 1.92
+    }
+   ],
    "priceMin": 417545,
    "priceMax": 573755,
    "pricePsf": "793",
@@ -1782,7 +1890,7 @@
     },
     {
      "category": "Shopping",
-     "name": "Kuala Lumpur City Centre (KL City Centre)"
+     "name": "Kuala Lumpur City Centre (KLCC)"
     },
     {
      "category": "Education",
@@ -2070,6 +2178,20 @@
    "address": "Jalan Mas, Bukit Jalil, 58200 Kuala Lumpur",
    "lat": 3.058907,
    "lng": 101.649627,
+   "stations": [
+    {
+     "name": "Alam Sutera",
+     "km": 0.9
+    },
+    {
+     "name": "Kinrara BK 5",
+     "km": 1.11
+    },
+    {
+     "name": "Muhibbah",
+     "km": 1.48
+    }
+   ],
    "priceMin": 753000,
    "priceMax": 1631000,
    "pricePsf": "639",
@@ -2329,6 +2451,20 @@
    "address": "Lorong Maarof, Bangsar, Kuala Lumpur",
    "lat": 3.1315,
    "lng": 101.6755,
+   "stations": [
+    {
+     "name": "Bangsar",
+     "km": 0.6
+    },
+    {
+     "name": "KL Sentral",
+     "km": 1.25
+    },
+    {
+     "name": "KL Sentral (Monorail)",
+     "km": 1.38
+    }
+   ],
    "builtUpMin": 917,
    "builtUpMax": 1478,
    "bedrooms": "2 - 3+1",
@@ -2570,6 +2706,20 @@
    "address": "Lorong Maarof, Bangsar, 59000 Kuala Lumpur",
    "lat": 3.1325,
    "lng": 101.672,
+   "stations": [
+    {
+     "name": "Bangsar",
+     "km": 0.96
+    },
+    {
+     "name": "Abdullah Hukum",
+     "km": 1.52
+    },
+    {
+     "name": "Pusat Bandar Damansara",
+     "km": 1.61
+    }
+   ],
    "priceMin": 803240,
    "priceMax": 1742000,
    "pricePsf": "793-1132",
@@ -2681,7 +2831,7 @@
     },
     {
      "category": "Shopping & Entertainment",
-     "name": "KL City Centre",
+     "name": "KLCC",
      "distance": "8.4km"
     },
     {
@@ -2908,6 +3058,20 @@
    "address": "Seksyen 13, 40150, Shah Alam, Selangor, Malaysia",
    "lat": 3.08581,
    "lng": 101.55182,
+   "stations": [
+    {
+     "name": "Stadium Shah Alam",
+     "km": 0.72
+    },
+    {
+     "name": "Kerjaya",
+     "km": 1.19
+    },
+    {
+     "name": "Batu Tiga",
+     "km": 1.4
+    }
+   ],
    "priceMin": 250000,
    "priceMax": 672500,
    "pricePsf": "455",
@@ -3095,6 +3259,12 @@
    "address": "Off Jalan Pintas Rawang (next to Rawang Bypass)",
    "lat": 3.34615,
    "lng": 101.59928,
+   "stations": [
+    {
+     "name": "Serendah",
+     "km": 3.73
+    }
+   ],
    "priceMin": 802000,
    "priceMax": 1633000,
    "pricePsf": "480",
@@ -3314,7 +3484,7 @@
    "faqs": []
   },
   {
-   "name": "CENTRIX THE STATION",
+   "name": "CENTRIX THE STATION KLCC",
    "aliases": [
     "centrixthestationklcc",
     "centrix"
@@ -3336,13 +3506,27 @@
    "address": "Jalan Ampang, 50450 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.1568,
    "lng": 101.7015,
+   "stations": [
+    {
+     "name": "Dang Wangi",
+     "km": 0.06
+    },
+    {
+     "name": "Bukit Nanas",
+     "km": 0.38
+    },
+    {
+     "name": "Medan Tuanku",
+     "km": 0.4
+    }
+   ],
    "priceMin": 907800,
    "pricePsf": "From RM1,600 - RM1850 (Gross)",
    "builtUpMin": 571,
    "builtUpMax": 1187,
    "bedrooms": "1 - Studio",
    "coverImage": "https://lh3.googleusercontent.com/d/1Moze3CvU8Oq1WAo2X9LPcYERlhHMWwTW=w1600",
-   "description": "A single 47-storey integrated mixed development tower, built above Kuala Lumpur's Dang Wangi LRT (KJ12) underground station. This Transit Oriented Development (TOD) features a SOHO Tower and a 10-storey podium with retail, office, and carpark levels. Nestled in the heart of the KL City Centre district, it blends luxury, sophistication, and cutting-edge lifestyle, offering a premier address at the prestigious junction of Jalan Ampang and Jalan Sultan Ismail with exceptional accessibility and panoramic views of Kuala Lumpur's iconic skyline.",
+   "description": "A single 47-storey integrated mixed development tower, built above Kuala Lumpur's Dang Wangi LRT (KJ12) underground station. This Transit Oriented Development (TOD) features a SOHO Tower and a 10-storey podium with retail, office, and carpark levels. Nestled in the heart of the KLCC district, it blends luxury, sophistication, and cutting-edge lifestyle, offering a premier address at the prestigious junction of Jalan Ampang and Jalan Sultan Ismail with exceptional accessibility and panoramic views of Kuala Lumpur's iconic skyline.",
    "keyFeatures": [
     "A 47-storey TOD (Transit-Oriented Development) rising above Dang Wangi LRT Station",
     "Strategically located at the intersection of Jalan Ampang and Jalan Sultan Ismail",
@@ -3407,7 +3591,7 @@
     },
     {
      "category": "Landmark & Entertainment",
-     "name": "Petronas Twin Tower / Suria Mall"
+     "name": "Petronas Twin Tower / Suria KLCC"
     },
     {
      "category": "Landmark & Entertainment",
@@ -3481,6 +3665,20 @@
    "address": "Menara TA First, 28, Jalan P. Ramlee, 50250 Kuala Lumpur",
    "lat": 3.156133,
    "lng": 101.707185,
+   "stations": [
+    {
+     "name": "Bukit Nanas",
+     "km": 0.26
+    },
+    {
+     "name": "Dang Wangi",
+     "km": 0.58
+    },
+    {
+     "name": "Raja Chulan",
+     "km": 0.69
+    }
+   ],
    "priceMin": 1483800,
    "priceMax": 4257800,
    "pricePsf": "2900",
@@ -3492,7 +3690,7 @@
    "description": "CloutHaus. Power and influence encapsulated in a name. An enclave for the forward thinkers, innovators, and game changers of a generation - the most visionary individuals of our time. Rising from one of the last parcels of land facing Kuala Lumpur's Petronas Twin Towers, this prestigious address stands as a defining landmark and icon, testifying to the city's enduring influence and rich tapestry. As the capital's next architectural masterpiece and premier development, CloutHaus is set to join the ranks of the world's most iconic buildings. Two slender towers stand majestically above a common podium, their sleek profiles mirroring the pulse of the city below.",
    "keyFeatures": [
     "KL's Most Iconic Address",
-    "Hotel Services by Paradox Hotel Kuala Lumpur",
+    "Hotel Services by Paradox Hotel KLCC",
     "Timeless, Luxury Interior Design",
     "Elevated Facilities for the High Life",
     "Branded Fittings and Appliances. [COMPLIANCE: Not Allowed on Facebook or Any Marketing Materials:- Rebates, Nett Price, Cashback",
@@ -3579,7 +3777,7 @@
     },
     {
      "category": "Shopping & Leisure",
-     "name": "Petronas Twin Towers"
+     "name": "KLCC Twin Towers"
     },
     {
      "category": "Shopping & Leisure",
@@ -3826,6 +4024,20 @@
    "address": "Tun Razak Exchange, Jalan Tun Razak, 55188 Kuala Lumpur",
    "lat": 3.1444,
    "lng": 101.7125,
+   "stations": [
+    {
+     "name": "Bukit Bintang",
+     "km": 0.22
+    },
+    {
+     "name": "Imbi",
+     "km": 0.39
+    },
+    {
+     "name": "Raja Chulan",
+     "km": 0.76
+    }
+   ],
    "priceMin": 1442207,
    "priceMax": 4660000,
    "pricePsf": "2171",
@@ -4014,6 +4226,20 @@
    "address": "Jalan Sungai Buloh, Kwasa Damansara, 40160 Shah Alam, Selangor",
    "lat": 3.181345,
    "lng": 101.569423,
+   "stations": [
+    {
+     "name": "PY01 Kwasa Damansara",
+     "km": 0.65
+    },
+    {
+     "name": "Kwasa Sentral",
+     "km": 1.38
+    },
+    {
+     "name": "Kampung Selamat",
+     "km": 2.02
+    }
+   ],
    "priceMin": 498100,
    "priceMax": 799400,
    "pricePsf": "689.35",
@@ -4220,6 +4446,20 @@
    "address": "Jalan Sungai Buloh, Kwasa Damansara, 47810 Petaling Jaya, Selangor",
    "lat": 3.168157,
    "lng": 101.565502,
+   "stations": [
+    {
+     "name": "Kwasa Sentral",
+     "km": 0.2
+    },
+    {
+     "name": "PY01 Kwasa Damansara",
+     "km": 1.19
+    },
+    {
+     "name": "Kota Damansara",
+     "km": 2.48
+    }
+   ],
    "priceMin": 270000,
    "priceMax": 270000,
    "pricePsf": "490.9",
@@ -4349,7 +4589,7 @@
    "faqs": []
   },
   {
-   "name": "DIVINE Kuala Lumpur",
+   "name": "DIVINE KLCC",
    "aliases": [
     "divineklcc",
     "divineklcc"
@@ -4370,6 +4610,20 @@
    "address": "Off Jalan Saloma, Kuala Lumpur",
    "lat": 3.1583,
    "lng": 101.7067,
+   "stations": [
+    {
+     "name": "Bukit Nanas",
+     "km": 0.32
+    },
+    {
+     "name": "Dang Wangi",
+     "km": 0.55
+    },
+    {
+     "name": "KLCC",
+     "km": 0.75
+    }
+   ],
    "priceMin": 997000,
    "priceMax": 3900000,
    "pricePsf": "1600",
@@ -4378,10 +4632,10 @@
    "bedrooms": "1+1 - 3+1",
    "bathrooms": "1 - 3",
    "coverImage": "https://lh3.googleusercontent.com/d/1WILkJbyK0dFgUp4JS3KXF7sdyFvra1cb=w1600",
-   "description": "Located 400 meters from the Petronas Twin Towers, DIVINE Kuala Lumpur is a new icon in Kuala Lumpur's skyline. Designed by a collaboration of award-winning architects—Konzepte, Ministry of Design, and SD2—this 83-storey leasehold serviced apartment offers a seamless harmony of architecture, interiors, and landscape. Rising over 300 meters, it features one of the city's highest sky facilities, including a 360° rooftop bar on Level 81 and an infinity lap pool on Level 80 with front-row views of the city. The project aims to provide a new paradigm of vertical living that is elegant, effortless, and iconic for those who move globally but live meaningfully.",
+   "description": "Located 400 meters from the Petronas Twin Towers, DIVINE KLCC is a new icon in Kuala Lumpur's skyline. Designed by a collaboration of award-winning architects—Konzepte, Ministry of Design, and SD2—this 83-storey leasehold serviced apartment offers a seamless harmony of architecture, interiors, and landscape. Rising over 300 meters, it features one of the city's highest sky facilities, including a 360° rooftop bar on Level 81 and an infinity lap pool on Level 80 with front-row views of the city. The project aims to provide a new paradigm of vertical living that is elegant, effortless, and iconic for those who move globally but live meaningfully.",
    "keyFeatures": [
-    "Prestigious address 400m from KL City Centre",
-    "Covered walkway to Jalan Ampang - KL City Centre junction",
+    "Prestigious address 400m from KLCC",
+    "Covered walkway to Jalan Ampang - KLCC junction",
     "Bespoke design by award-winning designers (Konzepte, Ministry of Design, SD2)",
     "Sky-high facilities including an infinity lap pool on Level 80",
     "Malaysia's First and Tallest 360° Proposed Rooftop Bar",
@@ -4437,7 +4691,7 @@
    "amenities": [
     {
      "category": "Shopping & Entertainment",
-     "name": "Suria Mall",
+     "name": "Suria KLCC",
      "distance": "400m"
     },
     {
@@ -4477,16 +4731,16 @@
     },
     {
      "category": "Public Transportation",
-     "name": "Covered walkway to Jalan Ampang - KL City Centre junction"
+     "name": "Covered walkway to Jalan Ampang - KLCC junction"
     },
     {
      "category": "Public Transportation",
-     "name": "KL City Centre LRT Station",
+     "name": "KLCC LRT Station",
      "distance": "500m"
     },
     {
      "category": "Public Transportation",
-     "name": "Persiaran KL City Centre MRT Station",
+     "name": "Persiaran KLCC MRT Station",
      "distance": "500m"
     },
     {
@@ -4561,7 +4815,7 @@
     },
     {
      "category": "Recreation & Attraction",
-     "name": "KL City Centre Park",
+     "name": "KLCC Park",
      "distance": "600m"
     },
     {
@@ -4801,7 +5055,7 @@
    "amenities": [
     {
      "category": "Nearby",
-     "name": "Public Transport: MRT Conlay Station (130m / 1 min walk), MRT TRX Station, Persiaran KL City Centre MRT Station"
+     "name": "Public Transport: MRT Conlay Station (130m / 1 min walk), MRT TRX Station, Persiaran KLCC MRT Station"
     },
     {
      "category": "Nearby",
@@ -4810,7 +5064,7 @@
     },
     {
      "category": "Nearby",
-     "name": "Shopping Malls: Pavilion Kuala Lumpur (575m), The Linc (780m), Fahrenheit 88 (800m), Suria Mall (965m), The Intermark (1.0km), Avenue K (1.0km), IKEA Cheras"
+     "name": "Shopping Malls: Pavilion Kuala Lumpur (575m), The Linc (780m), Fahrenheit 88 (800m), Suria KLCC (965m), The Intermark (1.0km), Avenue K (1.0km), IKEA Cheras"
     },
     {
      "category": "Nearby",
@@ -4819,7 +5073,7 @@
     },
     {
      "category": "Nearby",
-     "name": "Recreation & Landmarks: Royal Selangor Golf Club (340m), KL City Centre Park (550m), Saloma Link Bridge (1.6km), KL Forest Eco Park (1.9km), KL Bird Park (3.5km), Petronas Twin Towers, Tun Razak Exchange TRX",
+     "name": "Recreation & Landmarks: Royal Selangor Golf Club (340m), KLCC Park (550m), Saloma Link Bridge (1.6km), KL Forest Eco Park (1.9km), KL Bird Park (3.5km), Petronas Twin Towers, Tun Razak Exchange TRX",
      "distance": "880m"
     }
    ],
@@ -4892,6 +5146,20 @@
    "address": "Jalan Jalil Perkasa 1, Bukit Jalil, 57000 Kuala Lumpur",
    "lat": 3.059125,
    "lng": 101.681436,
+   "stations": [
+    {
+     "name": "Sri Petaling",
+     "km": 0.68
+    },
+    {
+     "name": "Bukit Jalil",
+     "km": 1.2
+    },
+    {
+     "name": "Awan Besar",
+     "km": 1.24
+    }
+   ],
    "priceMin": 575800,
    "pricePsf": "From RM780psf",
    "builtUpMin": 732,
@@ -5033,6 +5301,20 @@
    "address": "Lot 398, Old Klang Road, 58100 Kuala Lumpur, Federal Territory of Kuala Lumpur",
    "lat": 3.0906,
    "lng": 101.6706,
+   "stations": [
+    {
+     "name": "Pantai Dalam",
+     "km": 0.56
+    },
+    {
+     "name": "Petaling",
+     "km": 0.87
+    },
+    {
+     "name": "Jalan Templer",
+     "km": 1.76
+    }
+   ],
    "priceMin": 593000,
    "priceMax": 875000,
    "pricePsf": "912",
@@ -5169,6 +5451,20 @@
    "address": "Jalan Tun Razak, adjacent to Tun Razak Exchange (TRX), W.P Kuala Lumpur",
    "lat": 3.1428,
    "lng": 101.7225,
+   "stations": [
+    {
+     "name": "PY23 Tun Razak Exchange",
+     "km": 0.28
+    },
+    {
+     "name": "Conlay",
+     "km": 1.01
+    },
+    {
+     "name": "Cochrane",
+     "km": 1.15
+    }
+   ],
    "priceMin": 1280000,
    "priceMax": 3031000,
    "pricePsf": "2051",
@@ -5212,7 +5508,7 @@
     },
     {
      "category": "Nearby",
-     "name": "Shopping Malls: The Exchange TRX (50m), IKEA / MyTown (800m), Berjaya Times Squares (900m), Pavilion KL / Starhill / Lot 10 (1.0km), Suria Mall",
+     "name": "Shopping Malls: The Exchange TRX (50m), IKEA / MyTown (800m), Berjaya Times Squares (900m), Pavilion KL / Starhill / Lot 10 (1.0km), Suria KLCC",
      "distance": "1.8km"
     },
     {
@@ -5222,7 +5518,7 @@
     },
     {
      "category": "Nearby",
-     "name": "Leisure and Parks: TRX 10 acres park (50m), Royal Selangor Golf Club (550m), KL City Centre Park",
+     "name": "Leisure and Parks: TRX 10 acres park (50m), Royal Selangor Golf Club (550m), KLCC Park",
      "distance": "1.3km"
     },
     {
@@ -5304,6 +5600,20 @@
    "address": "Jalan Bangsar, Bangsar, 59200 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.1292,
    "lng": 101.6784,
+   "stations": [
+    {
+     "name": "Bangsar",
+     "km": 0.21
+    },
+    {
+     "name": "KL Sentral",
+     "km": 1.05
+    },
+    {
+     "name": "KL Sentral (Monorail)",
+     "km": 1.12
+    }
+   ],
    "priceMin": 785000,
    "priceMax": 2668000,
    "pricePsf": "1157-1434",
@@ -5867,6 +6177,20 @@
    "address": "Jalan Kerinchi, Bangsar South, 59200 Kuala Lumpur",
    "lat": 3.1102,
    "lng": 101.6645,
+   "stations": [
+    {
+     "name": "Universiti",
+     "km": 0.57
+    },
+    {
+     "name": "Kerinchi",
+     "km": 0.74
+    },
+    {
+     "name": "Angkasapuri",
+     "km": 1.03
+    }
+   ],
    "priceMin": 450000,
    "priceMax": 899300,
    "pricePsf": "909",
@@ -6136,6 +6460,20 @@
    "address": "20, Jalan 5/91a, Taman Shamelin Perkasa, 56100 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.1235,
    "lng": 101.7397,
+   "stations": [
+    {
+     "name": "Pandan Jaya",
+     "km": 0.75
+    },
+    {
+     "name": "Maluri",
+     "km": 1.39
+    },
+    {
+     "name": "Pandan Indah",
+     "km": 1.47
+    }
+   ],
    "priceMin": 684000,
    "priceMax": 1003000,
    "pricePsf": "730",
@@ -6144,7 +6482,7 @@
    "bedrooms": "2 - 4+1",
    "bathrooms": "2 - 3",
    "coverImage": "https://lh3.googleusercontent.com/d/1dEOhupj88P96b6A-6XSO2q8jtYX_0WI5=w1600",
-   "description": "Celebrate dynamic excellence in life within the dazzling towers of LEVIA, a new vertical residence that integrates creative architecture and lush greenery across 4.71 acres of open space to offer both comfort and beauty. Perfectly positioned in a mature location of South KL, near KL City Centre and Tun Razak Exchange, the area boasts a vast array of lifestyle amenities and transportation links designed to provide a complete Kuala Lumpur lifestyle experience. The captivating fusion of elements hints at a lifestyle makeover, offering a sophisticated take on living spaces. It's an invitation to embrace a more mindful, culturally inspired way of living in Levia, where your surroundings and lifestyle intertwine seamlessly.",
+   "description": "Celebrate dynamic excellence in life within the dazzling towers of LEVIA, a new vertical residence that integrates creative architecture and lush greenery across 4.71 acres of open space to offer both comfort and beauty. Perfectly positioned in a mature location of South KL, near KLCC and Tun Razak Exchange, the area boasts a vast array of lifestyle amenities and transportation links designed to provide a complete Kuala Lumpur lifestyle experience. The captivating fusion of elements hints at a lifestyle makeover, offering a sophisticated take on living spaces. It's an invitation to embrace a more mindful, culturally inspired way of living in Levia, where your surroundings and lifestyle intertwine seamlessly.",
    "keyFeatures": [
     "Strategically located in South KL (Cheras)",
     "Good connectivity & accessibility to major highways and public transport",
@@ -6295,7 +6633,7 @@
     },
     {
      "category": "Shopping Malls & Supermarkets",
-     "name": "Suria Mall - 10.4km"
+     "name": "Suria KLCC - 10.4km"
     },
     {
      "category": "Education",
@@ -6397,6 +6735,20 @@
    "address": "No. 2, Jalan Hang Tuah, 55100 Kuala Lumpur",
    "lat": 3.141656,
    "lng": 101.707755,
+   "stations": [
+    {
+     "name": "Hang Tuah",
+     "km": 0.21
+    },
+    {
+     "name": "Imbi",
+     "km": 0.22
+    },
+    {
+     "name": "SP9 Hang Tuah",
+     "km": 0.25
+    }
+   ],
    "priceMin": 782000,
    "priceMax": 2178000,
    "pricePsf": "1800",
@@ -6407,7 +6759,7 @@
    "coverImage": "https://lh3.googleusercontent.com/d/1RdKtFkW1fI6QGb1NnDZk0NkMJosWtX4D=w1600",
    "description": "Lucentia is the first residential offering in BBCC. This high-rise residential development features two conjoined towers, soaring 47 and 35 floors respectively. Drawing inspiration from traditional Japanese paper lanterns, Lucentia is designed to infuse your world with light and a lightness of spirit. By day, the interior is flooded with natural light, and by night, it is softly illuminated, a welcoming beacon to guide you home.",
    "keyFeatures": [
-    "An integrated development in the Golden Triangle of Kuala Lumpur, featuring direct connectivity to a transit hub (LRT, Monorail, MRT). It includes the LaLaport lifestyle mall, an entertainment hub with Zepp KL concert hall and Golden Screen Cinemas, and is in close proximity to major city landmarks like KL City Centre, TRX, and PNB 118. The residences boast extensive facilities spread across approximately 100,000 sq. ft. on four different levels."
+    "An integrated development in the Golden Triangle of Kuala Lumpur, featuring direct connectivity to a transit hub (LRT, Monorail, MRT). It includes the LaLaport lifestyle mall, an entertainment hub with Zepp KL concert hall and Golden Screen Cinemas, and is in close proximity to major city landmarks like KLCC, TRX, and PNB 118. The residences boast extensive facilities spread across approximately 100,000 sq. ft. on four different levels."
    ],
    "facilities": [
     "Grand Entrance",
@@ -6565,7 +6917,7 @@
     },
     {
      "category": "Landmarks",
-     "name": "Petronas Twin Towers (KL City Centre)"
+     "name": "Petronas Twin Towers (KLCC)"
     },
     {
      "category": "Landmarks",
@@ -6633,6 +6985,20 @@
    "address": "Jalan FA 1, Federal Avenue, 47500, Subang Jaya, Selangor Darul Ehsan",
    "lat": 3.078969666520735,
    "lng": 101.56950053055526,
+   "stations": [
+    {
+     "name": "Kerjaya",
+     "km": 0.92
+    },
+    {
+     "name": "Batu Tiga",
+     "km": 1.16
+    },
+    {
+     "name": "SS15",
+     "km": 1.89
+    }
+   ],
    "priceMin": 356000,
    "priceMax": 1027000,
    "pricePsf": "700",
@@ -6835,6 +7201,20 @@
    "address": "Jalan Klang Lama, 58000 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.116,
    "lng": 101.678,
+   "stations": [
+    {
+     "name": "Mid Valley",
+     "km": 0.31
+    },
+    {
+     "name": "Seputeh",
+     "km": 0.46
+    },
+    {
+     "name": "Abdullah Hukum",
+     "km": 0.61
+    }
+   ],
    "priceMin": 607800,
    "priceMax": 1453800,
    "pricePsf": "860-900",
@@ -7016,6 +7396,20 @@
    "address": "Lot 52958, Jalan Desa, Taman Desa, 58100 Kuala Lumpur",
    "lat": 3.0967,
    "lng": 101.6888,
+   "stations": [
+    {
+     "name": "Kuchai",
+     "km": 0.99
+    },
+    {
+     "name": "Salak Selatan",
+     "km": 1.81
+    },
+    {
+     "name": "Seputeh",
+     "km": 2.06
+    }
+   ],
    "priceMin": 452000,
    "priceMax": 983760,
    "pricePsf": "762",
@@ -7264,6 +7658,20 @@
    "address": "Old Klang Rd, Kampung Pasir, 58000 Kuala Lumpur.",
    "lat": 3.0903,
    "lng": 101.6738,
+   "stations": [
+    {
+     "name": "Pantai Dalam",
+     "km": 0.72
+    },
+    {
+     "name": "Petaling",
+     "km": 1.16
+    },
+    {
+     "name": "Jalan Templer",
+     "km": 2.07
+    }
+   ],
    "priceMin": 339000,
    "builtUpMin": 556,
    "builtUpMax": 1019,
@@ -7447,6 +7855,20 @@
    "address": "Residensi Mapel OUG, No. 2, Jalan Hujan Rintik, Taman Overseas Union, 58200 Kuala Lumpur",
    "lat": 3.076041,
    "lng": 101.668545,
+   "stations": [
+    {
+     "name": "Petaling",
+     "km": 1.21
+    },
+    {
+     "name": "Awan Besar",
+     "km": 1.57
+    },
+    {
+     "name": "Jalan Templer",
+     "km": 1.57
+    }
+   ],
    "priceMin": 765900,
    "priceMax": 1664050,
    "builtUpMin": 808,
@@ -7684,6 +8106,20 @@
    "address": "Lot 13992, Jalan Meranti Permai, Taman Meranti Permai, 47100 Puchong, Selangor",
    "lat": 2.9842,
    "lng": 101.6253,
+   "stations": [
+    {
+     "name": "Puchong Perdana",
+     "km": 3.44
+    },
+    {
+     "name": "Puchong Prima",
+     "km": 3.63
+    },
+    {
+     "name": "Bandar Puteri",
+     "km": 3.89
+    }
+   ],
    "priceMin": 250000,
    "priceMax": 828400,
    "pricePsf": "446 - 625",
@@ -8205,6 +8641,20 @@
    "address": "Jalan Gading, Bukit Bintang, 55100 Kuala Lumpur",
    "lat": 3.146631,
    "lng": 101.712686,
+   "stations": [
+    {
+     "name": "Bukit Bintang",
+     "km": 0.15
+    },
+    {
+     "name": "Raja Chulan",
+     "km": 0.54
+    },
+    {
+     "name": "Imbi",
+     "km": 0.56
+    }
+   ],
    "priceMin": 1580000,
    "priceMax": 4200000,
    "pricePsf": "RM 2,707 - RM 3,750",
@@ -8246,7 +8696,7 @@
     },
     {
      "category": "Shopping Mall",
-     "name": "Suria Mall",
+     "name": "Suria KLCC",
      "distance": "2.9km"
     },
     {
@@ -8781,6 +9231,20 @@
    "address": "Jalan Bangsar, Setia Federal Hill, 59200 Kuala Lumpur",
    "lat": 3.131558,
    "lng": 101.677517,
+   "stations": [
+    {
+     "name": "Bangsar",
+     "km": 0.49
+    },
+    {
+     "name": "KL Sentral",
+     "km": 1.03
+    },
+    {
+     "name": "KL Sentral (Monorail)",
+     "km": 1.16
+    }
+   ],
    "priceMin": 665000,
    "priceMax": 2070000,
    "pricePsf": "1450 - 1600",
@@ -8935,6 +9399,20 @@
    "address": "Jalan Raja Chulan, 50200 Kuala Lumpur",
    "lat": 3.1495,
    "lng": 101.712,
+   "stations": [
+    {
+     "name": "Raja Chulan",
+     "km": 0.23
+    },
+    {
+     "name": "Bukit Bintang",
+     "km": 0.36
+    },
+    {
+     "name": "Conlay",
+     "km": 0.73
+    }
+   ],
    "builtUpMin": 1093,
    "builtUpMax": 9770,
    "coverImage": "https://lh3.googleusercontent.com/d/1UasA6mLa6AiFwTpoZdprkBPmSJVU1ixt=w1600",
@@ -8971,7 +9449,7 @@
     },
     {
      "category": "Malls",
-     "name": "Suria Mall"
+     "name": "Suria KLCC"
     },
     {
      "category": "Malls",
@@ -9035,7 +9513,7 @@
     },
     {
      "category": "Fitness and Recreation",
-     "name": "KL City Centre Park"
+     "name": "KLCC Park"
     },
     {
      "category": "Fitness and Recreation",
@@ -9112,6 +9590,20 @@
    "address": "Lot 297, Jalan Raja Chulan, 50200 Kuala Lumpur",
    "lat": 3.14918,
    "lng": 101.71305,
+   "stations": [
+    {
+     "name": "Raja Chulan",
+     "km": 0.35
+    },
+    {
+     "name": "Bukit Bintang",
+     "km": 0.39
+    },
+    {
+     "name": "Conlay",
+     "km": 0.62
+    }
+   ],
    "builtUpMin": 504,
    "builtUpMax": 1272,
    "bedrooms": "1+1 - Studio",
@@ -9161,7 +9653,7 @@
     },
     {
      "category": "Shopping Malls",
-     "name": "Suria Mall"
+     "name": "Suria KLCC"
     },
     {
      "category": "Shopping Malls",
@@ -9205,7 +9697,7 @@
     },
     {
      "category": "Transportation",
-     "name": "Bukit Bintang – KL City Centre Pedestrian Walkway"
+     "name": "Bukit Bintang – KLCC Pedestrian Walkway"
     },
     {
      "category": "Healthcare",
@@ -9225,7 +9717,7 @@
     },
     {
      "category": "Landmarks",
-     "name": "Petronas Twin Towers (KL City Centre)"
+     "name": "Petronas Twin Towers (KLCC)"
     },
     {
      "category": "Landmarks",
@@ -9245,7 +9737,7 @@
     },
     {
      "category": "Recreation",
-     "name": "KL City Centre Park"
+     "name": "KLCC Park"
     },
     {
      "category": "Recreation",
@@ -9349,6 +9841,20 @@
    "address": "Pavilion Square Property Gallery, Level 3, Menara Khuan Choo, 75A, Jalan Raja Chulan, Kuala Lumpur, 50200 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.1508,
    "lng": 101.7093,
+   "stations": [
+    {
+     "name": "Raja Chulan",
+     "km": 0.13
+    },
+    {
+     "name": "Bukit Bintang",
+     "km": 0.52
+    },
+    {
+     "name": "Bukit Nanas",
+     "km": 0.77
+    }
+   ],
    "pricePsf": "Residential: From RM2300 - RM2800 (Gross), Office: From RM1800 psf (Gross)",
    "builtUpMin": 504,
    "builtUpMax": 2500,
@@ -9397,6 +9903,20 @@
    "address": "Jalan Liew Weng Chee, KL City Centre, 50450 Kuala Lumpur",
    "lat": 3.1612,
    "lng": 101.7135,
+   "stations": [
+    {
+     "name": "KLCC",
+     "km": 0.22
+    },
+    {
+     "name": "Ampang Park",
+     "km": 0.5
+    },
+    {
+     "name": "Persiaran KLCC",
+     "km": 0.69
+    }
+   ],
    "priceMin": 1016400,
    "priceMax": 1421600,
    "pricePsf": "2100",
@@ -9409,7 +9929,7 @@
    "keyFeatures": [
     "Excellent choice for investment in KL downtown",
     "Within CBD and Golden Triangle Area",
-    "KL City Centre, Pavilion shopping mall within 5 min driving distance",
+    "KLCC, Pavilion shopping mall within 5 min driving distance",
     "Walking distance to bus stop and MRT station",
     "Top-notch facilities for lifestyle & business",
     "Free upgrade to premier fully furnished by MMH",
@@ -9449,7 +9969,7 @@
     },
     {
      "category": "Shopping",
-     "name": "Suria Mall"
+     "name": "Suria KLCC"
     },
     {
      "category": "Shopping",
@@ -9533,6 +10053,20 @@
    "address": "Persiaran Serdang Perdana, Seri Kembangan, Selangor",
    "lat": 3.047561725287863,
    "lng": 101.70656830048824,
+   "stations": [
+    {
+     "name": "Serdang Raya Utara",
+     "km": 0.68
+    },
+    {
+     "name": "Sungai Besi",
+     "km": 1.82
+    },
+    {
+     "name": "Bukit Jalil",
+     "km": 1.98
+    }
+   ],
    "priceMin": 555000,
    "pricePsf": "525",
    "builtUpMin": 1023,
@@ -10005,6 +10539,20 @@
    "address": "15, Jalan Kia Peng, 50450 Kuala Lumpur",
    "lat": 3.152,
    "lng": 101.7145,
+   "stations": [
+    {
+     "name": "Conlay",
+     "km": 0.45
+    },
+    {
+     "name": "Raja Chulan",
+     "km": 0.47
+    },
+    {
+     "name": "Persiaran KLCC",
+     "km": 0.66
+    }
+   ],
    "priceMin": 1897000,
    "priceMax": 4418000,
    "pricePsf": "from RM 2,950 psf onwards (gross)",
@@ -10040,7 +10588,7 @@
    "amenities": [
     {
      "category": "Public Transport",
-     "name": "KL City Centre LRT Station"
+     "name": "KLCC LRT Station"
     },
     {
      "category": "Public Transport",
@@ -10064,7 +10612,7 @@
     },
     {
      "category": "Shopping Malls",
-     "name": "Suria Mall"
+     "name": "Suria KLCC"
     },
     {
      "category": "Shopping Malls",
@@ -10084,7 +10632,7 @@
     },
     {
      "category": "Landmarks",
-     "name": "Petronas Twin Towers"
+     "name": "KLCC Twin Towers"
     },
     {
      "category": "Landmarks",
@@ -10092,7 +10640,7 @@
     },
     {
      "category": "Landmarks",
-     "name": "KL City Centre Park"
+     "name": "KLCC Park"
     },
     {
      "category": "Landmarks",
@@ -10148,6 +10696,20 @@
    "address": "2, Jalan Hang Tuah, BBCC, Bukit Bintang, 55100 Kuala Lumpur, Federal Territory of Kuala Lumpur",
    "lat": 3.141656,
    "lng": 101.707755,
+   "stations": [
+    {
+     "name": "Hang Tuah",
+     "km": 0.21
+    },
+    {
+     "name": "Imbi",
+     "km": 0.22
+    },
+    {
+     "name": "SP9 Hang Tuah",
+     "km": 0.25
+    }
+   ],
    "priceMin": 705000,
    "priceMax": 1461000,
    "pricePsf": "1300",
@@ -10293,6 +10855,20 @@
    "address": "Lakefront Residence, Persiaran Semarak Api, Cyber 11, 63000 Cyberjaya, Selangor.",
    "lat": 2.9365,
    "lng": 101.6385,
+   "stations": [
+    {
+     "name": "Cyberjaya Utara",
+     "km": 2.54
+    },
+    {
+     "name": "Cyberjaya City Centre",
+     "km": 3.02
+    },
+    {
+     "name": "Putrajaya Sentral",
+     "km": 3.59
+    }
+   ],
    "builtUpMin": 958,
    "builtUpMax": 1711,
    "bedrooms": "3 - 5+1",
@@ -10593,6 +11169,20 @@
    "address": "Jalan PJU 10/1c, Damansara Damai, 47810 Petaling Jaya, Selangor",
    "lat": 3.195321,
    "lng": 101.595433,
+   "stations": [
+    {
+     "name": "Terminal Bas Wan's Central",
+     "km": 0.44
+    },
+    {
+     "name": "Damansara Damai",
+     "km": 0.57
+    },
+    {
+     "name": "Sri Damansara Barat",
+     "km": 1.48
+    }
+   ],
    "priceMin": 629970,
    "priceMax": 1153220,
    "pricePsf": "RM 657.67 - RM 666.53 (Gross)",
@@ -10849,6 +11439,7 @@
    "address": "No.1, Jalan Ipoh-Rawang, KM-20, Taman Rekreasi Templer, 48000 Rawang, Selangor Darul Ehsan, Malaysia",
    "lat": 3.2842,
    "lng": 101.6212,
+   "stations": [],
    "priceMin": 1509000,
    "priceMax": 2125000,
    "pricePsf": "683",
@@ -10992,6 +11583,20 @@
    "address": "368, Jalan Segambut, Segambut, 51200 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.1853,
    "lng": 101.6754,
+   "stations": [
+    {
+     "name": "Jalan Ipoh",
+     "km": 0.78
+    },
+    {
+     "name": "Kentonmen",
+     "km": 1.23
+    },
+    {
+     "name": "Segambut",
+     "km": 1.25
+    }
+   ],
    "priceMin": 519000,
    "priceMax": 1270800,
    "pricePsf": "700",
@@ -11076,7 +11681,7 @@
     },
     {
      "category": "Shopping",
-     "name": "Suria Mall"
+     "name": "Suria KLCC"
     },
     {
      "category": "Shopping",
@@ -11249,6 +11854,20 @@
    "address": "Vivo 9 Seputeh, No. 29 Jalan Telok Datok, Off Jalan Klang Lama, 58100 Kuala Lumpur",
    "lat": 3.104235,
    "lng": 101.676518,
+   "stations": [
+    {
+     "name": "Angkasapuri",
+     "km": 1
+    },
+    {
+     "name": "Seputeh",
+     "km": 1.18
+    },
+    {
+     "name": "Pantai Dalam",
+     "km": 1.2
+    }
+   ],
    "priceMin": 736800,
    "priceMax": 3547800,
    "pricePsf": "820",
@@ -11286,6 +11905,20 @@
    "address": "Jalan PJU 8, Damansara Perdana, 47820 Petaling Jaya, Selangor",
    "lat": 3.165278,
    "lng": 101.616389,
+   "stations": [
+    {
+     "name": "Mutiara Damansara",
+     "km": 1.4
+    },
+    {
+     "name": "Bandar Utama",
+     "km": 2.09
+    },
+    {
+     "name": "Surian",
+     "km": 3.06
+    }
+   ],
    "priceMin": 622200,
    "priceMax": 818541,
    "pricePsf": "802",
@@ -11549,6 +12182,20 @@
    "address": "Jalan Desa Utama, Taman Desa, 58100 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.1041,
    "lng": 101.6883,
+   "stations": [
+    {
+     "name": "Seputeh",
+     "km": 1.31
+    },
+    {
+     "name": "Kuchai",
+     "km": 1.74
+    },
+    {
+     "name": "Angkasapuri",
+     "km": 1.91
+    }
+   ],
    "priceMin": 808000,
    "priceMax": 1157000,
    "pricePsf": "710",
@@ -11736,7 +12383,7 @@
     },
     {
      "category": "Shopping & Leisure",
-     "name": "Suria Mall",
+     "name": "Suria KLCC",
      "distance": "10.1km"
     },
     {
@@ -11846,6 +12493,20 @@
    "address": "PT29, Jalan Prof Diraja Ungku Aziz, Seksyen 13, 46200 Petaling Jaya, Selangor",
    "lat": 3.1114,
    "lng": 101.6443,
+   "stations": [
+    {
+     "name": "Taman Jaya",
+     "km": 0.82
+    },
+    {
+     "name": "Asia Jaya",
+     "km": 1.07
+    },
+    {
+     "name": "Universiti",
+     "km": 1.96
+    }
+   ],
    "priceMin": 250000,
    "priceMax": 1462300,
    "pricePsf": "843",
@@ -12083,6 +12744,20 @@
    "address": "Jalan Conlay, Kuala Lumpur City Centre",
    "lat": 3.15121,
    "lng": 101.71615,
+   "stations": [
+    {
+     "name": "Conlay",
+     "km": 0.25
+    },
+    {
+     "name": "Raja Chulan",
+     "km": 0.64
+    },
+    {
+     "name": "Persiaran KLCC",
+     "km": 0.66
+    }
+   ],
    "priceMin": 1460000,
    "priceMax": 8780000,
    "pricePsf": "2300 - 2600",
@@ -12127,7 +12802,7 @@
     },
     {
      "category": "Transportation",
-     "name": "KL City Centre East MRT Station"
+     "name": "KLCC East MRT Station"
     },
     {
      "category": "Transportation",
@@ -12155,7 +12830,7 @@
     },
     {
      "category": "Recreation",
-     "name": "KL City Centre Park"
+     "name": "KLCC Park"
     },
     {
      "category": "Recreation",
@@ -12239,6 +12914,20 @@
    "address": "Jalan Taman Duta, 50480 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.155093,
    "lng": 101.674395,
+   "stations": [
+    {
+     "name": "Semantan",
+     "km": 1.1
+    },
+    {
+     "name": "Hentian Duta",
+     "km": 1.81
+    },
+    {
+     "name": "Pusat Bandar Damansara",
+     "km": 1.87
+    }
+   ],
    "priceMin": 7900000,
    "priceMax": 28000000,
    "pricePsf": "1700",
@@ -12424,7 +13113,7 @@
     },
     {
      "category": "Landmarks & Connectivity",
-     "name": "KL City Centre"
+     "name": "KLCC"
     },
     {
      "category": "Landmarks & Connectivity",
@@ -12474,6 +13163,20 @@
    "address": "Block C - GF - 51, IOI Boulevard, Jalan Kenari 5, Bandar Puchong Jaya, 47170 Puchong, Selangor Darul Ehsan.",
    "lat": 3.0456,
    "lng": 101.6215,
+   "stations": [
+    {
+     "name": "IOI Puchong Jaya",
+     "km": 0.29
+    },
+    {
+     "name": "Pusat Bandar Puchong",
+     "km": 1.5
+    },
+    {
+     "name": "Kinrara BK 5",
+     "km": 2.58
+    }
+   ],
    "priceMin": 516700,
    "priceMax": 708900,
    "pricePsf": "RM 700 - RM 850 (gross)",
@@ -12645,6 +13348,20 @@
    "address": "Vivo 9 Seputeh, No. 29 Jalan Telok Datok, Off Jalan Klang Lama, 58100 Kuala Lumpur",
    "lat": 3.107,
    "lng": 101.6778,
+   "stations": [
+    {
+     "name": "Angkasapuri",
+     "km": 0.8
+    },
+    {
+     "name": "Seputeh",
+     "km": 0.85
+    },
+    {
+     "name": "Mid Valley",
+     "km": 1.3
+    }
+   ],
    "priceMin": 736800,
    "priceMax": 3547800,
    "pricePsf": "820",
@@ -12765,7 +13482,7 @@
     },
     {
      "category": "Shopping Malls",
-     "name": "Suria Mall",
+     "name": "Suria KLCC",
      "distance": "5km"
     },
     {
@@ -12964,6 +13681,20 @@
    "address": "Along Jalan BS3/12 and Jalan BS3/1, Taman Bukit Serdang, 43300 Seri Kembangan, Selangor",
    "lat": 3.024,
    "lng": 101.7065,
+   "stations": [
+    {
+     "name": "Serdang Jaya",
+     "km": 0.38
+    },
+    {
+     "name": "Serdang Raya Selatan",
+     "km": 0.51
+    },
+    {
+     "name": "Serdang",
+     "km": 1.05
+    }
+   ],
    "priceMin": 588888,
    "priceMax": 1687888,
    "pricePsf": "628.48",
@@ -13206,6 +13937,20 @@
    "address": "Bandar Kinrara 5, 47180 Puchong, Selangor",
    "lat": 3.045,
    "lng": 101.647,
+   "stations": [
+    {
+     "name": "Kinrara BK 5",
+     "km": 0.68
+    },
+    {
+     "name": "Alam Sutera",
+     "km": 1.51
+    },
+    {
+     "name": "Muhibbah",
+     "km": 2.56
+    }
+   ],
    "priceMin": 270000,
    "priceMax": 1218000,
    "builtUpMin": 739,
@@ -13405,6 +14150,20 @@
    "address": "Jalan Kwasa Sentral 7, Seksyen U4, 40150 Shah Alam, Selangor",
    "lat": 3.167389,
    "lng": 101.562778,
+   "stations": [
+    {
+     "name": "Kwasa Sentral",
+     "km": 0.36
+    },
+    {
+     "name": "PY01 Kwasa Damansara",
+     "km": 1.46
+    },
+    {
+     "name": "Kota Damansara",
+     "km": 2.61
+    }
+   ],
    "priceMin": 501000,
    "priceMax": 839000,
    "pricePsf": "865",
@@ -13822,6 +14581,20 @@
    "address": "No.2, Jalan Kampung Bandar Dalam, Mukim Setapak, 51100 Kuala Lumpur",
    "lat": 3.197368,
    "lng": 101.696147,
+   "stations": [
+    {
+     "name": "SP1 Sentul Timur",
+     "km": 1.28
+    },
+    {
+     "name": "Batu Kentonmen",
+     "km": 1.66
+    },
+    {
+     "name": "Kentonmen",
+     "km": 1.85
+    }
+   ],
    "priceMin": 680160,
    "priceMax": 1016990,
    "builtUpMin": 667,
@@ -13947,7 +14720,7 @@
     },
     {
      "category": "Shopping",
-     "name": "Suria Mall",
+     "name": "Suria KLCC",
      "distance": "8.0km"
     },
     {
@@ -14007,7 +14780,7 @@
     },
     {
      "category": "Parks",
-     "name": "KL City Centre Park",
+     "name": "KLCC Park",
      "distance": "8.1km"
     }
    ],
@@ -14079,6 +14852,20 @@
    "address": "Sales Gallery: Persiaran Residen, Desa Parkcity, 52200 Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur",
    "lat": 3.166,
    "lng": 101.579,
+   "stations": [
+    {
+     "name": "PY01 Kwasa Damansara",
+     "km": 1.36
+    },
+    {
+     "name": "Kwasa Sentral",
+     "km": 1.63
+    },
+    {
+     "name": "Kota Damansara",
+     "km": 1.76
+    }
+   ],
    "priceMin": 1300000,
    "pricePsf": "800",
    "builtUpMin": 1691,
