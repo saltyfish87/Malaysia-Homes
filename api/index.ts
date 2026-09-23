@@ -719,7 +719,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
     `<meta property="og:site_name" content="Malaysia Homes | propertyportal.my" />`,
     `<meta name="twitter:title" content="${escHtml(title)}" />`,
     `<meta name="twitter:description" content="${escHtml(description)}" />`,
-    ...(rec && rec.coverImage ? [`<meta property="og:image" content="${escHtml(rec.coverImage)}" />`, `<meta name="twitter:image" content="${escHtml(rec.coverImage)}" />`] : []),
+
     `<script id="seo-jsonld-schema" type="application/ld+json">${jsonLd}</script>`
   ].join('\n    ');
 
@@ -731,6 +731,11 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
     `<nav aria-label="Breadcrumb"><a href="/">Home</a> › ${pArea ? `<a href="/area/${escHtml(seoSlugify(pArea))}">${escHtml(pArea)}</a>` : `<a href="/residences">Residences</a>`} › ${escHtml(p.name)}</nav>` +
     `<article><h1>${escHtml(p.name)} ${escHtml(p.area)}</h1><p>${escHtml(description)}</p>` +
+    // The served HTML carried no <img> at all: every photo arrived through JavaScript, so image
+    // search had nothing to index and the page looked empty to a crawler that does not run JS.
+    (rec && rec.coverImage
+      ? `<figure style="margin:16px 0"><img src="${escHtml(rec.coverImage)}" alt="${escHtml(`${p.name} — ${p.propertyType || 'residence'} in ${p.area}, ${p.state} by ${p.developer}`)}" width="1000" loading="lazy" referrerpolicy="no-referrer" style="max-width:100%;height:auto;border-radius:10px" /><figcaption style="font-size:13px;color:#78716c">${escHtml(`${p.name}, ${p.area}`)}</figcaption></figure>`
+      : '') +
     (rec && rec.description ? `<p>${escHtml(rec.description)}</p>` : '') +
     projectVideoHtml(p.slug, p.name) +
     `<h2>${escHtml(p.name)} project information</h2>${table}` +
@@ -750,6 +755,12 @@ function renderProjectHtml(indexHtml: string, p: SeoProject): string {
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escHtml(title)}</title>`);
   html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escHtml(description)}" />`);
   html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${escHtml(canonical)}" />`);
+  // The shell already carries a generic og:image. Appending the project's photo left two of each
+  // tag with the generic one first, which is the one crawlers and chat previews read, so replace.
+  if (rec && rec.coverImage) {
+    html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${escHtml(rec.coverImage)}" />`);
+    html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${escHtml(rec.coverImage)}" />`);
+  }
   html = html.replace(/<\/head>/i, `    ${headExtra}\n  </head>`);
   html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   return html;
@@ -1420,7 +1431,7 @@ function buildLlmsTxt(projects: SeoProject[]): string {
   return lines.join('\n');
 }
 
-function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[]): string {
+function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[], covers: Record<string, { image: string; title: string }> = {}): string {
   const today = new Date().toISOString().split('T')[0];
   const toIso = (dmy: string) => {
     const m = dmy.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -1430,7 +1441,12 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[]): strin
   };
   const url = (loc: string, lastmod: string, changefreq: string, priority: string) =>
     `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  // Image entries let Google Images find the project photos, which only exist inside the page.
+  const imageUrl = (loc: string, lastmod: string, changefreq: string, priority: string, img?: { image: string; title: string }) =>
+    img
+      ? `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n    <image:image>\n      <image:loc>${escHtml(img.image)}</image:loc>\n      <image:title>${escHtml(img.title)}</image:title>\n    </image:image>\n  </url>\n`
+      : url(loc, lastmod, changefreq, priority);
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
   xml += url(`${SITE_URL}/`, today, 'daily', '1.0');
   xml += url(`${SITE_URL}/residences`, today, 'daily', '0.9');
   xml += url(`${SITE_URL}/compare`, today, 'weekly', '0.7');
@@ -1439,7 +1455,7 @@ function buildSitemapXml(projects: SeoProject[], fallbackSlugs: string[]): strin
   xml += url(`${SITE_URL}/map`, today, 'weekly', '0.6');
   if (projects.length) {
     for (const a of buildAreas(projects)) xml += url(`${SITE_URL}/area/${a.slug}`, today, 'weekly', '0.8');
-    for (const p of projects) xml += url(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8');
+    for (const p of projects) xml += imageUrl(`${SITE_URL}/project/${p.slug}`, toIso(p.dataUpdated), 'weekly', '0.8', covers[p.slug]);
     for (const c of buildComparePairs(projects)) xml += url(`${SITE_URL}/compare/${c.slug}`, today, 'weekly', '0.7');
     for (const sl of SHORTLISTS) xml += url(`${SITE_URL}/best/${sl.slug}`, today, 'weekly', '0.8');
   } else {
@@ -1651,7 +1667,17 @@ app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
   } catch (e) {
     console.warn('Sitemap generator could not load live spreadsheet rows, falling back to static project IDs:', e);
   }
-  res.send(buildSitemapXml(projects, FALLBACK_PROJECT_SLUGS));
+  let covers: Record<string, { image: string; title: string }> = {};
+  try {
+    const records = await loadProjectSeo(req);
+    for (const p of projects) {
+      const rec = findProjectSeo(p, records);
+      if (rec?.coverImage) covers[p.slug] = { image: rec.coverImage, title: `${p.name}, ${p.area}` };
+    }
+  } catch (e) {
+    console.warn('Sitemap: no cover images this time:', e);
+  }
+  res.send(buildSitemapXml(projects, FALLBACK_PROJECT_SLUGS, covers));
 });
 
 // llms.txt for AI assistants, generated from the same live data (new projects appear automatically)
