@@ -633,6 +633,25 @@ const hreflangTags = (pathAfterPrefix: string) =>
   `<link rel="alternate" hreflang="zh-Hans" href="${SITE_URL}/zh${pathAfterPrefix}" />\n    ` +
   `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${pathAfterPrefix}" />`;
 
+/**
+ * The matching page on shyanyee.com.
+ *
+ * Both sites read the same project sheet, but each makes its own slug, so the link needs a map.
+ * Only fifteen projects were cross-linked before, through the review table; the rest of the
+ * catalogue sat on two domains that never pointed at each other. One contextual link each way is
+ * what a reader wants anyway: the portal holds the spec sheet, shyanyee holds the opinion.
+ */
+let shyanyeeSlugCache: Record<string, string> | null = null;
+function shyanyeeSlug(name: string): string | null {
+  if (!shyanyeeSlugCache) {
+    try {
+      const f = path.join(process.cwd(), 'public', 'data', 'shyanyee-slugs.json');
+      shyanyeeSlugCache = JSON.parse(fs.readFileSync(f, 'utf8')).projects || {};
+    } catch { shyanyeeSlugCache = {}; }
+  }
+  return shyanyeeSlugCache![seoAlnum(name)] || null;
+}
+
 function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'): string {
   const zh = lang === 'zh';
   const canonical = `${SITE_URL}${langPrefix(lang)}/project/${p.slug}`;
@@ -780,6 +799,12 @@ function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'):
       : '') +
     (rec && rec.amenities.length ? `<h2>${zh ? '位置与周边' : 'Location and nearby'}</h2><ul>${rec.amenities.map(a => `<li><strong>${escHtml(a.category)}:</strong> ${escHtml(a.name)}${a.distance ? ` (${escHtml(a.distance)})` : ''}</li>`).join('')}</ul>` : '') +
     (faqs.length ? `<h2>${zh ? `关于 ${escHtml(p.name)} 的常见问题` : `Frequently asked questions about ${escHtml(p.name)}`}</h2>${faqs.map(f => `<h3>${escHtml(f.q)}</h3><p>${escHtml(f.a)}</p>`).join('')}` : '') +
+    // Every project links to its page on shyanyee.com, not only the fifteen with a written review.
+    ((): string => {
+      const sy = shyanyeeSlug(p.name);
+      if (!sy || AGENT_REVIEWS[p.slug]) return '';
+      return `<h2>${zh ? '我对这个楼盘的内容' : 'My coverage of this project'}</h2><p><a href="https://shyanyee.com${zh ? '/zh' : ''}/projects/${sy}">${escHtml(p.name)}${zh ? ' 在 shyanyee.com 的页面' : ' on shyanyee.com'}</a> — ${zh ? '量出来的车站距离、我走过哪些、以及同区楼盘的对比。' : 'measured distance to the nearest station, the projects I have walked, and how it compares with its neighbours.'}</p>`;
+    })() +
     (AGENT_REVIEWS[p.slug] ? `<h2>Agent insights: ${escHtml(p.name)} review</h2><p><a href="${AGENT_REVIEWS[p.slug].url}">Read the ${escHtml(p.name)} review by ${escHtml(AGENT.name)} (${escHtml(AGENT.ren)})${AGENT_REVIEWS[p.slug].video ? ': video walkthrough, pros and cons' : ': pros and cons and recommended layouts'}</a> on shyanyee.com. <a href="${AGENT_REVIEWS[p.slug].zhUrl}" hreflang="zh">中文评测</a></p>` : '') +
     `<p>${zh ? '咨询与看房预约' : 'Enquiries and sales gallery appointments'}: ${escHtml(AGENT.name)}, ${escHtml(AGENT.ren)}, ${escHtml(AGENT.company)}. WhatsApp <a href="https://wa.me/60108278932">${escHtml(AGENT.telephoneDisplay)}</a>.</p>` +
     (others.length ? `<h2>${zh ? `${escHtml(pArea)} 的其他楼盘` : `Other projects in ${escHtml(pArea)}`}</h2><ul>${others.map(projectLine).join('')}</ul><p><a href="/area/${escHtml(seoSlugify(pArea))}">All new launches in ${escHtml(pArea)}</a></p>` : '') +
