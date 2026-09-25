@@ -1,4 +1,6 @@
 import express from 'express';
+// @ts-ignore — no types shipped
+import * as OpenCC from 'opencc-js';
 import path from 'path';
 import fs from 'fs';
 
@@ -632,6 +634,7 @@ const langPrefix = (lang: Lang) => (lang === 'zh' ? '/zh' : '');
 const hreflangTags = (pathAfterPrefix: string) =>
   `<link rel="alternate" hreflang="en" href="${SITE_URL}${pathAfterPrefix}" />\n    ` +
   `<link rel="alternate" hreflang="zh-Hans" href="${SITE_URL}/zh${pathAfterPrefix}" />\n    ` +
+  `<link rel="alternate" hreflang="zh-Hant" href="${SITE_URL}/zh-hant${pathAfterPrefix}" />\n    ` +
   `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${pathAfterPrefix}" />`;
 
 /**
@@ -1862,6 +1865,29 @@ const app = express();
 
 // Express JSON Parsing
 app.use(express.json());
+
+// Traditional Chinese: /zh-hant/... is the Simplified page converted on the way out. The request is
+// rewritten to /zh/... so every Chinese route runs unchanged; the response is then converted with
+// OpenCC's "twp" profile (characters and everyday vocabulary), retagged zh-Hant, and its canonical,
+// og:url and internal links pointed at /zh-hant. The zh-Hans alternate keeps pointing at /zh.
+const toHant: (t: string) => string = (OpenCC as any).Converter({ from: 'cn', to: 'twp' });
+const hantify = (html: string) => toHant(html)
+  .replace(/<html([^>]*)\slang="zh-Hans"/i, '<html$1 lang="zh-Hant"')
+  .replace(/(<link rel="canonical" href="https?:\/\/[^/]+)\/zh(\/|")/i, '$1/zh-hant$2')
+  .replace(/(<meta property="og:url" content="https?:\/\/[^/]+)\/zh(\/|")/i, '$1/zh-hant$2')
+  .replace(/(hreflang="zh-Hant" href="https?:\/\/[^/]+)\/zh(\/|")/g, '$1/zh-hant$2')
+  .replace(/href="\/zh(\/|")/g, 'href="/zh-hant$1')
+  .replace(/(href="https?:\/\/(?:www\.)?propertyportal\.my)\/zh(\/|")/g, (m, a, tail) => /hreflang="zh-Hans"/.test(m) ? m : `${a}/zh-hant${tail}`)
+  .replace(/(hreflang="zh-Hans" href="https?:\/\/[^/]+)\/zh-hant(\/|")/g, '$1/zh$2');
+app.use((req, res, next) => {
+  const m = /^\/zh-hant(\/.*)?$/i.exec(req.url.split('?')[0]);
+  if (!m) return next();
+  req.url = `/zh${m[1] || ''}${req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`;
+  (req as any).hant = true;
+  const send = res.send.bind(res);
+  res.send = ((body: any) => send(typeof body === 'string' && /<html/i.test(body) ? hantify(body) : body)) as any;
+  next();
+});
 // Local testing only (Vercel serves /assets itself): let `npx tsx` runs load the built JS/CSS.
 if (!process.env.VERCEL) app.use(express.static(path.join(process.cwd(), 'dist'), { index: false }));
 
@@ -1905,7 +1931,9 @@ app.use((req, res, next) => {
   }
 
   // Rebuilding the path here dropped the /zh prefix, so every Chinese URL was served in English.
-  const zhPrefix = has(/(^|https?:\/\/[^/]+)?\/zh(\/|$)/i) ? '/zh' : '';
+  // Traditional Chinese lives under /zh-hant; the middleware above has already turned it into /zh
+  // for the routes, so here it only needs to be recognised as Chinese.
+  const zhPrefix = has(/(^|https?:\/\/[^/]+)?\/zh(-hant)?(\/|$)/i) ? '/zh' : '';
 
   if (has(/sitemap/i)) {
     req.url = '/sitemap.xml';
@@ -2088,7 +2116,9 @@ app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
   }
   let indexGroups: IndexGroup[] = [];
   try { indexGroups = buildIndexGroups(projects, await loadProjectSeo(req)); } catch { /* keep the rest of the sitemap */ }
-  res.send(buildSitemapXml(projects, FALLBACK_PROJECT_SLUGS, covers, indexGroups));
+  const xml = buildSitemapXml(projects, FALLBACK_PROJECT_SLUGS, covers, indexGroups);
+  // Traditional Chinese URLs mirror the Simplified ones.
+  res.send(xml.replace(/<url>\s*<loc>(https?:\/\/[^/]+)\/zh(\/[^<]*)?<\/loc>[\s\S]*?<\/url>\s*/g, blk => blk + blk.replace(/\/zh(\/|<)/, '/zh-hant$1')));
 });
 
 // llms.txt for AI assistants, generated from the same live data (new projects appear automatically)
