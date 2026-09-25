@@ -18,6 +18,51 @@ import { MOCK_PROJECTS } from '../src/constants/mockData';
 const CTG_DIR = process.env.CTG_DIR || path.join(os.homedir(), 'ctg-agent', 'data', 'incoming');
 const OUT = path.join(process.cwd(), 'public', 'data', 'projectSeo.json');
 
+/**
+ * The shared Drive folder that holds one sub-folder per project (Facade, Visual_Gallery, Layout_Type…).
+ * Competitor pages carry dozens of photos; this site served one. Photos are read here at generation
+ * time, by project name, and committed in projectSeo.json, so the server never touches Drive.
+ */
+const PHOTO_PARENT = process.env.PHOTO_PARENT || '1F7VXziU9LE8Kvz0FqEoMGI4_SiUU76FE';
+const FILLER = new Set(['the', 'residence', 'residences', 'suites', 'suite', 'at', 'by', 'phase', 'tower', 'towers', 'block', 'and', 'kl', 'city', 'centre', 'center', 'kuala', 'lumpur', 'klcc']);
+const unescapeHtml = (t: string) => t.replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+const nameWords = (n: string) => new Set(unescapeHtml(String(n || '')).toLowerCase().split(/[^a-z0-9]+/).filter(w => w && !FILLER.has(w)));
+function sameProject(a: string, b: string) {
+  const wa = nameWords(a), wb = nameWords(b);
+  if (!wa.size || !wb.size) return false;
+  const shared = [...wa].filter(x => wb.has(x)).length;
+  return shared > 0 && (shared === wa.size || shared === wb.size || shared / Math.max(wa.size, wb.size) >= 0.6);
+}
+async function listFolder(folderId: string): Promise<{ id: string; name: string }[]> {
+  const res = await fetch(`https://drive.google.com/embeddedfolderview?id=${folderId}#list`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const html = await res.text();
+  const out: { id: string; name: string }[] = [];
+  for (const block of html.split('<div class="flip-entry"').slice(1)) {
+    const id = /id="entry-([A-Za-z0-9_-]+)"/.exec(block)?.[1];
+    const name = /flip-entry-title[^>]*>([^<]+)</.exec(block)?.[1]?.trim();
+    if (id && name) out.push({ id, name: unescapeHtml(name) });
+  }
+  return out;
+}
+const altFromFile = (project: string, file: string) =>
+  `${project} — ${file.replace(/\.[a-z0-9]+$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase()}`;
+let masterCache: { id: string; name: string }[] | null = null;
+async function galleryFor(project: string): Promise<{ url: string; alt: string }[]> {
+  try {
+    if (!masterCache) masterCache = await listFolder(PHOTO_PARENT);
+    const hit = masterCache.find(f => sameProject(f.name, project));
+    if (!hit) return [];
+    const subs = await listFolder(hit.id);
+    const pick = async (key: string) => {
+      const sub = subs.find(x => x.name.toLowerCase().replace(/[^a-z]/g, '') === key);
+      return sub ? (await listFolder(sub.id)).filter(f => /\.(jpe?g|png|webp)$/i.test(f.name)) : [];
+    };
+    const files = [...await pick('facade'), ...await pick('visualgallery')].slice(0, 12);
+    return files.map(f => ({ url: `https://lh3.googleusercontent.com/d/${f.id}=w1200`, alt: altFromFile(project, f.name) }));
+  } catch (e: any) { console.warn(`  ! ${project}: ${e.message}`); return []; }
+}
+
 export interface ProjectSeoRecord {
   name: string;
   aliases: string[];          // alphanumeric keys that identify this project (ctg name, folder name, app name)
@@ -31,6 +76,8 @@ export interface ProjectSeoRecord {
   priceMin?: number; priceMax?: number; pricePsf?: string;
   builtUpMin?: number; builtUpMax?: number; bedrooms?: string; bathrooms?: string;
   coverImage?: string;
+  /** Up to twelve photos from the project's folder in the shared Drive photo parent, alt text from the file name. */
+  gallery?: { url: string; alt: string }[];
   description?: string;
   keyFeatures: string[];
   facilities: string[];
@@ -173,7 +220,7 @@ function readCtg(): ProjectSeoRecord[] {
   return out;
 }
 
-function main() {
+async function main() {
   const records = readCtg();
   const byAlias = new Map<string, ProjectSeoRecord>();
   for (const r of records) for (const a of r.aliases) if (!byAlias.has(a)) byAlias.set(a, r);
@@ -202,6 +249,10 @@ function main() {
   }
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
+  // Photos, by name, from the shared Drive folder.
+  let withPhotos = 0;
+  for (const r of records) { r.gallery = await galleryFor(r.name); if (r.gallery.length) withPhotos++; }
+  console.log(`[gen-project-seo] photos for ${withPhotos}/${records.length} projects from the shared Drive folder.`);
   fs.writeFileSync(OUT, JSON.stringify({ generatedAt: new Date().toISOString().slice(0, 10), count: records.length, projects: records }, null, 1), 'utf8');
   const matchedApp = MOCK_PROJECTS.filter(m => byAlias.has(alnum(m.name)));
   console.log(`[gen-project-seo] ${records.length} records (${records.filter(r => r.source.startsWith('ctg')).length} from ctg-agent, ${handWritten} hand-written FAQs) → ${path.relative(process.cwd(), OUT)}`);
@@ -209,4 +260,4 @@ function main() {
   console.log(`[gen-project-seo] app projects WITHOUT a record: ${MOCK_PROJECTS.filter(m => !byAlias.has(alnum(m.name))).map(m => m.name).join(' | ')}`);
 }
 
-main();
+main().catch(e => { console.error(e); process.exit(1); });

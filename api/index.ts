@@ -554,6 +554,7 @@ interface ProjectSeoRecord {
   maintenanceFee?: string; completionYear?: string; completionStatus?: string; constructionPeriod?: string;
   address?: string; lat?: number; lng?: number; priceMin?: number; priceMax?: number; pricePsf?: string;
   builtUpMin?: number; builtUpMax?: number; bedrooms?: string; bathrooms?: string; coverImage?: string; description?: string;
+  gallery?: { url: string; alt: string }[];
   keyFeatures: string[]; facilities: string[]; amenities: { category: string; name: string; distance?: string }[];
   /** Nearest named rail stations, straight-line km, measured from the project's own coordinates. */
   stations?: { name: string; km: number }[];
@@ -728,7 +729,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'):
       'alternateName': `${p.name} by ${p.developer}`,
       'description': description,
       'url': canonical,
-      'image': rec?.coverImage || `${SITE_URL}/og_preview.jpg`,
+      'image': (() => { const imgs = [rec?.coverImage, ...(rec?.gallery || []).map(g => g.url)].filter(Boolean); return imgs.length ? imgs : `${SITE_URL}/og_preview.jpg`; })(),
       ...(rec && rec.facilities.length ? { 'amenityFeature': rec.facilities.slice(0, 25).map(f => ({ '@type': 'LocationFeatureSpecification', 'name': f, 'value': true })) } : {}),
       ...(rec && rec.lat && rec.lng ? { 'geo': { '@type': 'GeoCoordinates', 'latitude': rec.lat, 'longitude': rec.lng } } : {}),
       'brand': p.developer ? { '@type': 'Organization', 'name': p.developer } : undefined,
@@ -786,6 +787,11 @@ function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'):
     // search had nothing to index and the page looked empty to a crawler that does not run JS.
     (rec && rec.coverImage
       ? `<figure style="margin:16px 0"><img src="${escHtml(rec.coverImage)}" alt="${escHtml(`${p.name} — ${p.propertyType || 'residence'} in ${p.area}, ${p.state} by ${p.developer}`)}" width="1000" loading="lazy" referrerpolicy="no-referrer" style="max-width:100%;height:auto;border-radius:10px" /><figcaption style="font-size:13px;color:#78716c">${escHtml(`${p.name}, ${p.area}`)}</figcaption></figure>`
+      : '') +
+    // Every competitor page carries dozens of photos with alt text; this page carried one. The photos
+    // come from the project's own Drive folder, read at generation time into projectSeo.json.
+    (rec && rec.gallery && rec.gallery.length
+      ? `<h2>${zh ? `${escHtml(p.name)} 图集` : `${escHtml(p.name)} gallery`}</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0">${rec.gallery.filter(g => g.url !== rec.coverImage).map(g => `<img src="${escHtml(g.url)}" alt="${escHtml(g.alt)}" width="600" height="400" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:auto;border-radius:8px;object-fit:cover" />`).join('')}</div>`
       : '') +
     (rec && rec.description ? `<p>${escHtml(rec.description)}</p>` : '') +
     projectVideoHtml(p.slug, p.name) +
@@ -890,10 +896,25 @@ function baseGraph(): any[] {
   ];
 }
 
+/** A small cover photo for list pages, from the project's record; nothing if it has none. */
+function thumbHtml(p: SeoProject, size = 96): string {
+  // The build-time home prerender and the first request of a cold function reach here before any
+  // route has loaded the records, so read the committed file once if the cache is still empty.
+  if (!PROJECT_SEO_RECORDS.length) {
+    for (const f of [path.join(process.cwd(), 'dist', 'data', 'projectSeo.json'), path.join(process.cwd(), 'public', 'data', 'projectSeo.json')]) {
+      try { const j = JSON.parse(fs.readFileSync(f, 'utf8')); if (Array.isArray(j.projects)) { PROJECT_SEO_RECORDS = j.projects; break; } } catch { /* try the next */ }
+    }
+  }
+  const rec = findProjectSeo(p, PROJECT_SEO_RECORDS);
+  const url = rec?.coverImage || rec?.gallery?.[0]?.url;
+  if (!url) return '';
+  return `<img src="${escHtml(url)}" alt="${escHtml(`${p.name}, ${p.area}`)}" width="${size}" height="${Math.round(size * 2 / 3)}" loading="lazy" referrerpolicy="no-referrer" style="width:${size}px;height:${Math.round(size * 2 / 3)}px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:10px" />`;
+}
+
 function projectLine(p: SeoProject): string {
   const price = p.priceMin ? `from RM ${p.priceMin.toLocaleString('en-MY')}` : '';
   const bits = [p.area && p.state ? `${p.area}, ${p.state}` : (p.area || p.state), p.tenure, p.propertyType, price].filter(Boolean);
-  return `<li><a href="/project/${escHtml(p.slug)}">${escHtml(p.name)}</a>${bits.length ? ` — ${escHtml(bits.join(' · '))}` : ''}</li>`;
+  return `<li style="margin:0 0 10px">${thumbHtml(p)}<a href="/project/${escHtml(p.slug)}">${escHtml(p.name)}</a>${bits.length ? ` — ${escHtml(bits.join(' · '))}` : ''}</li>`;
 }
 
 function applyHead(html: string, title: string, description: string, canonical: string, graph: any[], index: boolean): string {
@@ -1124,7 +1145,7 @@ function renderAreaHtml(indexHtml: string, a: SeoArea, allAreas: SeoArea[], lang
 
   const cards = a.projects.map(p => {
     const bits = [p.developer, [p.tenure, p.propertyType].filter(Boolean).join(' '), p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '', p.bedroomsMin ? `${p.bedroomsMin}${p.bedroomsMax > p.bedroomsMin ? `-${p.bedroomsMax}` : ''} bedrooms` : '', p.priceMin ? `from ${fmtRM(p.priceMin)}` : '', p.completionYear ? `completion ${p.estCompletionDate || p.completionYear}` : ''].filter(Boolean);
-    return `<li style="margin:0 0 10px"><a href="${langPrefix(lang)}/project/${escHtml(p.slug)}"><strong>${escHtml(p.name)}</strong></a> — ${escHtml(bits.join(' · '))}</li>`;
+    return `<li style="margin:0 0 10px">${thumbHtml(p)}<a href="${langPrefix(lang)}/project/${escHtml(p.slug)}"><strong>${escHtml(p.name)}</strong></a> — ${escHtml(bits.join(' · '))}</li>`;
   }).join('');
 
   const body = `<div id="seo-prerender" style="${SEO_BODY_STYLE}">` +
@@ -1540,8 +1561,9 @@ function renderShortlistHtml(indexHtml: string, sl: Shortlist, projects: SeoProj
   const th = (t: string) => `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${t}</th>`;
   const td = (t: string) => `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(t || '—')}</td>`;
   const table = picks.length ? `<table style="border-collapse:collapse;width:100%;margin:12px 0"><thead><tr>` +
-    (zh ? [th('楼盘'), th('地区'), th('地契'), th('起价'), th('建筑面积'), th('房间'), th('完工')] : [th('Project'), th('Area'), th('Tenure'), th('From'), th('Built-up'), th('Beds'), th('Completion')]).join('') +
+    (zh ? [th(''), th('楼盘'), th('地区'), th('地契'), th('起价'), th('建筑面积'), th('房间'), th('完工')] : [th(''), th('Project'), th('Area'), th('Tenure'), th('From'), th('Built-up'), th('Beds'), th('Completion')]).join('') +
     `</tr></thead><tbody>` + picks.map(p => `<tr>` +
+      `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${thumbHtml(p, 72)}</td>` +
       `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><a href="${langPrefix(lang)}/project/${escHtml(p.slug)}">${escHtml(p.name)}</a></td>` +
       td(primaryArea(p)) + td(p.tenure) + td(p.priceMin ? fmtRM(p.priceMin) : '') +
       td(p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} sq ft` : '') +
@@ -1682,13 +1704,14 @@ function renderIndexHtml(indexHtml: string, g: IndexGroup, all: IndexGroup[], la
   const th = (t: string) => `<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #e7e5e4">${t}</th>`;
   const td = (t: string) => `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${escHtml(t || '—')}</td>`;
   const heads = g.kind === 'near'
-    ? (zh ? ['距离', '楼盘', '地区', '地契', '起价', '面积', '完工'] : ['Distance', 'Project', 'Area', 'Tenure', 'From', 'Built-up', 'Completion'])
-    : (zh ? ['楼盘', '地区', '地契', '起价', '面积', '完工'] : ['Project', 'Area', 'Tenure', 'From', 'Built-up', 'Completion']);
+    ? (zh ? ['距离', '', '楼盘', '地区', '地契', '起价', '面积', '完工'] : ['Distance', '', 'Project', 'Area', 'Tenure', 'From', 'Built-up', 'Completion'])
+    : (zh ? ['', '楼盘', '地区', '地契', '起价', '面积', '完工'] : ['', 'Project', 'Area', 'Tenure', 'From', 'Built-up', 'Completion']);
   const rows = g.items
     .slice()
     .sort((a, b) => g.kind === 'near' ? (a.km! - b.km!) : ((a.p.priceMin || Infinity) - (b.p.priceMin || Infinity)))
     .map(({ p, km }) => `<tr>`
       + (g.kind === 'near' ? `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><strong>${km! < 1 ? `${Math.round(km! * 1000)} ${zh ? '米' : 'm'}` : `${km!.toFixed(1)} ${zh ? '公里' : 'km'}`}</strong></td>` : '')
+      + `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4">${thumbHtml(p, 72)}</td>`
       + `<td style="padding:6px 8px;border-bottom:1px solid #f5f5f4"><a href="${langPrefix(lang)}/project/${escHtml(p.slug)}">${escHtml(p.name)}</a></td>`
       + td(primaryArea(p)) + td(zh ? zhTenureLabel(p.tenure) : p.tenure) + td(p.priceMin ? fmtRM(p.priceMin) : '')
       + td(p.builtUpMin ? `${fmtNum(p.builtUpMin)}-${fmtNum(p.builtUpMax || p.builtUpMin)} ${zh ? '平方尺' : 'sq ft'}` : '')
