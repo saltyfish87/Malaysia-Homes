@@ -713,7 +713,7 @@ function renderProjectHtml(indexHtml: string, p: SeoProject, lang: Lang = 'en'):
       'email': AGENT.email,
       'url': `${SITE_URL}/`,
       'areaServed': ['Kuala Lumpur', 'Selangor', 'Johor', 'Penang'],
-      'sameAs': ['https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
+      'sameAs': ['https://maps.google.com/?cid=3195643739952877602', 'https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
       'parentOrganization': { '@type': 'Organization', 'name': AGENT.company },
       'address': { '@type': 'PostalAddress', 'addressLocality': 'Kuala Lumpur', 'addressCountry': 'MY' }
     },
@@ -892,7 +892,7 @@ function baseGraph(): any[] {
       '@type': 'RealEstateAgent', '@id': `${SITE_URL}/#agent`, 'name': AGENT.name, 'alternateName': 'Malaysia Homes | propertyportal.my',
       'identifier': AGENT.ren, 'telephone': AGENT.telephone, 'email': AGENT.email, 'url': `${SITE_URL}/`,
       'areaServed': ['Kuala Lumpur', 'Selangor', 'Johor', 'Penang'],
-      'sameAs': ['https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
+      'sameAs': ['https://maps.google.com/?cid=3195643739952877602', 'https://www.youtube.com/@shyanyee', 'https://www.instagram.com/shyanyee/', 'https://www.facebook.com/shyanyeeconsultant/', 'https://wa.me/60108278932'],
       'parentOrganization': { '@type': 'Organization', 'name': AGENT.company },
       'address': { '@type': 'PostalAddress', 'addressLocality': 'Kuala Lumpur', 'addressCountry': 'MY' }
     }
